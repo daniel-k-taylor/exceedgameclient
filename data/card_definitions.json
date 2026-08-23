@@ -21690,8 +21690,20 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "minato_hellraiser",
-					"override_description": "Each player discards the top 4 cards of their deck. Return up to 2 cards from your sealed area to your hand."
+					"effect_type": "discard_topdeck",
+					"amount": 4,
+					"and": {
+						"effect_type": "discard_opponent_topdeck",
+						"amount": 4,
+						"and": {
+							"effect_type": "choose_discard",
+							"source": "sealed",
+							"destination": "hand",
+							"amount": 2,
+							"amount_min": 0,
+							"limitation": ""
+						}
+					}
 				}
 			]
 		}

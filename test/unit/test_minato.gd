@@ -640,3 +640,67 @@ func test_cabstand_before_effect_can_spend_no_force():
 	validate_has_event(events, Enums.EventType.EventType_Strike_Miss, player1)
 	validate_life(player1, 26, player2, 30)
 	validate_positions(player1, 8, player2, 6)
+
+# ===== Hellraiser (Hellward Bound boost) =====
+# Composed entirely from generic effects: discard_topdeck(4) ->
+# discard_opponent_topdeck(4) -> choose_discard from sealed to hand.
+
+func test_hellraiser_discards_top_four_from_both_decks():
+	var hb_id = give_player_specific_card(player1, "minato_hellward_bound")
+	var p1_deck_before = player1.deck.size()
+	var p2_deck_before = player2.deck.size()
+	var p1_discards_before = player1.discards.size()
+	var p2_discards_before = player2.discards.size()
+
+	assert_true(game_logic.do_boost(player1, hb_id, []))
+
+	# Boosting also ends the turn, which draws a card and puts the spent boost
+	# into the discard pile, hence the extra one on each of Minato's counts.
+	assert_eq(player1.deck.size(), p1_deck_before - 5)
+	assert_eq(player2.deck.size(), p2_deck_before - 4)
+	assert_eq(player1.discards.size(), p1_discards_before + 5)
+	assert_eq(player2.discards.size(), p2_discards_before + 4)
+	# No sealed cards, so the return step is skipped entirely.
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_hellraiser_returns_up_to_two_sealed_cards_to_hand():
+	var sealed_a = spawn_card_to_zone(player1, "standard_normal_grasp", "sealed")
+	var sealed_b = spawn_card_to_zone(player1, "standard_normal_dive", "sealed")
+	spawn_card_to_zone(player1, "standard_normal_cross", "sealed")
+	var hb_id = give_player_specific_card(player1, "minato_hellward_bound")
+
+	assert_true(game_logic.do_boost(player1, hb_id, []))
+
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromDiscard)
+	assert_eq(game_logic.decision_info.source, "sealed")
+	assert_eq(game_logic.decision_info.destination, "hand")
+	assert_eq(game_logic.decision_info.amount, 2)
+	assert_eq(game_logic.decision_info.amount_min, 0, "returning sealed cards is optional")
+
+	assert_true(game_logic.do_choose_from_discard(player1, [sealed_a, sealed_b]))
+	assert_true(player1.is_card_in_hand(sealed_a))
+	assert_true(player1.is_card_in_hand(sealed_b))
+	assert_eq(player1.sealed.size(), 1)
+
+func test_hellraiser_sealed_return_can_be_declined():
+	spawn_card_to_zone(player1, "standard_normal_grasp", "sealed")
+	var hb_id = give_player_specific_card(player1, "minato_hellward_bound")
+
+	assert_true(game_logic.do_boost(player1, hb_id, []))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+
+	assert_true(game_logic.do_choose_from_discard(player1, []))
+	assert_eq(player1.sealed.size(), 1, "declining leaves the sealed card alone")
+
+func test_hellraiser_handles_a_deck_shorter_than_four_cards():
+	var hb_id = give_player_specific_card(player1, "minato_hellward_bound")
+	while player1.deck.size() > 2:
+		player1.deck.remove_at(player1.deck.size() - 1)
+	var reshuffles_before = player1.reshuffle_remaining
+
+	assert_true(game_logic.do_boost(player1, hb_id, []))
+
+	# Running the deck out mid-effect must reshuffle rather than error out.
+	assert_lt(player1.reshuffle_remaining, reshuffles_before)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)

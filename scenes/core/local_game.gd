@@ -2155,6 +2155,13 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 func wait_for_mid_strike_boost():
 	return game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_BoostNow
 
+# Optional "amount" for the topdeck discard effects. Defaults to a single card
+# so the many existing uses that omit it are unchanged.
+func _topdeck_discard_amount(performing_player : Player, effect) -> int:
+	if not ('amount' in effect):
+		return 1
+	return max(performing_player.resolve_effect_amount(effect), 0)
+
 func handle_strike_effect(card_id : int, effect, performing_player : Player):
 	printlog("STRIKE: Handling effect %s" % [effect])
 	if 'for_other_player' in effect:
@@ -3145,9 +3152,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		StrikeEffects.DiscardStrikeAfterCleanup:
 			performing_player.strike_stat_boosts.discard_attack_on_cleanup = true
 		StrikeEffects.DiscardOpponentTopdeck:
-			opposing_player.discard_topdeck()
+			for _i in range(_topdeck_discard_amount(performing_player, effect)):
+				opposing_player.discard_topdeck()
 		StrikeEffects.DiscardTopdeck:
-			performing_player.discard_topdeck()
+			for _i in range(_topdeck_discard_amount(performing_player, effect)):
+				performing_player.discard_topdeck()
 		StrikeEffects.DrawOrDiscardTo:
 			handle_player_draw_or_discard_to_effect(performing_player, card_id, effect)
 		StrikeEffects.DrawForCardInGauge:
@@ -6904,13 +6913,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				handle_strike_effect(-1, minato_omr_effect, performing_player)
 			else:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "One More Ride did not trigger: no cards in the sealed area.")
-		"minato_hellraiser":
-			for _i in range(4):
-				performing_player.discard_topdeck()
-				opposing_player.discard_topdeck()
-			if performing_player.sealed.size() > 0:
-				do_effect_if_condition_met(performing_player, card_id, {"effect_type": StrikeEffects.ChooseDiscard, "source": "sealed", "destination": "hand", "amount": 2, "amount_min": 0, "limitation": ""}, null)
-
 		"umina_place_hand_to_dreamlands":
 			# Action: put a card from hand into Dreamlands (set_aside).
 			if performing_player.exceeded:

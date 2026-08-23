@@ -56,7 +56,6 @@ const KNOWN_UNWRITTEN_EFFECTS = [
 	"may_generate_gauge_with_force",
 	"may_ignore_movement_limit",
 	"may_invalidate_ultras",
-	"minato_hellraiser",
 	"minato_one_more_ride",
 	"move_any_boost",
 	"move_to_lightningrods",

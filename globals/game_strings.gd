@@ -895,10 +895,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.DiscardOpponentGauge:
 			effect_str += "Discard a card from opponent's gauge."
 		StrikeEffects.DiscardOpponentTopdeck:
-			effect_str += "Discard a card from the top of the opponent's deck"
+			if 'amount' in effect and str(effect['amount']) != "1":
+				effect_str += "Discard the top %s cards of the opponent's deck" % effect['amount']
+			else:
+				effect_str += "Discard a card from the top of the opponent's deck"
 		StrikeEffects.DiscardTopdeck:
 			if 'card_name' in effect:
 				effect_str += "Discard [color=%s]%s[/color] from the top of your deck" % [CardHighlightColor, effect['card_name']]
+			elif 'amount' in effect and str(effect['amount']) != "1":
+				effect_str += "Discard the top %s cards of your deck" % effect['amount']
 			else:
 				effect_str += "Discard a card from the top of your deck"
 		StrikeEffects.DiscardRandom:
