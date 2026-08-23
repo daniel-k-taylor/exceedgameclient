@@ -189,3 +189,22 @@ func test_grasp_pull_edge_arena_end():
 
 
 
+
+func test_strike_does_not_draw_at_end_of_turn():
+	var initiator = game_logic.player
+	var defender = game_logic.opponent
+	var starting_hand = initiator.hand.size()
+	give_specific_cards(initiator, "gg_normal_grasp", defender, "gg_normal_grasp")
+	position_players(initiator, 3, defender, 4)
+	do_and_validate_strike(initiator, TestCardId1)
+	var events = do_strike_response(defender, TestCardId2)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	validate_has_event(events, Enums.EventType.EventType_Strike_EffectChoice, initiator)
+	assert_true(game_logic.do_choice(initiator, 0))
+	events = game_logic.get_latest_events()
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, defender.my_id)
+	assert_eq(initiator.hand.size(), starting_hand)
+	for event in events:
+		assert_ne(event['event_type'], Enums.EventType.EventType_Draw)
+		assert_ne(event['event_type'], Enums.EventType.EventType_HandSizeExceeded)

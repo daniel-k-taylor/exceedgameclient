@@ -20,6 +20,12 @@ var show_list_state : ShowListState = ShowListState.ShowListState_None
 func _ready():
 	NetworkManager.connect("players_update", _on_players_update)
 	NetworkManager.connect("customs_update", _on_customs_update)
+	if not table.title_action_pressed.is_connected(_on_table_title_action_pressed):
+		table.title_action_pressed.connect(_on_table_title_action_pressed)
+
+func _on_table_title_action_pressed():
+	# Lobby "Refresh" button: ask the server for a fresh snapshot on demand.
+	NetworkManager.request_players_update()
 
 func _on_players_update(_players, _matches, _queues, _newly_available_match):
 	if visible:
@@ -132,17 +138,20 @@ func update_table(data : Dictionary):
 func show_player_list():
 	show_list_state = ShowListState.ShowListState_Players
 	update_players()
+	table.set_title_action("Refresh")
 	visible = true
 
 func show_match_list():
 	show_list_state = ShowListState.ShowListState_Matches
 	update_matches()
+	table.set_title_action("Refresh")
 	visible = true
 
 func show_customs_list():
 	NetworkManager.get_customs()
 	show_list_state = ShowListState.ShowListState_Customs
 	update_customs()
+	table.set_title_action("")
 	visible = true
 
 

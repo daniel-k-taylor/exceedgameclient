@@ -73,6 +73,13 @@ func _ready():
 func set_text(text):
 	log_text.text = text
 
+func append_text(text : String):
+	if text.is_empty():
+		return
+	if not log_text.text.is_empty():
+		log_text.append_text("\n")
+	log_text.append_text(text)
+
 func get_filters():
 	var filters = []
 	for log_type in log_filter_toggles:

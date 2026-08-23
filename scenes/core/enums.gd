@@ -188,6 +188,7 @@ enum EventType {
 	EventType_Strike_WildStrike,
 	EventType_SustainBoost,
 	EventType_SwapSealedAndDeck,
+	EventType_SwapDeckAndDiscard,
 	EventType_Transform_Added
 }
 

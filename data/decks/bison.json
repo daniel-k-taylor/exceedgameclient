@@ -2,6 +2,7 @@
 	"id": "bison",
 	"season": 3,
 	"display_name": "M. Bison",
+	"ai_skip_character_action_above_gauge": 3,
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "gauge_from_hand",

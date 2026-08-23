@@ -26,6 +26,7 @@ signal close_character_select
 @onready var season_button_s8 = $TabSelect/CategoriesHBox/Season8
 
 var default_char_id : String = "random"
+var default_skin_index : int = 0
 
 @onready var label_font_normal = 42
 @onready var label_font_small = 32
@@ -34,7 +35,7 @@ var default_char_id : String = "random"
 func _ready():
 	show_season(charselect_s7, season_button_s7)
 
-func update_hover(char_id):
+func update_hover(char_id, skin_index : int = 0):
 	if char_id == "random_s8":
 		hover_label.text = "Random (S8)"
 		hover_portrait.texture = load("res://assets/portraits/stlogo.png")
@@ -67,17 +68,40 @@ func update_hover(char_id):
 		hover_portrait.texture = load("res://assets/portraits/exceedrandom.png")
 	else:
 		var deck = CardDataManager.get_deck_from_str_id(char_id)
-		hover_label.text = deck['display_name']
-		hover_portrait.texture = load("res://assets/portraits/" + char_id + ".png")
+		if deck:
+			hover_label.text = deck['display_name']
+			hover_portrait.texture = _load_hover_portrait(char_id, skin_index)
+		else:
+			hover_label.text = "Random (All)"
+			hover_portrait.texture = load("res://assets/portraits/exceedrandom.png")
 
 	if len(hover_label.text) <= label_length_threshold:
 		hover_label.set("theme_override_font_sizes/font_size", label_font_normal)
 	else:
 		hover_label.set("theme_override_font_sizes/font_size", label_font_small)
 
-func show_char_select(char_id : String):
+# Loads the portrait for a character, honoring the selected skin when the skin
+# manager is available. Degrades gracefully to the base character portrait when
+# the manager or the skin art is absent.
+func _load_hover_portrait(char_id : String, skin_index : int) -> Texture2D:
+	var skin_manager = get_node_or_null("/root/CharSkinManager")
+	if skin_manager:
+		var skin_deck_id = skin_manager.get_skin_deck_id(char_id, skin_index)
+		var texture = skin_manager.load_portrait_texture_for_deck_id(skin_deck_id)
+		if texture:
+			return texture
+	var portrait_path = "res://assets/portraits/" + char_id + ".png"
+	if ResourceLoader.exists(portrait_path, "Texture2D"):
+		return load(portrait_path)
+	return load("res://assets/portraits/exceedrandom.png")
+
+func show_char_select(char_id : String, skin_index : int = 0):
 	default_char_id = char_id
-	update_hover(char_id)
+	var skin_manager = get_node_or_null("/root/CharSkinManager")
+	if skin_manager and not skin_manager.is_skin_selection_enabled():
+		skin_index = 0
+	default_skin_index = skin_index
+	update_hover(char_id, skin_index)
 
 func _on_background_button_pressed():
 	close_character_select.emit()
@@ -133,4 +157,4 @@ func _on_char_hover(char_id : String, enter : bool):
 	if enter:
 		update_hover(char_id)
 	else:
-		update_hover(default_char_id)
+		update_hover(default_char_id, default_skin_index)

@@ -1,0 +1,234 @@
+{
+	"id": "pooky",
+	"season": 2,
+	"display_name": "Pooky",
+	"exceed_cost": 3,
+	"exceed_cost_reduced_by": [
+		{
+			"reduction_type": "transform_discount"
+		}
+	],
+	"replacement_boost_definition": null,
+	"exceeded_replacement_boost_definition": null,
+	"ability_effects": [
+		{
+			"timing": "during_strike",
+			"character_effect": true,
+			"dynamic": true,
+			"condition": "has_continuous_boost_attack",
+			"effect_type": "speedup",
+			"amount": 1,
+			"override_description": "Your Specials and Ultras gain: If you have a continuous boost, +1 Speed."
+		},
+		{
+			"timing": "during_strike",
+			"character_effect": true,
+			"dynamic": true,
+			"condition": "pooky_gambling_normals",
+			"effect_type": "speedup",
+			"amount": 1,
+			"hide_effect": true
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "during_strike",
+			"character_effect": true,
+			"dynamic": true,
+			"condition": "min_continuous_boosts_attack",
+			"condition_amount": 2,
+			"effect_type": "powerup",
+			"amount": 2,
+			"and": {
+				"effect_type": "armorup",
+				"amount": 1
+			},
+			"override_description": "Your Specials and Ultras gain: If you have two or more continuous boosts, +2 Power and +1 Armor."
+		},
+		{
+			"timing": "on_stunned",
+			"first_time_only": true,
+			"character_effect": true,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "draw", "amount": 1 },
+				{ "effect_type": "pass" }
+			],
+			"override_description": "Whenever you are stunned, you may draw a card."
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/k10oJQj.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/lUJU2bE.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/WCBeoio.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "pooky_hattrick",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "pooky_hattrick",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "pooky_drunkenrampage",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "pooky_drunkenrampage",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "pooky_gamblingimin",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "pooky_gamblingimin",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "pooky_snackattack",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "pooky_snackattack",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "pooky_pookycheats",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "pooky_pookycheats",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "pooky_longintooth",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "pooky_longintooth",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "pooky_pookydrinks",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "pooky_pookydrinks",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

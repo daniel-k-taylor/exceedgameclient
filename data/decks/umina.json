@@ -1,0 +1,249 @@
+{
+	"id": "umina",
+	"season": 2,
+	"display_name": "Umina",
+	"has_sealed_area": true,
+	"buddy_exceeds": true,
+	"buddy_visible_before_exceed": true,
+	"buddy_card": "umina_dreamlands",
+	"buddy_display_name": "Dreamlands",
+	"link_extra_cards_to_buddies": true,
+	"buddy_link_to_zone": "set_aside",
+	"stored_zone_info": {
+		"name": "Dreamlands",
+		"facedown": false,
+		"can_set_for_attack": true
+	},
+	"stored_zone_info_exceeded": {
+		"name": "Dreamlands",
+		"facedown": false,
+		"can_set_for_attack": true
+	},
+	"exceed_cost": 4,
+	"exceed_cost_reduced_by": [
+		{
+			"reduction_type": "transform_discount"
+		}
+	],
+	"character_action_default": [
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"action_name": "Dreamlands",
+			"effect": {
+				"effect_type": "umina_place_hand_to_dreamlands"
+			}
+		}
+	],
+	"ability_effects": [],
+	"exceed_ability_effects": [
+		{
+			"timing": "begin_turn",
+			"character_effect": true,
+			"effect_type": "umina_begin_turn_dreamlands",
+			"override_description": "At the start of each of your turns, look at the top card of your deck. Put it into your Dreamlands or discard it."
+		},
+		{
+			"timing": "set_strike",
+			"effect_type": "umina_seal_dreamlands_for_triggers",
+			"override_description": "Seal a card from your Dreamlands to add its before/hit/after effects to this attack."
+		}
+	],
+	"on_exceed": {
+		"effect_type": "umina_flip_dreamlands",
+		"hide_effect": true,
+		"and": {
+			"effect_type": "set_face_attack",
+			"card_id": "umina_dreamlands"
+		}
+	},
+	"can_boost_from_extra": false,
+	"dreamlands_config": {
+		"allow_strike": true,
+		"stun_immunity": true,
+		"pre_exceed_old_card_discard": true,
+		"exceeded_old_card_return": true
+	},
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/d9OB4J2.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/mLakrZ0.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/ORCMPBO.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		},
+		"umina_dreamlands": {
+			"url": "https://i.imgur.com/QuWqooi.jpeg",
+			"multiple_cards": false
+		},
+		"umina_dreamlands_exceeded": {
+			"url": "https://i.imgur.com/an7eDIa.jpeg",
+			"multiple_cards": false
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "umina_unknown_khadath",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "umina_unknown_khadath",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "umina_call_of_the_dreamlands",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "umina_call_of_the_dreamlands",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "umina_terror_whispers",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "umina_terror_whispers",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "umina_out_of_mind",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "umina_out_of_mind",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "umina_hollow_space",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "umina_hollow_space",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "umina_dark_thoughts",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "umina_dark_thoughts",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "umina_shadow_chorus",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "umina_shadow_chorus",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

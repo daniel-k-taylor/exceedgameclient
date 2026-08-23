@@ -1,0 +1,107 @@
+{
+	"id": "renea",
+	"season": 2,
+	"display_name": "Renea",
+	"facedown_boosts_delay_effects": true,
+	"boost_from_stored_zone_grants_action_when_exceeded": true,
+	"buddy_exceeds": true,
+	"buddy_card": "briefcase",
+	"buddy_display_name": "Briefcase",
+	"link_extra_cards_to_buddies": true,
+	"buddy_link_to_zone": "set_aside",
+	"stored_zone_info": {
+		"name": "Briefcase",
+		"facedown": true
+	},
+	"stored_zone_info_exceeded": {
+		"name": "Briefcase",
+		"facedown": false
+	},
+	"can_boost_from_extra": true,
+	"exceed_cost": 5,
+	"exceed_cost_reduced_by": [
+		{
+			"reduction_type": "transform_discount"
+		}
+	],
+	"ability_effects": [
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "during_strike",
+			"character_effect": true,
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "hit",
+				"effect_type": "renea_briefcase_hit",
+				"override_description": "Hit: put the bottom card of the opponent's discard pile with a Boost into your Briefcase."
+			}
+		}
+	],
+	"on_exceed": {
+		"effect_type": "renea_on_exceed",
+		"hide_effect": true
+	},
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/MQEQXEo.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/XhyBxSn.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/fE0tYUI.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		},
+		"briefcase": {
+			"url": "https://i.imgur.com/tXxcPcU.jpeg",
+			"multiple_cards": false
+		},
+		"briefcase_exceeded": {
+			"url": "https://i.imgur.com/tXxcPcU.jpeg",
+			"multiple_cards": false
+		}
+	},
+	"cards": [
+		{ "definition_id": "renea_neutralizer", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "renea_neutralizer", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "renea_anticipation", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "renea_anticipation", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "renea_paranormal_investigation", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "renea_paranormal_investigation", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "renea_strafe_fire", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "renea_strafe_fire", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "renea_flare", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "renea_flare", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "renea_lethal_force", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "renea_lethal_force", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "renea_called_shot", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "renea_called_shot", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 }
+	]
+}

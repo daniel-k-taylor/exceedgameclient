@@ -519,3 +519,125 @@ func test_transform_attack_adds_to_transform_zone():
 	# Exceed cost drops by 2 per transform: 5 - 2 = 3.
 	assert_eq(player1.get_exceed_cost(), 3)
 	validate_life(player1, 30, player2, 26)
+
+# ===== FAQ RULINGS =====
+
+# Z1. "If I activate multiple attacks via Zsolt Exceed mode, which attack's
+#      Armor applies? A: If Zsolt executed multiple attacks, their defenses and
+#      passive effects are cumulative. So using Hunter of Men to play
+#      Assault - Focus - Block would result in (4+1) damage, (2+2) Armor, and
+#      (5+3) Guard. He would also get Block's passive spend-Force-for-Armor
+#      ability."
+# The extra attacks interpose before the opponent's slower counterattack, so
+# their accumulated Armor/Guard and Block's when-hit Force-for-Armor passive
+# protect Zsolt against that counterattack.
+func test_faq_z1_extra_attack_defenses_and_block_passive_are_cumulative():
+	position_players(player1, 4, player2, 5)
+	player1.exceeded = true
+	var focus_id = give_player_specific_card(player1, "standard_normal_focus")  # Armor 2, Guard 5
+	var block_id = give_player_specific_card(player1, "standard_normal_block")  # Armor 2, Guard 3
+	# Pay both Awakening Force costs and Block's when-hit Force-for-Armor from
+	# gauge. (Sweep's "opponent discards 1 random" only hits the hand, so paying
+	# from gauge keeps this deterministic.)
+	var gauge_ids = give_gauge(player1, 3)
+	# Main Assault (P4 S5) is faster than Sweep (P6 S2), so Assault hits first
+	# (4 dmg) and the two Awakening attacks resolve before Sweep counterattacks.
+	# Focus extra deals its capped 1 dmg -> (4 + 1) = 5 total to the opponent.
+	# Cumulative Armor = 2 (Focus) + 2 (Block) = 4, plus Block's when-hit
+	# Force-for-Armor grants +2 more -> 6 Armor. Sweep P6 - 6 Armor = 0 dmg.
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
+		false, false,
+		[[gauge_ids[0]], [focus_id], [gauge_ids[1]], [block_id], [gauge_ids[2]]],
+		[])
+	# Opponent took (4 + 1) = 5; Zsolt took 0 thanks to cumulative Armor + Block's passive.
+	validate_life(player1, 30, player2, 25)
+	assert_true(player1.is_card_in_gauge(focus_id))
+	assert_true(player1.is_card_in_gauge(block_id))
+
+# Z2. Timing of Zsolt's Exceed Mode extra attack: no Gauge cost for an Ultra;
+#     damage capped at 1; hit -> Gauge, miss -> discard; repeatable exactly twice.
+func test_faq_z2_ultra_extra_attack_is_free_and_capped_and_goes_to_gauge():
+	position_players(player1, 4, player2, 5)
+	player1.exceeded = true
+	# Fanatical Purification is an Ultra (Gauge cost 3). As an Awakening attack
+	# its cost is skipped entirely, and its damage is capped at 1.
+	var ultra_extra = give_player_specific_card(player1, "zsolt_fanatical_purification")
+	var gauge_ids = give_gauge(player1, 1)  # only enough Force to trigger the awakening, NOT to pay 3 Gauge
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_dive",
+		false, false,
+		[[gauge_ids[0]], [ultra_extra], []],  # awaken1: pay 1 Force, play the Ultra; decline awaken2
+		[])
+	# Assault dealt 4; the Ultra Awakening attack dealt only its capped 1: 30-5=25.
+	validate_life(player1, 30, player2, 25)
+	# It hit, so it went to Gauge (the single spent Force gauge card is now gone,
+	# replaced by the ultra card in gauge).
+	assert_true(player1.is_card_in_gauge(ultra_extra),
+			"a hitting Awakening attack is added to Gauge")
+
+func test_faq_z2_missed_extra_attack_is_discarded():
+	position_players(player1, 2, player2, 5)
+	player1.exceeded = true
+	# Grasp (R1) as the Awakening attack; at range 3 it misses and has no
+	# self-to-gauge effect, so it must be discarded.
+	var missing_extra = give_player_specific_card(player1, "standard_normal_grasp")
+	var gauge_ids = give_gauge(player1, 1)
+	# Fatal Eye R1-3 P1 S7 hits Dive (out of range). Main hit -> awakening offered.
+	execute_strike(player1, player2, "zsolt_fatal_eye", "standard_normal_dive",
+		false, false,
+		[[gauge_ids[0]], [missing_extra]],  # awaken1: play Grasp (will miss)
+		[])
+	# Fatal Eye dealt 1 (P1, no transforms); Grasp missed at range 3 -> no damage.
+	validate_life(player1, 30, player2, 29)
+	assert_true(player1.is_card_in_discards(missing_extra),
+			"a missed Awakening attack is discarded, not added to Gauge")
+	assert_false(player1.is_card_in_gauge(missing_extra))
+
+# Z3. "If both of Zsolt's 'Pay 1 Force' Transformations are in play, will paying
+#      1 Force grant both of their bonuses? A: No, they must each be paid for
+#      separately."
+# Mad Dog (+1 Power per Force) and Press the Attack (+1 Speed per Force) each
+# present their own set_strike Force-for-Effect decision. Paying Force for one
+# does not pay for the other.
+func test_faq_z3_two_pay_one_force_transforms_are_paid_separately():
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "zsolt_blaze_of_fervour")  # Mad Dog: pay 1F -> +1 Power
+	add_transform(player1, "zsolt_whip_crack")         # Press the Attack: pay 1F -> +1 Speed
+	var force1 = give_player_specific_card(player1, "standard_normal_grasp")
+	var force2 = give_player_specific_card(player1, "standard_normal_focus")
+	# Both transforms trigger on an initiated strike. To get BOTH bonuses the
+	# player must pay Force twice (once per transform).
+	execute_strike(player1, player2, "standard_normal_cross", "standard_normal_dive",
+		false, false,
+		[[force1], [force2], 2],  # pay Force for each transform separately; normal passive: pass
+		[])
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_PowerUp, player1)
+	validate_has_event(events, Enums.EventType.EventType_Strike_SpeedUp, player1)
+	# Both force cards were spent (one per transform), proving separate payment.
+	assert_true(player1.is_card_in_discards(force1))
+	assert_true(player1.is_card_in_discards(force2))
+
+func test_faq_z3_paying_one_force_grants_only_one_transform_bonus():
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "zsolt_blaze_of_fervour")  # Mad Dog: pay 1F -> +1 Power
+	add_transform(player1, "zsolt_whip_crack")         # Press the Attack: pay 1F -> +1 Speed
+	var force1 = give_player_specific_card(player1, "standard_normal_grasp")
+	# Pay Force for the first transform's decision only; decline the second.
+	# Only one bonus is granted, proving a single Force does not cover both.
+	execute_strike(player1, player2, "standard_normal_cross", "standard_normal_dive",
+		false, false,
+		[[force1], [], 2],  # first transform: pay; second transform: decline; passive: pass
+		[])
+	var events = game_logic.get_latest_events()
+	var powerups = 0
+	var speedups = 0
+	for event in events:
+		if event['event_type'] == Enums.EventType.EventType_Strike_PowerUp and event['event_player'] == player1.my_id:
+			powerups += 1
+		if event['event_type'] == Enums.EventType.EventType_Strike_SpeedUp and event['event_player'] == player1.my_id:
+			speedups += 1
+	assert_eq(powerups + speedups, 1, "only one transform's bonus is granted for a single Force")
+	assert_true(player1.is_card_in_discards(force1))
+
+
+

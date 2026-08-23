@@ -291,3 +291,25 @@ func test_beheaded_phaser_no_damage():
 	assert_true(player1.is_card_in_continuous_boosts(trait_id))
 	assert_false(player1.exceeded)
 	advance_turn(player1)
+
+func test_beheaded_diveattack_vs_grasp_no_end_turn_draw_on_revert():
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 2)
+	var trait_id = -1
+	for card in player1.set_aside_cards:
+		if card.definition['id'] == "beheaded_trait_tactics":
+			trait_id = card.id
+			break
+
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	assert_true(game_logic.do_boost(player1, trait_id, []))
+	advance_turn(player2)
+
+	var events = execute_strike(player1, player2, "beheaded_diveattack", "gg_normal_grasp", [], [], false, false)
+	validate_has_event(events, Enums.EventType.EventType_ExceedRevert, player1)
+	for event in events:
+		if event['event_type'] == Enums.EventType.EventType_Draw:
+			fail_test("Unexpected draw event during beheaded revert strike: %s" % str(event))
+	validate_positions(player1, 6, player2, 8)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player2)

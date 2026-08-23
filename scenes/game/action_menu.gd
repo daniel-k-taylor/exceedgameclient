@@ -18,6 +18,7 @@ var showing = true
 var number_panel_current_number : int = 0
 var number_panel_max : int = 0
 var number_panel_min : int = 0
+var number_picker_step : int = 1
 
 func set_choices(instructions_text : String,
 		choices : Array,
@@ -26,12 +27,15 @@ func set_choices(instructions_text : String,
 		number_picker_max : int,
 		ex_discard_order_toggle : bool,
 		free_force_toggle : bool,
-		no_number_picker_update : bool):
+		no_number_picker_update : bool,
+		columns_override : int = -1):
 	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.visible = ultra_force_toggle
 	$OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck.visible = ex_discard_order_toggle
 	$OuterMargin/MainVBox/CheckHBox3/FreeForceOptionCheck.visible = free_force_toggle
 	var col_count = 1
-	if choices.size() > 5:
+	if columns_override > 0:
+		col_count = columns_override
+	elif choices.size() > 5:
 		col_count = 3
 	elif choices.size() > 3:
 		col_count = 2
@@ -100,11 +104,11 @@ func _on_number_picker_update():
 	number_picker_updated.emit(number_panel_current_number)
 
 func _on_minus_button_pressed():
-	number_panel_current_number -= 1
+	number_panel_current_number -= number_picker_step
 	_on_number_picker_update()
 
 func _on_plus_button_pressed():
-	number_panel_current_number += 1
+	number_panel_current_number += number_picker_step
 	_on_number_picker_update()
 
 func _on_ex_discard_order_check_toggled(button_pressed):

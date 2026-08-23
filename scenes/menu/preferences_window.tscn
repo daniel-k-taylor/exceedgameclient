@@ -1,90 +1,355 @@
-[gd_scene load_steps=2 format=3 uid="uid://dx5u3h8ppeab0"]
+[gd_scene load_steps=5 format=3 uid="uid://dx5u3h8ppeab0"]
 
 [ext_resource type="Script" uid="uid://bvm0bgcwmfdpn" path="res://scenes/menu/preferences_window.gd" id="1_ttn5r"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.043137, 0.152941, 0.152941, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.180392, 0.478431, 0.470588, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_section"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.070588, 0.243137, 0.239216, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.152941, 0.415686, 0.407843, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rule"]
+bg_color = Color(0.180392, 0.478431, 0.470588, 1)
 
 [node name="PreferencesWindow" type="PopupPanel"]
 title = "Settings"
 initial_position = 1
-size = Vector2i(537, 618)
+size = Vector2i(1040, 660)
 visible = true
 borderless = false
+theme_override_styles/panel = SubResource("StyleBoxFlat_window")
 script = ExtResource("1_ttn5r")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 533.0
-offset_bottom = 614.0
-color = Color(4.21144e-07, 0.300865, 0.300865, 1)
+[node name="Root" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 533.0
-offset_bottom = 614.0
-
-[node name="BGMCheckbutton" type="CheckButton" parent="VBoxContainer"]
+[node name="Main" type="VBoxContainer" parent="Root"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
-button_pressed = true
-text = "Main menu background music"
+theme_override_constants/separation = 12
 
-[node name="GameSoundsCheckbutton" type="CheckButton" parent="VBoxContainer"]
+[node name="Scroll" type="ScrollContainer" parent="Root/Main"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Columns" type="HBoxContainer" parent="Root/Main/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 16
+
+[node name="LeftColumn" type="VBoxContainer" parent="Root/Main/Scroll/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="AudioSection" type="PanelContainer" parent="Root/Main/Scroll/Columns/LeftColumn"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="Margin" type="MarginContainer" parent="Root/Main/Scroll/Columns/LeftColumn/AudioSection"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Items" type="VBoxContainer" parent="Root/Main/Scroll/Columns/LeftColumn/AudioSection/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="Label" parent="Root/Main/Scroll/Columns/LeftColumn/AudioSection/Margin/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.545098, 0.870588, 0.847059, 1)
+theme_override_font_sizes/font_size = 24
+text = "Audio"
+
+[node name="BGMCheckbutton" type="CheckButton" parent="Root/Main/Scroll/Columns/LeftColumn/AudioSection/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
 button_pressed = true
+alignment = 0
+text = "Main menu music"
+
+[node name="GameSoundsCheckbutton" type="CheckButton" parent="Root/Main/Scroll/Columns/LeftColumn/AudioSection/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+button_pressed = true
+alignment = 0
 text = "Game turn sounds"
 
-[node name="ReplayShowOpponentHandButton" type="CheckButton" parent="VBoxContainer"]
+[node name="GameplaySection" type="PanelContainer" parent="Root/Main/Scroll/Columns/LeftColumn"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="Margin" type="MarginContainer" parent="Root/Main/Scroll/Columns/LeftColumn/GameplaySection"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Items" type="VBoxContainer" parent="Root/Main/Scroll/Columns/LeftColumn/GameplaySection/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="Label" parent="Root/Main/Scroll/Columns/LeftColumn/GameplaySection/Margin/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.545098, 0.870588, 0.847059, 1)
+theme_override_font_sizes/font_size = 24
+text = "Gameplay"
+
+[node name="ActionConfirmationButton" type="CheckButton" parent="Root/Main/Scroll/Columns/LeftColumn/GameplaySection/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+alignment = 0
+text = "Confirm before taking actions"
+
+[node name="TrueRandomSelectCheckbox" type="CheckButton" parent="Root/Main/Scroll/Columns/LeftColumn/GameplaySection/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+alignment = 0
+text = "True random character select"
+
+[node name="ReplayShowOpponentHandButton" type="CheckButton" parent="Root/Main/Scroll/Columns/LeftColumn/GameplaySection/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
 button_pressed = true
+alignment = 0
 text = "Replays show opponent hand"
 
-[node name="TrueRandomSelectCheckbox" type="CheckButton" parent="VBoxContainer"]
+[node name="AISection" type="PanelContainer" parent="Root/Main/Scroll/Columns/LeftColumn"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
-text = "True random char select"
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
 
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+[node name="Margin" type="MarginContainer" parent="Root/Main/Scroll/Columns/LeftColumn/AISection"]
 layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
 
-[node name="RoomSettingsLabel" type="Label" parent="VBoxContainer"]
+[node name="Items" type="VBoxContainer" parent="Root/Main/Scroll/Columns/LeftColumn/AISection/Margin"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme_override_constants/separation = 6
+
+[node name="Header" type="Label" parent="Root/Main/Scroll/Columns/LeftColumn/AISection/Margin/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.545098, 0.870588, 0.847059, 1)
+theme_override_font_sizes/font_size = 24
+text = "AI Games"
+
+[node name="AIFirstPlayerCheckbutton" type="CheckButton" parent="Root/Main/Scroll/Columns/LeftColumn/AISection/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+alignment = 0
+text = "Randomize first player"
+
+[node name="AIModeRow" type="HBoxContainer" parent="Root/Main/Scroll/Columns/LeftColumn/AISection/Margin/Items"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AIModeLabel" type="Label" parent="Root/Main/Scroll/Columns/LeftColumn/AISection/Margin/Items/AIModeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 20
+text = "Difficulty"
+
+[node name="AIModeSelection" type="OptionButton" parent="Root/Main/Scroll/Columns/LeftColumn/AISection/Margin/Items/AIModeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+fit_to_longest_item = false
+
+[node name="RightColumn" type="VBoxContainer" parent="Root/Main/Scroll/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="AppearanceSection" type="PanelContainer" parent="Root/Main/Scroll/Columns/RightColumn"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="Margin" type="MarginContainer" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Items" type="VBoxContainer" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="Label" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.545098, 0.870588, 0.847059, 1)
+theme_override_font_sizes/font_size = 24
+text = "Appearance"
+
+[node name="ArenaStyleRow" type="HBoxContainer" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ArenaStyleLabel" type="Label" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items/ArenaStyleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Arena background"
+
+[node name="ArenaStyleSelection" type="OptionButton" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items/ArenaStyleRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+fit_to_longest_item = false
+
+[node name="MenuBackgroundRow" type="HBoxContainer" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MenuBackgroundLabel" type="Label" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items/MenuBackgroundRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Main menu background"
+
+[node name="MenuBackgroundSelection" type="OptionButton" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items/MenuBackgroundRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+fit_to_longest_item = false
+
+[node name="FullscreenButton" type="Button" parent="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Toggle Fullscreen"
+
+[node name="RoomSection" type="PanelContainer" parent="Root/Main/Scroll/Columns/RightColumn"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="Margin" type="MarginContainer" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Items" type="VBoxContainer" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="Label" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.545098, 0.870588, 0.847059, 1)
+theme_override_font_sizes/font_size = 24
 text = "Custom Room Creation"
 
-[node name="EnforceTimerCheckbutton" type="CheckButton" parent="VBoxContainer"]
+[node name="EnforceTimerCheckbutton" type="CheckButton" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 20
 button_pressed = true
+alignment = 0
 text = "Enforce timers with game loss"
 
-[node name="StartingTimersLabel" type="Label" parent="VBoxContainer"]
+[node name="StartingTimersRow" type="HBoxContainer" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Starting timers:"
+theme_override_constants/separation = 10
 
-[node name="StartingTimersSelection" type="OptionButton" parent="VBoxContainer"]
+[node name="StartingTimersLabel" type="Label" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/StartingTimersRow"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Starting timers"
 
-[node name="MinTimePerChoiceLabel" type="Label" parent="VBoxContainer"]
+[node name="StartingTimersSelection" type="OptionButton" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/StartingTimersRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Minimum time to make each choice"
+theme_override_font_sizes/font_size = 18
+fit_to_longest_item = false
 
-[node name="MinimumTimeSelection" type="OptionButton" parent="VBoxContainer"]
+[node name="MinimumTimeRow" type="HBoxContainer" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="BestOfLabel" type="Label" parent="VBoxContainer"]
+[node name="MinTimePerChoiceLabel" type="Label" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/MinimumTimeRow"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Best Of:"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Minimum time per choice"
 
-[node name="BestOfSelection" type="OptionButton" parent="VBoxContainer"]
+[node name="MinimumTimeSelection" type="OptionButton" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/MinimumTimeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
+fit_to_longest_item = false
+
+[node name="BestOfRow" type="HBoxContainer" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BestOfLabel" type="Label" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/BestOfRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Best of"
+
+[node name="BestOfSelection" type="OptionButton" parent="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/BestOfRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
 disabled = true
 selected = 0
+fit_to_longest_item = false
 item_count = 5
 popup/item_0/text = "1"
 popup/item_0/id = 1
@@ -97,24 +362,34 @@ popup/item_3/id = 7
 popup/item_4/text = "∞"
 popup/item_4/id = 4
 
-[node name="HSeparator2" type="HSeparator" parent="VBoxContainer"]
+[node name="FooterRule" type="HSeparator" parent="Root/Main"]
+custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
+theme_override_constants/separation = 2
+theme_override_styles/separator = SubResource("StyleBoxFlat_rule")
 
-[node name="AILabel" type="Label" parent="VBoxContainer"]
+[node name="Footer" type="HBoxContainer" parent="Root/Main"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "AI games"
+alignment = 2
 
-[node name="AIFirstPlayerCheckbutton" type="CheckButton" parent="VBoxContainer"]
+[node name="CloseButton" type="Button" parent="Root/Main/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Randomize first player vs AI"
+theme_override_font_sizes/font_size = 22
+text = "Close"
 
-[connection signal="toggled" from="VBoxContainer/BGMCheckbutton" to="." method="_on_bgm_check_box_toggled"]
-[connection signal="toggled" from="VBoxContainer/GameSoundsCheckbutton" to="." method="_on_game_sounds_check_box_toggled"]
-[connection signal="toggled" from="VBoxContainer/ReplayShowOpponentHandButton" to="." method="_on_replay_show_opponent_hand_button_toggled"]
-[connection signal="toggled" from="VBoxContainer/TrueRandomSelectCheckbox" to="." method="_on_true_random_select_checkbox_toggled"]
-[connection signal="toggled" from="VBoxContainer/EnforceTimerCheckbutton" to="." method="_on_enforce_timer_check_box_toggled"]
-[connection signal="item_selected" from="VBoxContainer/StartingTimersSelection" to="." method="_on_starting_timers_selection_item_selected"]
-[connection signal="item_selected" from="VBoxContainer/MinimumTimeSelection" to="." method="_on_minimum_time_selection_item_selected"]
-[connection signal="toggled" from="VBoxContainer/AIFirstPlayerCheckbutton" to="." method="_on_ai_first_player_checkbutton_toggled"]
+[connection signal="toggled" from="Root/Main/Scroll/Columns/LeftColumn/AudioSection/Margin/Items/BGMCheckbutton" to="." method="_on_bgm_check_box_toggled"]
+[connection signal="toggled" from="Root/Main/Scroll/Columns/LeftColumn/AudioSection/Margin/Items/GameSoundsCheckbutton" to="." method="_on_game_sounds_check_box_toggled"]
+[connection signal="toggled" from="Root/Main/Scroll/Columns/LeftColumn/GameplaySection/Margin/Items/ActionConfirmationButton" to="." method="_on_action_confirmation_button_toggled"]
+[connection signal="toggled" from="Root/Main/Scroll/Columns/LeftColumn/GameplaySection/Margin/Items/TrueRandomSelectCheckbox" to="." method="_on_true_random_select_checkbox_toggled"]
+[connection signal="toggled" from="Root/Main/Scroll/Columns/LeftColumn/GameplaySection/Margin/Items/ReplayShowOpponentHandButton" to="." method="_on_replay_show_opponent_hand_button_toggled"]
+[connection signal="toggled" from="Root/Main/Scroll/Columns/LeftColumn/AISection/Margin/Items/AIFirstPlayerCheckbutton" to="." method="_on_ai_first_player_checkbutton_toggled"]
+[connection signal="item_selected" from="Root/Main/Scroll/Columns/LeftColumn/AISection/Margin/Items/AIModeRow/AIModeSelection" to="." method="_on_ai_mode_selection_item_selected"]
+[connection signal="item_selected" from="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items/ArenaStyleRow/ArenaStyleSelection" to="." method="_on_arena_style_selection_item_selected"]
+[connection signal="item_selected" from="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items/MenuBackgroundRow/MenuBackgroundSelection" to="." method="_on_menu_background_selection_item_selected"]
+[connection signal="pressed" from="Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items/FullscreenButton" to="." method="_on_fullscreen_button_pressed"]
+[connection signal="toggled" from="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/EnforceTimerCheckbutton" to="." method="_on_enforce_timer_check_box_toggled"]
+[connection signal="item_selected" from="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/StartingTimersRow/StartingTimersSelection" to="." method="_on_starting_timers_selection_item_selected"]
+[connection signal="item_selected" from="Root/Main/Scroll/Columns/RightColumn/RoomSection/Margin/Items/MinimumTimeRow/MinimumTimeSelection" to="." method="_on_minimum_time_selection_item_selected"]
+[connection signal="pressed" from="Root/Main/Footer/CloseButton" to="." method="_on_close_button_pressed"]

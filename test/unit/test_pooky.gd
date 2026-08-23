@@ -1,0 +1,299 @@
+extends ExceedGutTest
+
+func who_am_i():
+	return "pooky"
+
+func get_custom_cards():
+	return [
+		{
+			"id": "custom_immediate_noeffect",
+			"type": "special",
+			"display_name": "Test Tipple",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 1,
+			"power": 1,
+			"speed": 1,
+			"armor": 0,
+			"guard": 0,
+			"effects": [],
+			"boost": {
+				"boost_type": "immediate",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Test Tipple",
+				"effects": []
+			}
+		},
+		{
+			"id": "custom_continuous_noeffect",
+			"type": "special",
+			"display_name": "Test Nightcap",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 1,
+			"power": 1,
+			"speed": 1,
+			"armor": 0,
+			"guard": 0,
+			"effects": [],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Test Nightcap",
+				"effects": []
+			}
+		},
+		{
+			"id": "custom_immediate_boostagain",
+			"type": "special",
+			"display_name": "Test Double Round",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 1,
+			"power": 1,
+			"speed": 1,
+			"armor": 0,
+			"guard": 0,
+			"effects": [],
+			"boost": {
+				"boost_type": "immediate",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Test Double Round",
+				"effects": [
+					{
+						"timing": "now",
+						"effect_type": "boost_additional",
+						"limitation": ""
+					}
+				]
+			}
+		}
+	]
+
+func add_continuous_boost(player, def_id):
+	var boost_id = give_player_specific_card(player, def_id)
+	var boost_card = game_logic.get_card_database().get_card(boost_id)
+	player.add_to_continuous_boosts(boost_card)
+	player.hand.erase(boost_card)
+	return boost_id
+
+func test_pooky_dragon_breath_ale_extends_range_during_a_strike():
+	# Dragon Breath Ale grants +1 max range while striking.
+	position_players(player1, 3, player2, 6)
+	add_continuous_boost(player1, "pooky_snackattack")
+
+	# Focus is range 1-2; the boost's +1 lets it reach distance 3. Grasp is
+	# faster but only has range 1, so it whiffs without moving anyone.
+	execute_strike(player1, player2, "standard_normal_focus", "standard_normal_grasp",
+		false, false, [], [])
+
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 30, player2, 26)
+
+func test_pooky_focus_cannot_reach_distance_three_without_the_ale():
+	position_players(player1, 3, player2, 6)
+
+	execute_strike(player1, player2, "standard_normal_focus", "standard_normal_grasp",
+		false, false, [], [])
+
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 30, player2, 30)
+
+func test_pooky_gambling_reveal_chains_into_second_gambling():
+	position_players(player1, 3, player2, 6)
+	var first_gambling_id = give_player_specific_card(player1, "pooky_gamblingimin")
+	set_player_topdeck(player1, "standard_normal_spike")
+	set_player_topdeck(player1, "pooky_gamblingimin")
+
+	execute_strike(player1, player2, first_gambling_id, "standard_normal_sweep", false, false, [], [])
+
+	validate_life(player1, 30, player2, 23)
+
+func test_pooky_long_intooth_with_boost_applies_range_bonus_without_crash():
+	position_players(player1, 3, player2, 6)
+	var boost_id = give_player_specific_card(player1, "pooky_snackattack")
+	var boost_card = game_logic.get_card_database().get_card(boost_id)
+	player1.add_to_continuous_boosts(boost_card)
+	player1.hand.erase(boost_card)
+
+	execute_strike(player1, player2, "pooky_longintooth", "standard_normal_block", false, false, [], [[]])
+
+	validate_life(player1, 30, player2, 27)
+
+func test_pooky_speedup_with_continuous_boost_wins_speed_tie():
+	# Long in the Tooth base speed 2; with a continuous boost the base ability
+	# grants +1 Speed, tying the opponent's Spike (speed 3). Initiator wins ties
+	# and stuns Spike before it can retaliate.
+	position_players(player1, 3, player2, 6)
+	add_continuous_boost(player1, "pooky_pookycheats")
+
+	execute_strike(player1, player2, "pooky_longintooth", "standard_normal_spike", false, false, [], [])
+
+	# Player 1 struck first (25 damage to opponent), took none in return.
+	validate_life(player1, 30, player2, 25)
+
+func test_pooky_range_per_cb_extends_to_distance_four_with_two_boosts():
+	# Long in the Tooth gains +0-1 max range per continuous boost. With two
+	# continuous boosts it reaches r1-4 and connects at distance 4.
+	position_players(player1, 1, player2, 5)
+	add_continuous_boost(player1, "pooky_pookycheats")
+	add_continuous_boost(player1, "pooky_pookycheats")
+
+	execute_strike(player1, player2, "pooky_longintooth", "standard_normal_block", false, false, [0], [[]])
+
+	# Power 5 minus Block armor 2 = 3 damage; would be 0 (miss) without range boost.
+	validate_life(player1, 30, player2, 27)
+
+func test_pooky_power_per_cb_drunken_rampage():
+	# Drunken Rampage gains +2 Power per continuous boost on hit.
+	position_players(player1, 1, player2, 5)
+	add_continuous_boost(player1, "pooky_snackattack")
+	add_continuous_boost(player1, "pooky_snackattack")
+	var gauge_ids = give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "pooky_drunkenrampage", "standard_normal_block", false, false, [gauge_ids, 1], [[]])
+
+	# Base power 1 + (2 boosts * 2) = 5, minus Block armor 2 = 3 damage.
+	validate_life(player1, 30, player2, 27)
+
+func test_pooky_exceeded_powerup_armorup_with_two_boosts():
+	# When exceeded with two or more continuous boosts, Specials/Ultras gain
+	# +2 Power and +1 Armor.
+	position_players(player1, 3, player2, 6)
+	player1.exceeded = true
+	add_continuous_boost(player1, "pooky_pookycheats")
+	add_continuous_boost(player1, "pooky_pookycheats")
+
+	# Opponent Pooky Cheats (speed 3) strikes first and hits for 3 - 1 armor = 2.
+	# Long in the Tooth (power 5 + 2 = 7, range extended to r1-4) then hits for 7.
+	execute_strike(player1, player2, "pooky_longintooth", "pooky_pookycheats", false, false, [0], [1])
+
+	validate_life(player1, 28, player2, 23)
+
+func test_pooky_stunned_draw_on_exceed():
+	# Exceed passive: the first time Pooky is stunned each strike, they may draw a card.
+	position_players(player1, 3, player2, 6)
+	player1.exceeded = true
+	var hand_before = player1.hand.size()
+
+	# Spike (ignore_armor + ignore_guard) strikes first and stuns Pooky Drinks.
+	execute_strike(player1, player2, "pooky_pookydrinks", "standard_normal_spike", false, false, [0], [])
+
+	validate_life(player1, 25, player2, 30)
+	assert_eq(player1.hand.size(), hand_before + 1)
+
+func test_pooky_stunned_draw_may_be_declined():
+	# The stun draw is optional, so Pooky may pass on it.
+	position_players(player1, 3, player2, 6)
+	player1.exceeded = true
+	var hand_before = player1.hand.size()
+
+	execute_strike(player1, player2, "pooky_pookydrinks", "standard_normal_spike", false, false, [1], [])
+
+	validate_life(player1, 25, player2, 30)
+	assert_eq(player1.hand.size(), hand_before)
+
+func test_pooky_stunned_draw_not_offered_when_not_exceeded():
+	# The stun draw is an exceed-only passive.
+	position_players(player1, 3, player2, 6)
+	var hand_before = player1.hand.size()
+
+	execute_strike(player1, player2, "pooky_pookydrinks", "standard_normal_spike", false, false, [], [])
+
+	assert_eq(player1.hand.size(), hand_before)
+
+func test_pooky_drunken_fury_boost_enters_strike():
+	# Drunken Fury transform: first immediate boost each turn, may pay 1 force to strike.
+	add_transform(player1, "pooky_drunkenrampage")
+	var gauge_ids = give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "custom_immediate_noeffect")
+
+	assert_true(game_logic.do_boost(player1, boost_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, gauge_ids, false))
+
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+
+func test_pooky_drunken_fury_does_not_trigger_on_continuous_boost():
+	# Drunken Fury only cares about Instant Boosts.
+	add_transform(player1, "pooky_drunkenrampage")
+	give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "custom_continuous_noeffect")
+
+	assert_true(game_logic.do_boost(player1, boost_id))
+
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_true(player1.is_card_in_continuous_boosts(boost_id))
+
+func test_pooky_drunken_fury_only_triggers_once_per_turn():
+	# The outer boost lets Pooky boost a second Instant Boost in the same turn;
+	# the second one resolves first and consumes the once-per-turn trigger.
+	add_transform(player1, "pooky_drunkenrampage")
+	give_gauge(player1, 2)
+	var first_boost_id = give_player_specific_card(player1, "custom_immediate_boostagain")
+	var second_boost_id = give_player_specific_card(player1, "custom_immediate_noeffect")
+
+	assert_true(game_logic.do_boost(player1, first_boost_id))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_BoostNow)
+	assert_true(game_logic.do_boost(player1, second_boost_id))
+
+	# Drunken Fury triggers for the inner boost only.
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
+
+	# The outer boost finishes without offering Drunken Fury a second time.
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+
+func test_pooky_drunken_fury_declining_ends_the_turn_and_resets_next_turn():
+	add_transform(player1, "pooky_drunkenrampage")
+	give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "custom_immediate_noeffect")
+
+	assert_true(game_logic.do_boost(player1, boost_id))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+
+	advance_turn(player2)
+
+	# A new turn re-arms the once-per-turn trigger.
+	var second_boost_id = give_player_specific_card(player1, "custom_immediate_noeffect")
+	assert_true(game_logic.do_boost(player1, second_boost_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+
+func test_pooky_zols_recipe_does_not_trigger_on_continuous_boost():
+	# Zol's Secret Recipe only cares about Instant Boosts.
+	add_transform(player1, "pooky_hattrick")
+	give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "custom_continuous_noeffect")
+
+	assert_true(game_logic.do_boost(player1, boost_id))
+
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(player1.pooky_zols_target_id, -1)
+
+func test_pooky_zols_recipe_redirects_boost_to_facedown_continuous():
+	# Zol's Secret Recipe transform: first immediate boost each turn, may pay 1
+	# force to place it into play as a facedown continuous boost.
+	add_transform(player1, "pooky_hattrick")
+	var gauge_ids = give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "custom_immediate_noeffect")
+
+	assert_true(game_logic.do_boost(player1, boost_id))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, gauge_ids, false))
+
+	assert_eq(player1.continuous_boosts.size(), 1)
+	assert_true(player1.is_card_in_continuous_boosts(boost_id))
+	var boost_card = game_logic.get_card_database().get_card(boost_id)
+	assert_eq(boost_card.definition['boost']['display_name'], "Zol's Brew")
+	assert_true(boost_card.definition['boost']['facedown'])

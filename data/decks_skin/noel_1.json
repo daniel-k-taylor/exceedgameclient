@@ -1,0 +1,239 @@
+{
+	"id": "noel",
+	"season": 5,
+	"display_name": "Noel Vermillion",
+	"exceed_cost": 4,
+	"exceed_to_overdrive": true,
+	"on_exceed": {
+		"effect_type": "pass"
+	},
+	"overdrive_effect": {
+		"effect_type": "choice",
+		"choice": [
+			{ "effect_type": "close", "amount": 1 },
+			{ "effect_type": "retreat", "amount": 1 }
+		]
+	},
+	"ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "noel_valkyrieveil"
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"character_effect": true,
+				"effect_type": "speedup",
+				"amount": 1
+			},
+			"gauge_max": 1
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "noel_valkyrieveil"
+		},
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "speedup",
+			"amount": 1,
+			"and": {
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			}
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/xaX2NHe.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/YwdPXbg.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/vg5c0Zr.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/nfYESGn.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/MNulPgy.jpg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"set_aside": true,
+			"definition_id": "noel_valkyrieveil",
+			"image_name": "specials",
+			"image_index": 7
+		},
+		{
+			"definition_id": "noel_bulletstorm",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "noel_bulletstorm",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "noel_zerogunfenrir",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "noel_zerogunfenrir",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "noel_assaultthrough",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "noel_assaultthrough",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "noel_muzzleflitter",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "noel_muzzleflitter",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "noel_opticbarrel",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "noel_opticbarrel",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "noel_springraid",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "noel_springraid",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "noel_typeone",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "noel_typeone",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

@@ -17,6 +17,8 @@ var _observer_mode : bool
 var _replay_mode : bool
 var _game_message_queue : Array
 var _game_message_history : Array
+var _pending_minato_sealed_force : int
+var _pending_minato_sealed_gauge : int
 
 var image_loader : CardImageLoader
 func _init(card_image_loader):
@@ -37,14 +39,16 @@ func get_message_history() -> Array:
 func _get_player(id):
 	return local_game._get_player(id)
 
-func _get_player_remote_id(player : Player) -> int:
+# Remote player ids are assigned by the server. They used to be ints but are now
+# GUID strings, so these stay untyped and compare stringified for safety.
+func _get_player_remote_id(player : Player):
 	if player.my_id == Enums.PlayerId.PlayerId_Player:
 		return _player_info['id']
 	else:
 		return _opponent_info['id']
 
-func _get_player_from_remote_id(remote_id : int):
-	if remote_id == _player_info['id']:
+func _get_player_from_remote_id(remote_id):
+	if str(remote_id) == str(_player_info['id']):
 		return _get_player(Enums.PlayerId.PlayerId_Player)
 	else:
 		return _get_player(Enums.PlayerId.PlayerId_Opponent)
@@ -60,6 +64,18 @@ func _apply_zsolt_free_force_amount(player : Player, action_message) -> void:
 
 func get_striking_card_ids_for_player(player : Player) -> Array:
 	return local_game.get_striking_card_ids_for_player(player)
+
+func get_other_player(test_player : Enums.PlayerId) -> Enums.PlayerId:
+	return local_game.get_other_player(test_player)
+
+# Observer message drain helpers used by spectator UI to peek/step the queue.
+func get_pending_observer_messages() -> Array:
+	return _game_message_queue.duplicate(true)
+
+func get_next_observer_message() -> Dictionary:
+	if _game_message_queue.is_empty():
+		return {}
+	return _game_message_queue[0]
 
 func initialize_game(player_info,
 		opponent_info,
@@ -103,10 +119,27 @@ func observer_process_next_message_from_queue():
 
 func _process_game_message(game_message):
 	_save_game_message(game_message)
+	var sealed_force = int(game_message.get('minato_sealed_force', 0))
+	var sealed_gauge = int(game_message.get('minato_sealed_gauge', 0))
+	var seal_player = null
+	if sealed_force > 0 or sealed_gauge > 0:
+		seal_player = _get_player_from_remote_id(game_message['player_id'])
+		var discards_per_gauge = seal_player.deck_flag("discards_per_gauge_until_exceed", 0)
+		var sealed_card_count = sealed_force + sealed_gauge * discards_per_gauge
+		if not seal_player.deck_flag("can_seal_discards_for_resources") or seal_player.exceeded \
+				or discards_per_gauge <= 0 or sealed_card_count > seal_player.discards.size():
+			local_game.printlog("ERROR: Invalid sealed-discard payment in remote action.")
+			return
+		seal_player.seal_top_n_discards(sealed_card_count)
+		seal_player.seal_force_bonus_tmp = sealed_force
+		seal_player.free_gauge += sealed_gauge
 	var action_type = game_message['action_type']
 	var action_function_name = action_type.replace("action_", "process_")
 	var action_function = Callable(self, action_function_name)
 	action_function.call(game_message)
+	if seal_player:
+		seal_player.seal_force_bonus_tmp = 0
+		seal_player.free_gauge = max(seal_player.free_gauge - sealed_gauge, 0)
 
 func _save_game_message(game_message):
 	var updated_game_message = game_message.duplicate()
@@ -172,7 +205,23 @@ func can_move_to(player : Player, location : int) -> bool:
 ### Action Functions ###
 
 func _submit_game_message(action_message):
+	_add_pending_minato_seal_payment(action_message)
 	NetworkManager.submit_game_message(action_message)
+
+func _add_pending_minato_seal_payment(action_message : Dictionary) -> void:
+	if _pending_minato_sealed_force > 0:
+		action_message['minato_sealed_force'] = _pending_minato_sealed_force
+	if _pending_minato_sealed_gauge > 0:
+		action_message['minato_sealed_gauge'] = _pending_minato_sealed_gauge
+	clear_pending_minato_seal_payment()
+
+func set_pending_minato_seal_payment(force_amount : int, gauge_amount : int) -> void:
+	_pending_minato_sealed_force += force_amount
+	_pending_minato_sealed_gauge += gauge_amount
+
+func clear_pending_minato_seal_payment() -> void:
+	_pending_minato_sealed_force = 0
+	_pending_minato_sealed_gauge = 0
 
 func do_prepare(player : Player) -> bool:
 	var action_message = {
@@ -426,7 +475,8 @@ func process_mulligan(action_message) -> void:
 	local_game.do_mulligan(game_player, card_ids)
 
 func do_boost(player : Player, card_id : int, payment_card_ids = [],
-		use_free_force : bool = false, spent_life_for_force : int = 0, additional_boost_ids = []) -> bool:
+		use_free_force : bool = false, spent_life_for_force : int = 0, additional_boost_ids = [],
+		facedown_override = null) -> bool:
 	var action_message = {
 		'action_type': 'action_boost',
 		'player_id': _get_player_remote_id(player),
@@ -435,7 +485,9 @@ func do_boost(player : Player, card_id : int, payment_card_ids = [],
 		'use_free_force': use_free_force,
 		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
-		'additional_boost_ids': additional_boost_ids
+		'additional_boost_ids': additional_boost_ids,
+		# Renea places continuous boosts face-down; null means "use the default".
+		'facedown_override': facedown_override
 	}
 	_submit_game_message(action_message)
 	return true
@@ -448,7 +500,56 @@ func process_boost(action_message) -> void:
 	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	var additional_boost_ids = action_message['additional_boost_ids']
-	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force, additional_boost_ids)
+	var facedown_override = action_message.get('facedown_override')
+	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force,
+		additional_boost_ids, facedown_override)
+
+func do_cancel_tournelouse_transform_bonus_choice(player : Player) -> bool:
+	_submit_game_message({
+		'action_type': 'action_cancel_tournelouse_transform_bonus_choice',
+		'player_id': _get_player_remote_id(player),
+	})
+	return true
+
+func process_cancel_tournelouse_transform_bonus_choice(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	local_game.do_cancel_tournelouse_transform_bonus_choice(game_player)
+
+func do_cancel_tournelouse_ouroboros_hand_choice(player : Player) -> bool:
+	_submit_game_message({
+		'action_type': 'action_cancel_tournelouse_ouroboros_hand_choice',
+		'player_id': _get_player_remote_id(player),
+	})
+	return true
+
+func process_cancel_tournelouse_ouroboros_hand_choice(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	local_game.do_cancel_tournelouse_ouroboros_hand_choice(game_player)
+
+func do_cancel_tournelouse_ouroboros_transform_choice(player : Player) -> bool:
+	_submit_game_message({
+		'action_type': 'action_cancel_tournelouse_ouroboros_transform_choice',
+		'player_id': _get_player_remote_id(player),
+	})
+	return true
+
+func process_cancel_tournelouse_ouroboros_transform_choice(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	local_game.do_cancel_tournelouse_ouroboros_transform_choice(game_player)
+
+func do_renea_pre_strike_reveal(player : Player, strike_response : bool = false) -> bool:
+	var action_message = {
+		'action_type': 'action_renea_pre_strike_reveal',
+		'player_id': _get_player_remote_id(player),
+		'strike_response': strike_response,
+	}
+	_submit_game_message(action_message)
+	return true
+
+func process_renea_pre_strike_reveal(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	var strike_response = action_message.get('strike_response', false)
+	local_game._renea_begin_pre_strike_reveal(game_player, not strike_response, strike_response)
 
 func do_choose_from_boosts(player : Player, card_ids : Array) -> bool:
 	var action_message = {
@@ -584,6 +685,24 @@ func process_choose_from_topdeck(action_message) -> void:
 	var action = action_message['action']
 	local_game.do_choose_from_topdeck(game_player, card_id, action)
 
+func do_quit(player_id : Enums.PlayerId, reason : Enums.GameOverReason):
+	var remote_player_id = _player_info['id']
+	if player_id == Enums.PlayerId.PlayerId_Opponent:
+		remote_player_id = _opponent_info['id']
+	var action_message = {
+		'action_type': 'action_quit',
+		'player_id': remote_player_id,
+		'reason': reason,
+	}
+	_submit_game_message(action_message)
+	return true
+
+func process_quit(action_message):
+	var player_id = Enums.PlayerId.PlayerId_Player
+	if str(_player_info['id']) != str(action_message['player_id']):
+		player_id = Enums.PlayerId.PlayerId_Opponent
+	local_game.do_quit(player_id, action_message['reason'])
+
 func do_emote(player : Player, is_image_emote : bool, emote : String):
 	var action_message = {
 		'action_type': 'action_emote',
@@ -634,7 +753,7 @@ func do_clock_ran_out():
 	_submit_game_message(action_message)
 
 func process_clock_ran_out(action_message):
-	if _player_info['id'] == action_message['clock_ran_out_player']:
+	if str(_player_info['id']) == str(action_message['clock_ran_out_player']):
 		local_game.do_clock_ran_out(Enums.PlayerId.PlayerId_Player)
 	else:
 		local_game.do_clock_ran_out(Enums.PlayerId.PlayerId_Opponent)

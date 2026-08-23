@@ -5,7 +5,9 @@
 
 ## Parameters
 
-No parameters required.
+- `limitation` (optional, string): restricts which boosts may be played out of
+  gauge, matched against the card's `boost_type` (e.g. `"immediate"`). When
+  omitted, any boost in gauge may be played.
 
 ## Supported Timings
 
@@ -32,9 +34,25 @@ No parameters required.
 }
 ```
 
+**Only allow instant boosts (Syrus - Memories from the Deep):**
+```json
+{
+  "timing": "now",
+  "effect_type": "enable_boost_from_gauge",
+  "limitation": "immediate"
+}
+```
+
 ## Implementation Notes
 
-- Sets [`performing_player.can_boost_from_gauge = true`](../../scenes/core/local_game.gd:2866)
+- Sets `performing_player.can_boost_from_gauge = true` and
+  `performing_player.boost_from_gauge_limitation` from `limitation`
+- The limitation is enforced in `Player.can_boost_card_from_gauge()`, which gates
+  `can_boost_something()` (is a gauge boost available at all),
+  `GameWrapper.can_player_boost()` (whether the UI offers it), and `do_boost()`
+  (rejects an illegal boost outright)
+- Cards whose boost was replaced (transforms) are checked against their
+  `replaced_boost` type
 - This is a simple flag that enables gauge boosting capability
 - Once enabled, player can use gauge zone as a valid source for boosting
 - Persistent effect that lasts for the duration of the game

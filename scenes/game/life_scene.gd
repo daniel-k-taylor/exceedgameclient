@@ -3,7 +3,7 @@ extends Control
 
 @export var flip = false
 
-@onready var health_bar = $HealthBar
+@onready var health_bar : HealthBar = $HealthBar
 @onready var clock : Label = $Clock
 
 func _ready():
@@ -14,6 +14,9 @@ func _ready():
 func set_life(amount):
 	$CardInfoBox/HPLabel.text = str(amount)
 	health_bar.set_health(amount)
+
+func finish_animation_immediately():
+	health_bar.finish_animation_immediately()
 
 func set_clock(seconds : int, low_time : bool=false):
 	clock.visible = true

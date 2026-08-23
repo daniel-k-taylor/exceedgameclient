@@ -30,6 +30,11 @@ func set_health(num):
 	health_bar.value = num
 	animation_state = AnimationState.AnimationState_Paused
 
+func finish_animation_immediately():
+	lost_bar.value = health_bar.value
+	remaining_animation_time = -1
+	animation_state = AnimationState.AnimationState_None
+
 func _physics_process(delta):
 	if animation_state == AnimationState.AnimationState_Paused:
 		remaining_animation_time -= delta
