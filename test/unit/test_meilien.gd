@@ -11,7 +11,7 @@ func test_kuangfengbaoyu_swaps_deck_and_discard():
 	var discard_id_2 = give_player_specific_card(player1, "standard_normal_dive")
 	player1.discard([discard_id_1, discard_id_2])
 
-	var boost_id = give_player_specific_card(player1, "meilien_fujingu")
+	var boost_id = give_player_specific_card(player1, "meilien_fujindrum")
 	var pay_id = give_player_specific_card(player1, "standard_normal_grasp")
 	assert_true(game_logic.do_boost(player1, boost_id, [pay_id]))
 
@@ -32,8 +32,8 @@ func test_jiji_blocks_opponent_advance_and_close():
 	execute_strike(
 		player1,
 		player2,
-		"meilien_jiji",
-		"meilien_yunqishi"
+		"meilien_halberdier",
+		"meilien_cloudrider"
 	)
 
 	validate_positions(player1, 3, player2, 5)
@@ -48,8 +48,8 @@ func test_jiji_block_does_not_persist_into_later_strikes():
 	execute_strike(
 		player1,
 		player2,
-		"meilien_jiji",
-		"meilien_yunqishi"
+		"meilien_halberdier",
+		"meilien_cloudrider"
 	)
 
 	assert_false(player2.cannot_advance_or_close)
@@ -60,12 +60,64 @@ func test_jiji_block_does_not_persist_into_later_strikes():
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 25, player2, 26)
 
+func test_jiji_block_is_removed_when_umina_steals_halberdier_and_ends_the_strike():
+	# Unknown Khadath takes the attack out of play and ends the strike early, so
+	# Halberdier's cleanup timing has to still clear the advance/close block.
+	default_game_setup("umina")
+	position_players(player1, 3, player2, 5)
+	var p2_gauge = give_gauge(player2, 3)
+
+	var strike_cards = execute_strike(
+		player1,
+		player2,
+		"meilien_halberdier",
+		"umina_unknown_khadath",
+		false, false,
+		[], [p2_gauge]
+	)
+
+	# Khadath (speed 6) resolves first and swallows Halberdier (speed 5).
+	assert_true(_zone_has_card(player2.set_aside_cards, strike_cards[0]),
+		"Halberdier should have been placed into Umina's Dreamlands")
+	validate_life(player1, 30, player2, 30)
+	assert_false(player2.cannot_advance_or_close,
+		"Umina should be able to advance and close again after the strike")
+
+	# Prove it for real: Umina closes on her turn.
+	assert_eq(game_logic.get_active_player(), player2.my_id)
+	var close_id = give_player_specific_card(player2, "standard_normal_grasp")
+	assert_true(game_logic.do_move(player2, [close_id], 4))
+	validate_positions(player1, 3, player2, 4)
+
+func test_jiji_block_is_removed_when_umina_initiates_khadath_against_halberdier():
+	# Mirror of the above with Khadath as the initiator's card, so Halberdier's
+	# cleanup runs from the defender slot instead.
+	default_game_setup("umina")
+	position_players(player1, 3, player2, 5)
+	var p2_gauge = give_gauge(player2, 3)
+	advance_turn(player1)
+
+	var strike_cards = execute_strike(
+		player2,
+		player1,
+		"umina_unknown_khadath",
+		"meilien_halberdier",
+		false, false,
+		[p2_gauge], []
+	)
+
+	assert_true(_zone_has_card(player2.set_aside_cards, strike_cards[1]),
+		"Halberdier should have been placed into Umina's Dreamlands")
+	validate_life(player1, 30, player2, 30)
+	assert_false(player2.cannot_advance_or_close,
+		"Umina should be able to advance and close again after the strike")
+
 func test_liuxingzhiyuan_supports_topdeck_choice():
 	var chosen_topdeck_id = set_player_topdeck(player1, "standard_normal_spike")
 	set_player_topdeck(player1, "standard_normal_dive")
 	set_player_topdeck(player1, "standard_normal_assault")
 
-	var boost_id = give_player_specific_card(player1, "meilien_leishenshiyan")
+	var boost_id = give_player_specific_card(player1, "meilien_raijinoath")
 	var pay_id = give_player_specific_card(player1, "standard_normal_cross")
 	assert_true(game_logic.do_boost(player1, boost_id, [pay_id]))
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromTopDeck)
@@ -79,7 +131,7 @@ func test_liuxingzhiyuan_supports_topdeck_choice():
 
 func test_yunqishi_boost_draws_and_discards_for_each_card_in_hand():
 	player1.discard_hand()
-	var boost_id = give_player_specific_card(player1, "meilien_yunqishi")
+	var boost_id = give_player_specific_card(player1, "meilien_cloudrider")
 	give_player_specific_card(player1, "standard_normal_assault")
 	give_player_specific_card(player1, "standard_normal_cross")
 	give_player_specific_card(player1, "standard_normal_dive")

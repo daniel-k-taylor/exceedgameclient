@@ -77,72 +77,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "meilien_shenlongfengbao",
+			"definition_id": "meilien_dragontempest",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "meilien_shenlongfengbao",
+			"definition_id": "meilien_dragontempest",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "meilien_leishenshiyan",
+			"definition_id": "meilien_raijinoath",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "meilien_leishenshiyan",
+			"definition_id": "meilien_raijinoath",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "meilien_leishendao",
+			"definition_id": "meilien_raijinknife",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "meilien_leishendao",
+			"definition_id": "meilien_raijinknife",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "meilien_yunqishi",
+			"definition_id": "meilien_cloudrider",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "meilien_yunqishi",
+			"definition_id": "meilien_cloudrider",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "meilien_fujingu",
+			"definition_id": "meilien_fujindrum",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "meilien_fujingu",
+			"definition_id": "meilien_fujindrum",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "meilien_jiji",
+			"definition_id": "meilien_halberdier",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "meilien_jiji",
+			"definition_id": "meilien_halberdier",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "meilien_shenlongpo",
+			"definition_id": "meilien_dragonthrash",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "meilien_shenlongpo",
+			"definition_id": "meilien_dragonthrash",
 			"image_name": "specials",
 			"image_index": 4
 		},

@@ -19381,7 +19381,7 @@
 					"choice": [
 						{
 							"effect_type": "advance",
-							"amount": 9,
+							"amount": 8,
 							"use_semicolon_for_and": true,
 							"and": {
 								"condition": "advanced_through",
@@ -19390,7 +19390,7 @@
 						},
 						{
 							"effect_type": "retreat",
-							"amount": 9
+							"amount": 8
 						}
 					]
 				}
@@ -19987,9 +19987,9 @@
 
 	{
 		"NOTE": "MEILIEN CARDS START",
-		"id": "meilien_fujingu",
+		"id": "meilien_fujindrum",
 		"type": "special",
-		"display_name": "Fortune Drum",
+		"display_name": "Fujin Drum",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -20009,7 +20009,7 @@
 			"boost_type": "immediate",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Raging Storm",
+			"display_name": "Tempestuous",
 			"effects": [
 				{
 					"timing": "immediate",
@@ -20023,9 +20023,9 @@
 		}
 	},
 	{
-		"id": "meilien_jiji",
+		"id": "meilien_halberdier",
 		"type": "special",
-		"display_name": "Halberd Strike",
+		"display_name": "Halberdier",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 2,
@@ -20070,9 +20070,9 @@
 		}
 	},
 	{
-		"id": "meilien_leishendao",
+		"id": "meilien_raijinknife",
 		"type": "special",
-		"display_name": "Thunder God Blade",
+		"display_name": "Raijin Knife",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -20092,7 +20092,7 @@
 			"boost_type": "continuous",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Gale Spread",
+			"display_name": "Gale Extension",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -20108,9 +20108,9 @@
 		}
 	},
 	{
-		"id": "meilien_leishenshiyan",
+		"id": "meilien_raijinoath",
 		"type": "ultra",
-		"display_name": "Thunder God's Oath",
+		"display_name": "Raijin Oath",
 		"force_cost": 0,
 		"gauge_cost": 3,
 		"range_min": 4,
@@ -20129,7 +20129,7 @@
 			"boost_type": "immediate",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Meteor's Wish",
+			"display_name": "Falling Star Wish",
 			"effects": [
 				{
 					"timing": "immediate",
@@ -20148,9 +20148,9 @@
 		}
 	},
 	{
-		"id": "meilien_shenlongfengbao",
+		"id": "meilien_dragontempest",
 		"type": "ultra",
-		"display_name": "Divine Dragon Storm",
+		"display_name": "Dragon Tempest",
 		"force_cost": 0,
 		"gauge_cost": 2,
 		"range_min": 3,
@@ -20163,7 +20163,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "push",
-				"amount": 99
+				"amount": 9
 			},
 			{
 				"timing": "after",
@@ -20203,9 +20203,9 @@
 		}
 	},
 	{
-		"id": "meilien_shenlongpo",
+		"id": "meilien_dragonthrash",
 		"type": "special",
-		"display_name": "Divine Dragon Break",
+		"display_name": "Dragon Thrash",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -20241,7 +20241,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Double Thunder Strike",
+			"display_name": "Lightning Strikes Twice",
 			"effects": [
 				{
 					"timing": "after",
@@ -20255,7 +20255,7 @@
 		}
 	},
 	{
-		"id": "meilien_yunqishi",
+		"id": "meilien_cloudrider",
 		"type": "special",
 		"display_name": "Cloud Rider",
 		"force_cost": 0,
@@ -20281,7 +20281,7 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Shifting Winds",
+			"display_name": "Winds of Change",
 			"effects": [
 				{
 					"timing": "immediate",
@@ -21504,7 +21504,7 @@
 			{
 				"timing": "after",
 				"effect_type": "advance",
-				"amount": 9
+				"amount": 8
 			}
 		],
 		"boost": {
@@ -25578,8 +25578,8 @@
 		"display_name": "Gambling? I'm In!",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 0,
-		"range_max": 0,
+		"range_min": -1,
+		"range_max": -1,
 		"power": 0,
 		"speed": 7,
 		"armor": 0,
@@ -25764,8 +25764,8 @@
 		"display_name": "Pooky Drinks!",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 0,
-		"range_max": 0,
+		"range_min": -1,
+		"range_max": -1,
 		"power": 0,
 		"speed": 0,
 		"armor": 2,
@@ -25837,7 +25837,16 @@
 			"effects": [
 				{
 					"timing": "on_any_boost",
-					"effect_type": "pooky_zols_on_boost",
+					"condition": "boost_is_immediate",
+					"once_per_turn": "pooky_zols_secret_recipe",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"force_max": 1,
+					"min_force": 0,
+					"overall_effect": {
+						"effect_type": "pooky_set_zols_target",
+						"override_description": "put into play as a facedown continuous boost"
+					},
 					"override_description": "The first time you use an immediate boost each turn, you may pay 1 force. If you do, place it into play as a facedown continuous boost (no effects)."
 				}
 			]
@@ -25876,8 +25885,16 @@
 			"effects": [
 				{
 					"timing": "on_any_boost",
-					"effect_type": "pooky_drunken_fury_on_boost",
-					"override_description": "The first time you resolve an immediate boost each turn, you may pay 1 force. If you do, initiate a strike."
+					"condition": "boost_is_immediate",
+					"once_per_turn": "pooky_drunken_fury",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"force_max": 1,
+					"min_force": 0,
+					"overall_effect": {
+						"effect_type": "strike"
+					},
+					"override_description": "The first time each turn you resolve an Instant Boost, you may spend 1 Force. If you do, Strike."
 				}
 			]
 		},
@@ -27506,12 +27523,18 @@
 					"character_effect": true,
 					"added_effect": {
 						"timing": "after",
-						"effect_type": "renea_mimetism_sustain",
-						"override_description": "After: you may spend 2 Force to sustain a continuous boost."
+						"effect_type": "force_for_effect",
+						"force_max": 2,
+						"per_force_effect": null,
+						"overall_effect": {
+							"effect_type": "choose_sustain_boost",
+							"amount": 1
+						},
+						"override_description": "You may spend 2 Force. If you do, choose one of your Continuous Boosts. Do not discard it from play after this Strike."
 					}
 				}
 			],
-			"description": "Your attacks gain \"After: you may spend 2 Force to choose one of your continuous boosts and sustain it.\""
+			"description": "Your attacks have \"After: You may spend 2 Force. If you do, choose one of your Continuous Boosts. Do not discard it from play after this Strike.\""
 		}
 	},
 	{
@@ -27632,12 +27655,27 @@
 			"boost_type": "transform",
 			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Polling Leads",
+			"display_name": "Following Leads",
 			"effects": [
 				{
 					"timing": "on_any_boost",
-					"effect_type": "renea_polling_leads",
-					"override_description": "After resolving a boost, you may spend 1 Force. If you do, choose one: Advance 1 / Retreat 1."
+					"effect_type": "force_for_effect",
+					"force_max": 1,
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{
+								"effect_type": "advance",
+								"amount": 1
+							},
+							{
+								"effect_type": "retreat",
+								"amount": 1
+							}
+						]
+					},
+					"override_description": "After resolving a Boost, you may spend 1 Force. If you do, Move 1. Ignore this when turning a Boost face-up."
 				}
 			]
 		}
@@ -27759,7 +27797,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Jujitsu",
+			"display_name": "Jiujitsu",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -27779,8 +27817,7 @@
 							"effect_type": "retreat",
 							"amount": 1
 						}
-					],
-					"override_description": "Immediate: move 1."
+					]
 				}
 			]
 		},
@@ -33768,13 +33805,14 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "enable_boost_from_gauge"
+					"effect_type": "enable_boost_from_gauge",
+					"limitation": "immediate"
 				},
 				{
 					"timing": "on_any_boost",
 					"condition": "boosted_from_gauge",
 					"effect_type": "seal_this",
-					"override_description": "You may play immediate boosts from your gauge. When you do, seal it after it resolves."
+					"override_description": "You may play Instant Boosts from your gauge as if they were in your hand. When you do, seal them after they resolve."
 				}
 			]
 		}
@@ -33853,25 +33891,18 @@
 					"effect_type": "choice",
 					"choice": [
 						{
-							"_choice_text": "Draw 0",
-							"effect_type": "draw",
-							"amount": 0
-						},
-						{
-							"_choice_text": "Draw 1",
 							"effect_type": "draw",
 							"amount": 1
 						},
 						{
-							"_choice_text": "Draw 2",
 							"effect_type": "draw",
 							"amount": 2
 						},
 						{
-							"_choice_text": "Draw 3",
 							"effect_type": "draw",
 							"amount": 3
-						}
+						},
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -33880,25 +33911,18 @@
 					"opponent": true,
 					"choice": [
 						{
-							"_choice_text": "Draw 0",
-							"effect_type": "draw",
-							"amount": 0
-						},
-						{
-							"_choice_text": "Draw 1",
 							"effect_type": "draw",
 							"amount": 1
 						},
 						{
-							"_choice_text": "Draw 2",
 							"effect_type": "draw",
 							"amount": 2
 						},
 						{
-							"_choice_text": "Draw 3",
 							"effect_type": "draw",
 							"amount": 3
-						}
+						},
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -36646,7 +36670,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Load Power",
+			"display_name": "Charging Power",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -36658,9 +36682,9 @@
 		}
 	},
 	{
-		"id": "ulrik_atomicelectric",
+		"id": "ulrik_atomicbolt",
 		"type": "ultra",
-		"display_name": "Atomic Electric",
+		"display_name": "Atomic Bolt",
 		"force_cost": 0,
 		"gauge_cost": 3,
 		"range_min": 1,
@@ -36673,7 +36697,7 @@
 			{
 				"timing": "before",
 				"effect_type": "advance",
-				"amount": 9,
+				"amount": 8,
 				"stop_after_passing_opponent": true
 			}
 		],
@@ -36698,9 +36722,9 @@
 		}
 	},
 	{
-		"id": "ulrik_ion",
+		"id": "ulrik_ionization",
 		"type": "special",
-		"display_name": "Ion",
+		"display_name": "Ionization",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 2,
@@ -36713,7 +36737,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "retreat",
-				"amount": 9
+				"amount": 8
 			}
 		],
 		"boost": {
@@ -36779,9 +36803,9 @@
 		}
 	},
 	{
-		"id": "ulrik_noescape",
+		"id": "ulrik_inevitability",
 		"type": "special",
-		"display_name": "No Escape",
+		"display_name": "Inevitability",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -36809,7 +36833,7 @@
 			"boost_type": "continuous",
 			"force_cost": 2,
 			"cancel_cost": -1,
-			"display_name": "Arc Pulse",
+			"display_name": "Arc Impulse",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -36863,9 +36887,9 @@
 		}
 	},
 	{
-		"id": "ulrik_thunderhammer",
+		"id": "ulrik_blitzhammer",
 		"type": "special",
-		"display_name": "Thunder Hammer",
+		"display_name": "Blitz Hammer",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -36902,7 +36926,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Swift Force",
+			"display_name": "Thunderous Might",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -37106,8 +37130,8 @@
 		"display_name": "Unknown Khadath",
 		"force_cost": 0,
 		"gauge_cost": 3,
-		"range_min": 0,
-		"range_max": 0,
+		"range_min": -1,
+		"range_max": -1,
 		"power": 0,
 		"speed": 6,
 		"armor": 0,

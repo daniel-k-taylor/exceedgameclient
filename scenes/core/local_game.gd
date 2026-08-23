@@ -830,12 +830,10 @@ func start_begin_turn():
 	player.minato_outrun_triggered_before_strike = false
 	opponent.seal_force_bonus_tmp = 0
 	opponent.minato_outrun_triggered_before_strike = false
-	player.pooky_drunken_fury_used = false
 	player.pooky_zols_target_id = -1
-	player.pooky_zols_used = false
-	opponent.pooky_drunken_fury_used = false
+	player.used_once_per_turn_effects = {}
 	opponent.pooky_zols_target_id = -1
-	opponent.pooky_zols_used = false
+	opponent.used_once_per_turn_effects = {}
 	player.renea_boost_from_briefcase_used = false
 	opponent.renea_boost_from_briefcase_used = false
 
@@ -1556,6 +1554,14 @@ func do_effect_if_condition_met(
 			return
 
 	if is_effect_condition_met(performing_player, effect, local_conditions):
+		# Effects with a once_per_turn key only trigger the first time that key is
+		# reached each turn, whether or not the player follows through on any choice.
+		var once_per_turn_key = effect.get("once_per_turn", "")
+		if once_per_turn_key:
+			var player_key = "%s|%s" % [performing_player.my_id, once_per_turn_key]
+			if performing_player.used_once_per_turn_effects.has(player_key):
+				return
+			performing_player.used_once_per_turn_effects[player_key] = true
 		handle_strike_effect(card_id, effect, performing_player)
 	elif 'negative_condition_effect' in effect:
 		var negative_condition_effect = effect['negative_condition_effect']
@@ -2142,6 +2148,11 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "boosted_from_gauge":
 			assert(active_boost)
 			return active_boost.boosted_from_gauge
+		elif condition == "boost_is_immediate":
+			# The boost currently resolving is an Instant (immediate) boost.
+			if not active_boost:
+				return false
+			return active_boost.card.definition['boost']['boost_type'] == "immediate"
 		elif condition == "has_once_per_game_resource":
 			return performing_player.once_per_game_resource > 0
 		else:
@@ -3440,6 +3451,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					do_effect_if_condition_met(performing_player, card_id, per_effect, null)
 		StrikeEffects.EnableBoostFromGauge:
 			performing_player.can_boost_from_gauge = true
+			performing_player.boost_from_gauge_limitation = effect.get("limitation", "")
 		StrikeEffects.EnableEndOfTurnDraw:
 			performing_player.draw_at_end_of_turn = true
 		StrikeEffects.EndOverdrive:
@@ -4628,36 +4640,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"renea_called_shot":
 			# Called Shot hit uses the engine's name_card_opponent_discards; nothing to do here.
 			pass
-		"renea_mimetism_sustain":
-			# Mimetism after: spend 2 Force to sustain a continuous boost
-			var renea_boosts = performing_player.get_boosts(true)
-			if renea_boosts.is_empty():
-				return
-			var renea_sustain_choices = [{"_choice_text": "Pass", "effect_type": "pass"}]
-			for renea_sb in renea_boosts:
-				renea_sustain_choices.append({
-					"effect_type": "renea_mimetism_sustain_do",
-					"boost_id": renea_sb.id,
-					"_choice_text": "Sustain %s (2 Force)" % card_db.get_card_name(renea_sb.id)
-				})
-			do_effect_if_condition_met(performing_player, card_id, {
-				"effect_type": StrikeEffects.ForceForEffect,
-				"force_max": 2,
-				"per_force_effect": null,
-				"overall_effect": {
-					"effect_type": StrikeEffects.Choice,
-					StrikeEffects.Choice: renea_sustain_choices,
-					"override_description": "Sustain a Continuous Boost?"
-				},
-				"override_description": "Spend 2 Force to sustain a Continuous Boost"
-			}, null)
-		"renea_mimetism_sustain_do":
-			var renea_ms_id = effect.get("boost_id", -1)
-			if renea_ms_id == -1 or not performing_player.is_card_in_continuous_boosts(renea_ms_id):
-				return
-			if renea_ms_id not in performing_player.sustained_boosts:
-				performing_player.sustained_boosts.append(renea_ms_id)
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sustains a Continuous Boost.")
 		"renea_conspiracy_unearthed":
 			# Conspiracy Unearthed: reveal opponent's hand, add your choice to their gauge
 			var renea_cu_opp = _get_player(get_other_player(performing_player.my_id))
@@ -4687,21 +4669,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			renea_cu_opp.remove_card_from_hand(renea_cu_id, true, false)
 			renea_cu_opp.add_to_gauge(renea_cu_card)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "%s is added to opponent's gauge." % _log_card_name(card_db.get_card_name(renea_cu_id)))
-		"renea_polling_leads":
-			# Polling Leads: after resolving a boost, spend 1 Force to Move 1 (advance/retreat)
-			do_effect_if_condition_met(performing_player, card_id, {
-				"effect_type": StrikeEffects.ForceForEffect,
-				"force_max": 1,
-				"per_force_effect": null,
-				"overall_effect": {
-					"effect_type": StrikeEffects.Choice,
-					StrikeEffects.Choice: [
-						{"effect_type": StrikeEffects.Advance, "amount": 1},
-						{"effect_type": StrikeEffects.Retreat, "amount": 1}
-					]
-				},
-				"override_description": "Spend 1 Force to Move 1 (Polling Leads)"
-			}, null)
 		"renea_pre_strike_reveal":
 			_renea_handle_pre_strike_reveal(performing_player)
 		"renea_pre_strike_done":
@@ -7329,58 +7296,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if pooky_replacement_card != null:
 				for replacement_effect in get_all_effects_for_timing("on_strike_reveal", performing_player, pooky_replacement_card):
 					add_remaining_effect(replacement_effect)
-		StrikeEffects.PookyDrunkenFuryOnBoost:
-			# Drunken Fury transform: first immediate boost each turn, may pay 1 force to strike.
-			# Only reachable from that transform's own effect, so no deck check needed.
-			if not active_boost:
-				return
-			if active_boost.card.definition['boost']['boost_type'] != "immediate":
-				return
-			if performing_player.pooky_drunken_fury_used:
-				return
-			performing_player.pooky_drunken_fury_used = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Drunken Fury triggers.")
-			do_effect_if_condition_met(performing_player, active_boost.card.id, {
-				"effect_type": StrikeEffects.ForceForEffect,
-				"per_force_effect": null,
-				"force_max": 1,
-				"min_force": 0,
-				"overall_effect": {
-					"effect_type": StrikeEffects.PookyDrunkenFuryStrike,
-					"override_description": "Strike"
-				}
-			}, null)
-		StrikeEffects.PookyDrunkenFuryStrike:
-			# Drunken Fury overall effect: enter strike selection after boost cleanup.
-			if active_boost:
-				active_boost.strike_after_boost = true
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Drunken Fury: enters strike selection!")
-		StrikeEffects.PookyZolsOnBoost:
-			# Zol's Secret Recipe transform: first immediate boost each turn, may pay 1 force
-			# to instead place the boost into play as a facedown continuous boost.
-			# Only reachable from that transform's own effect, so no deck check needed.
-			if not active_boost:
-				return
-			if active_boost.card.definition['boost']['boost_type'] != "immediate":
-				return
-			if performing_player.pooky_zols_used:
-				return
-			performing_player.pooky_zols_used = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Zol's Secret Recipe triggers.")
-			do_effect_if_condition_met(performing_player, active_boost.card.id, {
-				"effect_type": StrikeEffects.ForceForEffect,
-				"per_force_effect": null,
-				"force_max": 1,
-				"min_force": 0,
-				"overall_effect": {
-					"effect_type": StrikeEffects.PookySetZolsTarget,
-					"card_id": active_boost.card.id,
-					"override_description": "put into play as a facedown continuous boost"
-				}
-			}, null)
 		StrikeEffects.PookySetZolsTarget:
 			# Zol's Recipe force-for-effect overall effect: mark this card for conversion.
-			var pooky_zst_card_id = effect.get("card_id", -1)
+			var pooky_zst_card_id = effect.get("card_id", card_id)
 			if pooky_zst_card_id != -1:
 				performing_player.pooky_zols_target_id = pooky_zst_card_id
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Zol's Secret Recipe marks the card for conversion.")
@@ -10579,6 +10497,17 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 		printlog("ERROR: Tried to boost a card with an overload")
 		assert(false)
 		return false
+
+	# Boosting out of gauge as a turn action is unlocked by effects like Memories
+	# from the Deep, which may restrict which kinds of boosts qualify.
+	if game_state == Enums.GameState.GameState_PickAction and performing_player.is_card_in_gauge(card_id):
+		if not performing_player.can_boost_from_gauge:
+			printlog("ERROR: Tried to boost from gauge without being allowed to.")
+			return false
+		if not performing_player.can_boost_card_from_gauge(card):
+			printlog("ERROR: Tried to boost a %s boost from gauge when only %s boosts are allowed." % [
+				card.definition['boost']['boost_type'], performing_player.boost_from_gauge_limitation])
+			return false
 
 	if not decision_info.ignore_costs:
 		if 'gauge_cost' in card.definition['boost']:

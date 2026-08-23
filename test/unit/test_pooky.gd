@@ -25,6 +25,54 @@ func get_custom_cards():
 				"display_name": "Test Tipple",
 				"effects": []
 			}
+		},
+		{
+			"id": "custom_continuous_noeffect",
+			"type": "special",
+			"display_name": "Test Nightcap",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 1,
+			"power": 1,
+			"speed": 1,
+			"armor": 0,
+			"guard": 0,
+			"effects": [],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Test Nightcap",
+				"effects": []
+			}
+		},
+		{
+			"id": "custom_immediate_boostagain",
+			"type": "special",
+			"display_name": "Test Double Round",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 1,
+			"power": 1,
+			"speed": 1,
+			"armor": 0,
+			"guard": 0,
+			"effects": [],
+			"boost": {
+				"boost_type": "immediate",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Test Double Round",
+				"effects": [
+					{
+						"timing": "now",
+						"effect_type": "boost_additional",
+						"limitation": ""
+					}
+				]
+			}
 		}
 	]
 
@@ -163,6 +211,66 @@ func test_pooky_drunken_fury_boost_enters_strike():
 	assert_true(game_logic.do_force_for_effect(player1, gauge_ids, false))
 
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+
+func test_pooky_drunken_fury_does_not_trigger_on_continuous_boost():
+	# Drunken Fury only cares about Instant Boosts.
+	add_transform(player1, "pooky_drunkenrampage")
+	give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "custom_continuous_noeffect")
+
+	assert_true(game_logic.do_boost(player1, boost_id))
+
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_true(player1.is_card_in_continuous_boosts(boost_id))
+
+func test_pooky_drunken_fury_only_triggers_once_per_turn():
+	# The outer boost lets Pooky boost a second Instant Boost in the same turn;
+	# the second one resolves first and consumes the once-per-turn trigger.
+	add_transform(player1, "pooky_drunkenrampage")
+	give_gauge(player1, 2)
+	var first_boost_id = give_player_specific_card(player1, "custom_immediate_boostagain")
+	var second_boost_id = give_player_specific_card(player1, "custom_immediate_noeffect")
+
+	assert_true(game_logic.do_boost(player1, first_boost_id))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_BoostNow)
+	assert_true(game_logic.do_boost(player1, second_boost_id))
+
+	# Drunken Fury triggers for the inner boost only.
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
+
+	# The outer boost finishes without offering Drunken Fury a second time.
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+
+func test_pooky_drunken_fury_declining_ends_the_turn_and_resets_next_turn():
+	add_transform(player1, "pooky_drunkenrampage")
+	give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "custom_immediate_noeffect")
+
+	assert_true(game_logic.do_boost(player1, boost_id))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+
+	advance_turn(player2)
+
+	# A new turn re-arms the once-per-turn trigger.
+	var second_boost_id = give_player_specific_card(player1, "custom_immediate_noeffect")
+	assert_true(game_logic.do_boost(player1, second_boost_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+
+func test_pooky_zols_recipe_does_not_trigger_on_continuous_boost():
+	# Zol's Secret Recipe only cares about Instant Boosts.
+	add_transform(player1, "pooky_hattrick")
+	give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "custom_continuous_noeffect")
+
+	assert_true(game_logic.do_boost(player1, boost_id))
+
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(player1.pooky_zols_target_id, -1)
 
 func test_pooky_zols_recipe_redirects_boost_to_facedown_continuous():
 	# Zol's Secret Recipe transform: first immediate boost each turn, may pay 1

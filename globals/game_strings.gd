@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 
 const CardHighlightColor = "#7DF9FF" # Light blue
 
@@ -277,6 +277,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If your life is less than opponent's, "
 		"not_canceled_this_turn":
 			text += "If not canceled this turn, "
+		"boost_is_immediate":
+			text += "If this is an Instant Boost, "
 		"not_full_push":
 			text += "If not full push, "
 		"not_full_pull":
@@ -1755,12 +1757,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Randomly return cards from your discards to your hand until you have 7, then shuffle your discards"
 		StrikeEffects.PookyGamblingReveal:
 			effect_str += "Set this as a continuous boost and replace this attack with a Wild Swing"
-		StrikeEffects.PookyDrunkenFuryOnBoost:
-			effect_str += "The first time you resolve an immediate boost each turn, you may pay 1 force to strike"
-		StrikeEffects.PookyDrunkenFuryStrike:
-			effect_str += "Strike"
-		StrikeEffects.PookyZolsOnBoost:
-			effect_str += "The first time you use an immediate boost each turn, you may pay 1 force to place it into play as a facedown continuous boost"
 		StrikeEffects.PookySetZolsTarget:
 			effect_str += "Place this into play as a facedown continuous boost"
 		"renea_briefcase_hit":
@@ -1771,14 +1767,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Add the chosen card to the opponent's gauge"
 		"renea_fd_order_first":
 			effect_str += "Resolve this facedown boost's effect first"
-		"renea_mimetism_sustain":
-			effect_str += "You may spend 2 Force to sustain a continuous boost"
-		"renea_mimetism_sustain_do":
-			effect_str += "Sustain the chosen continuous boost"
 		"renea_on_exceed":
 			effect_str += "Put up to 3 cards with Boosts from the opponent's discard pile into your Briefcase"
-		"renea_polling_leads":
-			effect_str += "After resolving a boost, you may spend 1 Force to move 1"
 		"renea_pre_strike_done":
 			effect_str += ""
 		"renea_pre_strike_reveal":
@@ -1869,6 +1859,8 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'silent_effect' in effect and effect['silent_effect']:
 		silent_effect = true
 	if not silent_effect:
+		if effect.get('once_per_turn', ""):
+			effect_str += "The first time each turn, "
 		if 'condition' in effect and not skip_condition:
 			var amount = 0
 			var amount2 = 0

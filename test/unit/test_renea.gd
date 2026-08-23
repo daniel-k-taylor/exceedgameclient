@@ -376,3 +376,94 @@ func test_neutralizer_does_not_touch_gauge_when_opponent_is_not_exceeded():
 
 	assert_ne(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromDiscard)
 	assert_eq(player2.gauge.size(), gauge_before)
+
+func test_following_leads_offers_a_move_after_resolving_a_boost():
+	# Following Leads: after resolving a Boost, spend 1 Force to Move 1.
+	add_transform(player1, "renea_lethal_force")
+	position_players(player1, 3, player2, 6)
+	var gauge_ids = give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "renea_called_shot")
+
+	assert_true(game_logic.do_boost(player1, boost_id, [], false, 0, [], false))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, gauge_ids, false))
+	# Choice of Advance 1 / Retreat 1.
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 1))
+
+	validate_positions(player1, 2, player2, 6)
+
+func test_following_leads_can_be_declined():
+	add_transform(player1, "renea_lethal_force")
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 1)
+	var boost_id = give_player_specific_card(player1, "renea_called_shot")
+
+	assert_true(game_logic.do_boost(player1, boost_id, [], false, 0, [], false))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
+
+	validate_positions(player1, 3, player2, 6)
+
+func test_following_leads_does_not_trigger_when_turning_a_boost_face_up():
+	# "Ignore this when turning a Boost face-up." Revealing a face-down boost
+	# resolves its Now effects but is not resolving a Boost.
+	add_transform(player1, "renea_lethal_force")
+	position_players(player1, 3, player2, 5)
+	give_gauge(player1, 1)
+	var flare_id = _place_facedown_boost(player1, "renea_flare")
+	var attack_id = give_player_specific_card(player1, "standard_normal_cross")
+
+	assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+
+	# Flare resolved on reveal (returned to hand, drew a card) but Following
+	# Leads was not offered.
+	assert_true(player1.is_card_in_hand(flare_id))
+	assert_ne(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	validate_positions(player1, 3, player2, 5)
+
+func test_mimetism_sustains_a_continuous_boost_for_two_force():
+	# Mimetism: attacks gain "After: You may spend 2 Force. If you do, choose one
+	# of your Continuous Boosts. Do not discard it from play after this Strike."
+	add_transform(player1, "renea_paranormal_investigation")
+	position_players(player1, 4, player2, 5)
+	var boost_id = _add_continuous_boost(player1, "renea_anticipation")
+	var gauge_ids = give_gauge(player1, 2)
+
+	var attack_id = give_player_specific_card(player1, "standard_normal_assault")
+	assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+	var response_id = give_player_specific_card(player2, "standard_normal_focus")
+	assert_true(game_logic.do_strike(player2, response_id, false, -1))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, gauge_ids, false))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
+	assert_true(game_logic.do_choose_from_boosts(player1, [boost_id]))
+
+	process_remaining_decisions(player1, player2, [], [])
+
+	assert_true(player1.is_card_in_continuous_boosts(boost_id))
+
+func test_mimetism_boost_is_discarded_when_the_force_is_not_spent():
+	add_transform(player1, "renea_paranormal_investigation")
+	position_players(player1, 4, player2, 5)
+	var boost_id = _add_continuous_boost(player1, "renea_anticipation")
+	give_gauge(player1, 2)
+
+	var attack_id = give_player_specific_card(player1, "standard_normal_assault")
+	assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+	var response_id = give_player_specific_card(player2, "standard_normal_focus")
+	assert_true(game_logic.do_strike(player2, response_id, false, -1))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
+	assert_ne(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
+
+	process_remaining_decisions(player1, player2, [], [])
+
+	# Unsustained continuous boosts are discarded at the end of the strike.
+	assert_false(player1.is_card_in_continuous_boosts(boost_id))
+	assert_true(player1.is_card_in_discards(boost_id))
+

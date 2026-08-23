@@ -320,9 +320,10 @@ var sustained_boosts : Array
 var sustain_next_boost : bool
 var syrus_reckless_greed_used : bool
 var syrus_dredge_fury_spent_ids : Array
-var pooky_drunken_fury_used : bool = false
+# Keys of effects marked once_per_turn that already triggered this turn.
+# Cleared at the start of each turn.
+var used_once_per_turn_effects : Dictionary = {}
 var pooky_zols_target_id : int = -1
-var pooky_zols_used : bool = false
 var renea_pre_strike_effects : Array = []
 var renea_pre_strike_index : int = 0
 var renea_pre_strike_needs_fss : bool = false
@@ -386,6 +387,9 @@ var bonus_armor_counters : int
 # Keyed by "<card_id>|<effect path>", value is the effect definition that was applied.
 var active_dynamic_strike_effects : Dictionary = {}
 var can_boost_from_gauge : bool
+# Optional restriction on what may be boosted out of gauge, e.g. Syrus's
+# Memories from the Deep only allows immediate boosts. Empty means no limit.
+var boost_from_gauge_limitation : String
 var can_boost_from_extra : bool
 var checked_post_action_effects : bool
 var seal_instead_of_discarding : bool
@@ -495,9 +499,8 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	sustain_next_boost = false
 	syrus_reckless_greed_used = false
 	syrus_dredge_fury_spent_ids = []
-	pooky_drunken_fury_used = false
+	used_once_per_turn_effects = {}
 	pooky_zols_target_id = -1
-	pooky_zols_used = false
 	renea_boost_from_briefcase_used = false
 	renea_facedown_revealed = false
 	seal_force_bonus_tmp = 0
@@ -551,6 +554,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	bonus_armor_counters = 0
 	active_dynamic_strike_effects = {}
 	can_boost_from_gauge = false
+	boost_from_gauge_limitation = ""
 	can_boost_from_extra = deck_def.get('can_boost_from_extra', false)
 	seal_instead_of_discarding = false
 	passive_effects = {}
@@ -1839,6 +1843,18 @@ func can_pay_cost(force_cost : int, gauge_cost : int, alternative_life_cost : in
 		return false
 	return true
 
+func can_boost_card_from_gauge(card : GameCard) -> bool:
+	# Effects that unlock boosting out of gauge may restrict which boosts qualify,
+	# e.g. Syrus's Memories from the Deep only allows immediate boosts.
+	if not boost_from_gauge_limitation:
+		return true
+	if card.definition['boost']['boost_type'] == boost_from_gauge_limitation:
+		return true
+	# Transforms replace the original boost; the underlying boost is what gets played.
+	if "replaced_boost" in card.definition:
+		return card.definition["replaced_boost"]["boost_type"] == boost_from_gauge_limitation
+	return false
+
 func can_boost_something(valid_zones : Array, limitation : String, ignore_costs : bool = false) -> bool:
 	var force_available = get_available_force()
 	var zone_map = {
@@ -1865,19 +1881,8 @@ func can_boost_something(valid_zones : Array, limitation : String, ignore_costs 
 			if not meets_limitation:
 				continue
 
-			if zone == "gauge":
-				# Boosting from gauge is unlocked by the Albatross Talon transform,
-				# which is character-unique, so no deck check is needed.
-				var syrus_has_memories = false
-				for syrus_tf in transforms:
-					if syrus_tf.definition.get("id") == "syrus_albatross_talon":
-						syrus_has_memories = true
-						break
-				if syrus_has_memories:
-					var syrus_is_ok = card.definition['boost']['boost_type'] == "immediate"
-					syrus_is_ok = syrus_is_ok or ("replaced_boost" in card.definition and card.definition["replaced_boost"]["boost_type"] == "immediate")
-					if not syrus_is_ok:
-						continue
+			if zone == "gauge" and not can_boost_card_from_gauge(card):
+				continue
 
 			if limitation == "transform" and has_card_name_in_zone(card, "transform"):
 				continue

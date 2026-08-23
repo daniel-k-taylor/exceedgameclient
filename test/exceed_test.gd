@@ -63,10 +63,15 @@ func give_specific_cards(p1, id1, p2, id2):
 		test_ids.append(give_player_specific_card(p2, id2))
 	return test_ids
 
-func add_transform(player, card_id):
+func add_transform(player, card_id, resolve_now_effects := false):
 	give_player_specific_card(player, card_id)
-	player.add_to_transforms(player.hand[-1])
+	var card = player.hand[-1]
+	player.add_to_transforms(card)
 	player.hand.remove_at(player.hand.size() - 1)
+	if resolve_now_effects:
+		# Mirrors do_ex_transform: transforms apply their "now" effects when played.
+		for effect in game_logic.get_card_database().get_card_boost_effects_now_immediate(card):
+			game_logic.do_effect_if_condition_met(player, card.id, effect, null)
 
 func set_player_topdeck(player, card_id):
 	var new_id = give_player_specific_card(player, card_id)

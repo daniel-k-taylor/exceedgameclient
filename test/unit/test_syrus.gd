@@ -159,7 +159,7 @@ func test_silver_shadow_uses_move_to_space_with_range_3_limit():
 
 func test_talon_only_boosts_immediate_from_gauge_and_seals_before_syrus_replay():
 	position_players(player1, 3, player2, 6)
-	add_transform(player1, "syrus_albatross_talon")
+	add_transform(player1, "syrus_albatross_talon", true)
 
 	var continuous_boost_id = give_player_specific_card(player1, "standard_normal_grasp")
 	player1.move_card_from_hand_to_gauge(continuous_boost_id)
@@ -179,6 +179,53 @@ func test_talon_only_boosts_immediate_from_gauge_and_seals_before_syrus_replay()
 	assert_false(boosted_card.definition.has("replaced_boost"))
 	validate_positions(player1, 4, player2, 6)
 
+func test_talon_rejects_boosting_a_continuous_boost_out_of_gauge():
+	position_players(player1, 3, player2, 6)
+	add_transform(player1, "syrus_albatross_talon", true)
+	assert_true(player1.can_boost_from_gauge)
+	assert_eq(player1.boost_from_gauge_limitation, "immediate")
+
+	# Grasp is a continuous boost, so it is not playable out of gauge.
+	var continuous_boost_id = give_player_specific_card(player1, "standard_normal_grasp")
+	player1.move_card_from_hand_to_gauge(continuous_boost_id)
+
+	var wrapper = GameWrapper.new()
+	wrapper.current_game = game_logic
+	assert_false(wrapper.can_player_boost(player1.my_id, continuous_boost_id, ["gauge"], "", false),
+			"the UI should not offer a continuous boost from gauge")
+	wrapper.free()
+	assert_false(game_logic.do_boost(player1, continuous_boost_id, []),
+			"the game should reject boosting a continuous boost out of gauge")
+
+	# Nothing happened: the card stays in gauge and it is still the player's turn.
+	assert_true(player1.is_card_in_gauge(continuous_boost_id))
+	assert_false(player1.is_card_in_continuous_boosts(continuous_boost_id))
+	assert_false(player1.is_card_in_sealed(continuous_boost_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.get_active_player(), player1.my_id)
+
+func test_boosting_from_gauge_is_rejected_without_memories_from_the_deep():
+	position_players(player1, 3, player2, 6)
+	assert_false(player1.can_boost_from_gauge)
+
+	var immediate_boost_id = give_player_specific_card(player1, "syrus_tidal_whirl")
+	player1.move_card_from_hand_to_gauge(immediate_boost_id)
+
+	assert_false(game_logic.do_boost(player1, immediate_boost_id, []))
+	assert_true(player1.is_card_in_gauge(immediate_boost_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_talon_still_allows_the_same_continuous_boost_from_hand():
+	# The restriction is only on the gauge zone; hand boosts are unaffected.
+	position_players(player1, 3, player2, 6)
+	add_transform(player1, "syrus_albatross_talon", true)
+
+	var continuous_boost_id = give_player_specific_card(player1, "standard_normal_grasp")
+	assert_true(game_logic.do_boost(player1, continuous_boost_id, []))
+	assert_true(player1.is_card_in_continuous_boosts(continuous_boost_id))
+	assert_false(player1.is_card_in_sealed(continuous_boost_id),
+			"boosts played from hand are not sealed by Memories from the Deep")
+
 # ===== FAQ RULING S1 =====
 # "If Syrus has Memories From the Deep in play (may play Instant Boosts from
 #  Gauge - then Seal them) can he keep those Boosts in play as face-down Boosts
@@ -189,7 +236,7 @@ func test_talon_only_boosts_immediate_from_gauge_and_seals_before_syrus_replay()
 # boost, but the Memories seal takes priority.
 func test_faq_s1_memories_from_the_deep_seals_boost_despite_character_ability():
 	position_players(player1, 3, player2, 6)
-	add_transform(player1, "syrus_albatross_talon")  # transform: Memories from the Deep
+	add_transform(player1, "syrus_albatross_talon", true)  # transform: Memories from the Deep
 
 	var immediate_boost_id = give_player_specific_card(player1, "syrus_tidal_whirl")
 	player1.move_card_from_hand_to_gauge(immediate_boost_id)

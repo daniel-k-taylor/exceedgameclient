@@ -255,10 +255,10 @@ func test_linne_cannot_gauge_boost1():
 	assert_false(player1.can_do_character_action(0))
 
 func test_linne_cannot_gauge_boost2():
-	give_player_specific_gauge_card(player1, 'uni_normal_focus', TestCardId1)
-	give_player_specific_gauge_card(player2, 'uni_normal_focus', TestCardId2)
+	give_player_specific_card(player1, 'uni_normal_focus', TestCardId1)
+	give_player_specific_card(player2, 'uni_normal_focus', TestCardId2)
 	assert_true(game_logic.do_boost(player1, TestCardId1))
-	assert_true(game_logic.do_boost(player2, TestCardId1))
+	assert_true(game_logic.do_boost(player2, TestCardId2))
 	assert_eq(player1.gauge.size(), 1)
 	assert_false(player1.can_do_character_action(0))
 

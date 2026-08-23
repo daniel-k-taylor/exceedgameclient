@@ -85,12 +85,12 @@
 			"image_index": 5
 		},
 		{
-			"definition_id": "ulrik_atomicelectric",
+			"definition_id": "ulrik_atomicbolt",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "ulrik_atomicelectric",
+			"definition_id": "ulrik_atomicbolt",
 			"image_name": "specials",
 			"image_index": 6
 		},
@@ -115,32 +115,32 @@
 			"image_index": 1
 		},
 		{
-			"definition_id": "ulrik_thunderhammer",
+			"definition_id": "ulrik_blitzhammer",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "ulrik_thunderhammer",
+			"definition_id": "ulrik_blitzhammer",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "ulrik_ion",
+			"definition_id": "ulrik_ionization",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "ulrik_ion",
+			"definition_id": "ulrik_ionization",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "ulrik_noescape",
+			"definition_id": "ulrik_inevitability",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "ulrik_noescape",
+			"definition_id": "ulrik_inevitability",
 			"image_name": "specials",
 			"image_index": 4
 		},
