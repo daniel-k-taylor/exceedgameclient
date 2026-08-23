@@ -19296,8 +19296,8 @@
 		"range_max": 1,
 		"power": 2,
 		"speed": 4,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
@@ -19355,8 +19355,8 @@
 		"range_max": 1,
 		"power": 2,
 		"speed": 6,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
@@ -19407,8 +19407,8 @@
 		"range_max": 4,
 		"power": 6,
 		"speed": 1,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
@@ -19449,8 +19449,8 @@
 		"range_max": 5,
 		"power": 4,
 		"speed": 4,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -19504,8 +19504,8 @@
 		"range_max": 1,
 		"power": 1,
 		"speed": 8,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
@@ -19565,8 +19565,8 @@
 		"range_max": 5,
 		"power": 4,
 		"speed": 5,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -19605,8 +19605,8 @@
 		"range_max": 1,
 		"power": 2,
 		"speed": 6,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -21491,8 +21491,8 @@
 		"range_max": 2,
 		"power": 3,
 		"speed": 5,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -21541,8 +21541,8 @@
 		"range_max": 2,
 		"power": 4,
 		"speed": 3,
-		"guard": 5,
 		"armor": 0,
+		"guard": 5,
 		"effects": [
 			{
 				"timing": "hit",
@@ -21593,8 +21593,8 @@
 		"range_max": 1,
 		"power": 3,
 		"speed": 5,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
@@ -21637,8 +21637,8 @@
 		"range_max": 7,
 		"power": 3,
 		"speed": 4,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
@@ -21673,8 +21673,8 @@
 		"range_max": 3,
 		"power": 10,
 		"speed": 3,
-		"guard": 4,
 		"armor": 0,
+		"guard": 4,
 		"effects": [],
 		"boost": {
 			"boost_type": "immediate",
@@ -21712,8 +21712,8 @@
 		"range_max": 4,
 		"power": 2,
 		"speed": 6,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -21756,8 +21756,8 @@
 		"range_max": 3,
 		"power": 10,
 		"speed": 4,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [],
 		"boost": {
 			"boost_type": "continuous",
@@ -30584,9 +30584,9 @@
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 3,
+		"power": 4,
 		"speed": "CARDS_IN_HAND",
 		"max_base_speed": 7,
-		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [],
@@ -33563,8 +33563,8 @@
 		"range_max": 3,
 		"power": 3,
 		"speed": 6,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -33622,8 +33622,8 @@
 		"range_max": 5,
 		"power": 3,
 		"speed": 5,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "after",
@@ -33659,8 +33659,8 @@
 		"range_max": 6,
 		"power": 4,
 		"speed": 4,
-		"guard": 4,
 		"armor": 0,
+		"guard": 4,
 		"effects": [
 			{
 				"timing": "after",
@@ -33701,8 +33701,8 @@
 		"range_max": 2,
 		"power": 5,
 		"speed": 4,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -33743,8 +33743,8 @@
 		"range_max": 5,
 		"power": 5,
 		"speed": 3,
-		"guard": 3,
 		"armor": 0,
+		"guard": 3,
 		"effects": [
 			{
 				"timing": "during_strike",
@@ -33789,8 +33789,8 @@
 		"range_max": 2,
 		"power": 2,
 		"speed": 7,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -33823,8 +33823,8 @@
 		"range_max": 6,
 		"power": 2,
 		"speed": 4,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
@@ -40081,8 +40081,8 @@
 		"range_max": 3,
 		"power": 1,
 		"speed": 7,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
@@ -40132,8 +40132,8 @@
 		"range_max": 2,
 		"power": 4,
 		"speed": 6,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "after",
@@ -40165,8 +40165,8 @@
 		"range_max": 4,
 		"power": 4,
 		"speed": 5,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -40210,8 +40210,8 @@
 		"range_max": 4,
 		"power": 3,
 		"speed": 4,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
@@ -40273,8 +40273,8 @@
 		"range_max": 4,
 		"power": 3,
 		"speed": 2,
-		"guard": 6,
 		"armor": 0,
+		"guard": 6,
 		"effects": [
 			{
 				"timing": "before",
@@ -40483,8 +40483,8 @@
 		"range_max": 1,
 		"power": 6,
 		"speed": 4,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
@@ -40532,8 +40532,8 @@
 		"range_max": 1,
 		"power": 5,
 		"speed": 3,
-		"guard": 0,
 		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
