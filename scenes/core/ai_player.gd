@@ -1018,12 +1018,17 @@ func can_pick_discard_continuous(card, limitation, boost_name_restriction):
 			return false
 	return true
 
-func pick_discard_opponent_gauge() -> DiscardGaugeAction:
+func pick_discard_opponent_gauge(choosing_own : bool) -> DiscardGaugeAction:
 	game_state.update()
 	var possible_actions = []
-	for card in game_opponent.gauge:
-		possible_actions.append(DiscardGaugeAction.new(card.id))
-	return ai_policy.pick_discard_opponent_gauge(possible_actions, game_state)
+	if choosing_own:
+		for card in game_player.gauge:
+			possible_actions.append(DiscardGaugeAction.new(card.id))
+		return ai_policy.pick_discard_own_gauge(possible_actions, game_state) #TODO: may need to be defined for new policies when merging
+	else:
+		for card in game_opponent.gauge:
+			possible_actions.append(DiscardGaugeAction.new(card.id))
+		return ai_policy.pick_discard_opponent_gauge(possible_actions, game_state)
 
 func pick_name_opponent_card(normal_only : bool, can_use_own_reference : bool = false) -> NameCardAction:
 	game_state.update()

@@ -903,7 +903,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				else:
 					effect_str += "Discard a continuous boost"
 		StrikeEffects.DiscardOpponentGauge:
-			effect_str += "Discard a card from opponent's gauge."
+			if 'opponent_chooses' in effect and effect['opponent_chooses']:
+				effect_str += "Opponent discards a card from their gauge."
+			else:
+				effect_str += "Discard a card from opponent's gauge."
 		StrikeEffects.DiscardOpponentTopdeck:
 			if 'amount' in effect and str(effect['amount']) != "1":
 				effect_str += "Discard the top %s cards of the opponent's deck" % effect['amount']
@@ -1020,6 +1023,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Opponent draws or discards until they have %s" % amount_str
 			if 'per_draw_effect' in effect:
 				effect_str += "\nIf they draw: per card drawn, " + get_effect_text(effect['per_draw_effect'], false, false, false)
+		StrikeEffects.OpponentDiscardTo:
+			effect_str += "Opponent discards until they have %s cards in hand" % str(effect['amount'])
 		StrikeEffects.EffectPerCardInZone:
 			var per_effect = get_effect_text(effect["per_card_effect"], false, false, false)
 			var limitation_str = ""
