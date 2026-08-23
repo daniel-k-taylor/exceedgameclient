@@ -64,6 +64,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "zsolt_fanatical_purification",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "zsolt_fanatical_purification",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "zsolt_wild_hunt",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "zsolt_wild_hunt",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
 			"definition_id": "zsolt_fatal_eye",
 			"image_name": "specials",
 			"image_index": 0
@@ -112,26 +132,6 @@
 			"definition_id": "zsolt_gunblaze",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "zsolt_fanatical_purification",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "zsolt_fanatical_purification",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "zsolt_wild_hunt",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "zsolt_wild_hunt",
-			"image_name": "specials",
-			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",

@@ -382,7 +382,7 @@ class Strike:
 	var when_hit_effects_processed = []
 	var queued_stop_on_space_boosts = []
 	var cards_discarded_this_strike = 0
-	var unknown_khadath_used = false
+	var strike_ended_early = false
 
 	var extra_attack_in_progress = false
 	var extra_attack_data : ExtraAttackData = ExtraAttackData.new()
@@ -3444,6 +3444,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.draw_at_end_of_turn = true
 		StrikeEffects.EndOverdrive:
 			performing_player.end_overdrive()
+		StrikeEffects.EndTheStrike:
+			if active_strike == null:
+				return
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "ends the strike!")
+			active_strike.remaining_effect_list.clear()
+			active_strike.strike_ended_early = true
 		StrikeEffects.ExceedEndOfTurn:
 			performing_player.exceed_at_end_of_turn = true
 		StrikeEffects.ExceedNow:
@@ -5987,15 +5993,24 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					amount = int(sealed_normals / 2)
 				elif str(amount) == "strike_x":
 					amount = performing_player.strike_stat_boosts.strike_x
+				elif str(amount) == "TRANSFORMABLE_HAND_COUNT":
+					amount = _get_tournelouse_transform_hand_options(performing_player).size()
 
 				var linked_effect = effect['linked_effect']
+				# An "and" on a repeat means "once the whole chain is done", so it
+				# is carried along to the last repeat (or to whichever Pass ends
+				# the chain early) instead of firing after the first iteration.
+				var chain_end_effect = effect.get("and")
+				if chain_end_effect:
+					and_handled_elsewhere = true
 				if amount > 0:
 					var repeat_effect = {
 							"card_id": card_id,
 							"effect_type": StrikeEffects.RepeatEffectOptionally,
 							"amount": amount-1,
 							"not_optional": not_optional,
-							"linked_effect": linked_effect
+							"linked_effect": linked_effect,
+							"and": chain_end_effect
 						}
 					if not not_optional:
 						repeat_effect = {
@@ -6003,12 +6018,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 							"effect_type": StrikeEffects.Choice,
 							StrikeEffects.Choice: [
 								repeat_effect,
-								{ "effect_type": StrikeEffects.Pass }
+								{ "effect_type": StrikeEffects.Pass, "and": chain_end_effect }
 							]
 						}
 					add_remaining_effect(repeat_effect)
 				if not first_not_automatic:
 					handle_strike_effect(card_id, linked_effect, performing_player)
+				if amount <= 0 and chain_end_effect:
+					# Chain is over immediately, so resolve the trailing effect now.
+					if game_state == Enums.GameState.GameState_PlayerDecision:
+						add_queued_effect(chain_end_effect.duplicate(), local_conditions)
+					else:
+						do_effect_if_condition_met(performing_player, card_id, chain_end_effect, local_conditions)
 		StrikeEffects.RepeatPrintedTriggersOnExAttack:
 			performing_player.strike_stat_boosts.repeat_printed_triggers_on_ex_attack = effect.get("amount")
 		StrikeEffects.ResetCharacterPositions:
@@ -6465,6 +6486,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		StrikeEffects.Strike:
 			# Cannot strike during a strike.
 			if not active_strike:
+				if effect.get("opponent_forced_wild", false):
+					performing_player.opponent_next_strike_forced_wild_swing = true
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -6775,30 +6798,32 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.amount_min = 1
 				decision_info.effect = effect
 				create_event(Enums.EventType.EventType_ChooseFromBoosts, performing_player.my_id, 1)
-		StrikeEffects.TournelouseTransformAnyFromHand:
-			var tl_choices = []
-			tl_choices.append({ "_choice_text": "Finish (draw 3)", "effect_type": StrikeEffects.Draw, "amount": 3 })
-			for hand_card in performing_player.hand:
-				if hand_card.definition['boost']['boost_type'] == "transform" or performing_player.can_treat_card_as_transform(hand_card):
-					if not performing_player.has_card_name_in_zone(hand_card, "transform"):
-						tl_choices.append({
-							"_choice_text": "Transform " + hand_card.definition['display_name'],
-							"effect_type": StrikeEffects.TournelouseBargeistTransform,
-							"transform_card_id": hand_card.id
-						})
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
-			decision_info.player = performing_player.my_id
-			decision_info.choice_card_id = card_id
-			decision_info.choice = tl_choices
-			create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")
-		StrikeEffects.TournelouseBargeistTransform, StrikeEffects.TournelouseNormalTransform:
+		StrikeEffects.TransformCardFromHand:
+			# Choose one card in hand that can be transformed and transform it.
+			# Repeating this (e.g. via repeat_effect_optionally) is what lets a
+			# card transform "any number" of cards.
+			var tf_choices = []
+			for tf_card_id in _get_tournelouse_transform_hand_options(performing_player):
+				var tf_card = card_db.get_card(tf_card_id)
+				tf_choices.append({
+					"_choice_text": "Transform " + tf_card.definition['display_name'],
+					"effect_type": StrikeEffects.TransformSpecificCardFromHand,
+					"transform_card_id": tf_card_id
+				})
+			if tf_choices.size() == 0:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand that can be transformed.")
+			else:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.choice = tf_choices
+				create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")
+		StrikeEffects.TransformSpecificCardFromHand:
 			var transform_card_id = effect.get("transform_card_id", effect.get("card_id", -1))
 			if transform_card_id != -1 and performing_player.is_card_in_hand(transform_card_id):
 				do_ex_transform(performing_player, transform_card_id, -1, false, true)
-				if effect['effect_type'] == StrikeEffects.TournelouseBargeistTransform:
-					add_remaining_effect({ "effect_type": StrikeEffects.TournelouseTransformAnyFromHand, "card_id": card_id })
 		StrikeEffects.TournelouseOuroboros:
 			if performing_player.transforms.size() == 0 or _get_tournelouse_transform_hand_options(performing_player).size() == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no hand card and transform to swap.")
@@ -7048,16 +7073,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				umina_pd_card = opposing_player.sealed[opposing_player.sealed.size() - 1]
 			if umina_pd_card == null:
 				return
-			if performing_player.set_aside_cards.size() > 0:
-				var umina_pd_old = performing_player.set_aside_cards[0]
-				if performing_player.exceeded and umina_pd_old.owner_id != performing_player.my_id:
-					var umina_pd_owner = _get_player(umina_pd_old.owner_id)
-					umina_pd_owner.add_to_hand(umina_pd_old, true)
-				elif performing_player.exceeded:
-					performing_player.add_to_hand(umina_pd_old, not performing_player.umina_dreamlands_facedown)
-				else:
-					performing_player.add_to_discards(umina_pd_old)
-				performing_player.remove_card_from_set_aside(umina_pd_old.id)
+			_umina_make_room_in_dreamlands(performing_player)
 			if umina_pd_card in opposing_player.discards:
 				opposing_player.remove_card_from_discards(umina_pd_card.id)
 			elif umina_pd_card in opposing_player.sealed:
@@ -7106,16 +7122,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					break
 			if umina_dtp_card == null:
 				return
-			if performing_player.set_aside_cards.size() > 0:
-				var umina_dtp_old = performing_player.set_aside_cards[0]
-				if performing_player.exceeded and umina_dtp_old.owner_id != performing_player.my_id:
-					var umina_dtp_owner = _get_player(umina_dtp_old.owner_id)
-					umina_dtp_owner.add_to_hand(umina_dtp_old, true)
-				elif performing_player.exceeded:
-					performing_player.add_to_hand(umina_dtp_old, not performing_player.umina_dreamlands_facedown)
-				else:
-					performing_player.add_to_discards(umina_dtp_old)
-				performing_player.remove_card_from_set_aside(umina_dtp_old.id)
+			_umina_make_room_in_dreamlands(performing_player)
 			opposing_player.remove_card_from_discards(umina_dtp_id)
 			performing_player.add_to_set_aside(umina_dtp_card)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "puts discarded card into Dreamlands.")
@@ -7154,34 +7161,26 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				for umina_witd_ef in umina_witd_boost.get("effects", []):
 					if umina_witd_ef.get("timing") == "immediate":
 						do_effect_if_condition_met(performing_player, umina_witd_card.id, umina_witd_ef, null)
-		"umina_unknown_khadath":
-			if active_strike == null:
-				return
-			var umina_uk_card = active_strike.get_player_card(opposing_player)
-			if umina_uk_card != null and umina_uk_card.definition.get("type") != "faceattack":
+		"umina_place_opponent_attack_to_dreamlands":
+			var umina_uk_card = null
+			if active_strike:
+				umina_uk_card = active_strike.get_player_card(opposing_player)
+			if umina_uk_card and not _attack_can_be_taken(opposing_player, umina_uk_card):
+				# Face attacks belong to a persistent zone and can't be taken.
+				# Any other effects chained onto this one still happen.
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot place %s into Dreamlands." % _log_card_name(umina_uk_card.id))
+				umina_uk_card = null
+			if umina_uk_card:
 				if opposing_player.umina_shadow_chorus_restore.has(umina_uk_card.id):
 					umina_uk_card.definition = opposing_player.umina_shadow_chorus_restore[umina_uk_card.id].duplicate(true)
 					opposing_player.umina_shadow_chorus_restore.erase(umina_uk_card.id)
-				if performing_player.set_aside_cards.size() > 0:
-					var umina_uk_old = performing_player.set_aside_cards[0]
-					if performing_player.exceeded and umina_uk_old.owner_id != performing_player.my_id:
-						var umina_uk_owner = _get_player(umina_uk_old.owner_id)
-						umina_uk_owner.add_to_hand(umina_uk_old, true)
-					elif performing_player.exceeded:
-						performing_player.add_to_hand(umina_uk_old, not performing_player.umina_dreamlands_facedown)
-					else:
-						performing_player.add_to_discards(umina_uk_old)
-					performing_player.remove_card_from_set_aside(umina_uk_old.id)
+				change_stats_when_attack_leaves_play(opposing_player)
+				_umina_make_room_in_dreamlands(performing_player)
+				active_strike.cards_in_play.erase(umina_uk_card)
 				performing_player.add_to_set_aside(umina_uk_card)
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "places the opponent's attack %s into Dreamlands." % _log_card_name(umina_uk_card.id))
 				create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, umina_uk_card.id)
 				_umina_check_slipping_away(performing_player, umina_uk_card.id)
-				var umina_uk_self = active_strike.get_player_card(performing_player)
-				if umina_uk_self != null:
-					active_strike.cards_in_play.erase(umina_uk_self)
-					performing_player.add_to_gauge(umina_uk_self)
-				active_strike.cards_in_play.clear()
-				active_strike.remaining_effect_list.clear()
-				active_strike.unknown_khadath_used = true
 		"umina_dream_telling_power":
 			if performing_player.set_aside_cards.size() > 0:
 				var umina_dtl_card = performing_player.set_aside_cards[0]
@@ -7214,24 +7213,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"umina_sleeper_wakes":
 			performing_player.umina_dreamlands_facedown = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Dreamlands cards will enter face-down.")
-		"umina_terror_whispers_action":
-			if performing_player.get_available_gauge() < 2:
-				return
-			do_effect_if_condition_met(performing_player, card_id, {
-				"effect_type": StrikeEffects.GaugeForEffect,
-				"gauge_max": 2,
-				"min_gauge": 2,
-				"per_gauge_effect": null,
-				"can_pass": true,
-				"pass_as_cancel_to_pick_action": true,
-				"overall_effect": {
-					"effect_type": "umina_terror_whispers_start_strike"
-				},
-				"override_description": "Spend 2 gauge to initiate a strike"
-			}, null)
-		"umina_terror_whispers_start_strike":
-			performing_player.opponent_next_strike_forced_wild_swing = true
-			do_effect_if_condition_met(performing_player, card_id, {"effect_type": StrikeEffects.Strike}, null)
 		"umina_seal_dreamlands_for_triggers":
 			if performing_player.set_aside_cards.size() == 0:
 				return
@@ -8481,6 +8462,35 @@ func calculate_damage(offense_player : Player, defense_player : Player) -> int:
 	var damage_after_armor = max(power - armor, 0)
 	return damage_after_armor
 
+# Face attacks and other set-aside attacks belong to a persistent zone,
+# so they cannot be permanently taken away from their owner.
+func _attack_can_be_taken(attacking_player : Player, attack_card : GameCard) -> bool:
+	if attack_card == null:
+		return false
+	if attack_card.definition.get("type") == "faceattack":
+		return false
+	if attacking_player.face_attack_id and attack_card.definition.get("id", "") == attacking_player.face_attack_id:
+		return false
+	if attacking_player.is_set_aside_card(attack_card.id):
+		return false
+	return attack_card.id != attacking_player.face_attack_set_aside_return_card_id
+
+# Dreamlands only holds one card, so evict the current one before adding another.
+# While exceeded the old card goes back to a hand (its owner's, if it was stolen),
+# otherwise it is discarded.
+func _umina_make_room_in_dreamlands(performing_player : Player) -> void:
+	if performing_player.set_aside_cards.size() == 0:
+		return
+	var old_card = performing_player.set_aside_cards[0]
+	if performing_player.exceeded and old_card.owner_id != performing_player.my_id:
+		var old_card_owner = _get_player(old_card.owner_id)
+		old_card_owner.add_to_hand(old_card, true)
+	elif performing_player.exceeded:
+		performing_player.add_to_hand(old_card, not performing_player.umina_dreamlands_facedown)
+	else:
+		performing_player.add_to_discards(old_card)
+	performing_player.remove_card_from_set_aside(old_card.id)
+
 func _umina_check_slipping_away(performing_player : Player, _card_id : int):
 	if performing_player.deck_flag("dreamlands_config", null) == null:
 		return
@@ -8895,6 +8905,11 @@ func continue_resolve_strike():
 			break
 
 		printlog("STRIKE: processing state %s " % [StrikeState.keys()[active_strike.strike_state]])
+		if active_strike.strike_ended_early and active_strike.strike_state < StrikeState.StrikeState_Cleanup:
+			# Something ended the strike, so skip straight to cleaning it up.
+			active_strike.strike_state = StrikeState.StrikeState_Cleanup
+			active_strike.remaining_effect_list = []
+			continue
 		if active_strike.strike_state >= StrikeState.StrikeState_DuringStrikeBonuses:
 			# Dynamic during_strike effects resolve continuously, so re-evaluate their
 			# conditions before each step in case life/position/etc changed.
@@ -8977,14 +8992,8 @@ func continue_resolve_strike():
 				active_strike.strike_state = StrikeState.StrikeState_Card1_Before
 				active_strike.remaining_effect_list = get_all_effects_for_timing("before", player1, card1)
 			StrikeState.StrikeState_Card1_Before:
-				if active_strike.unknown_khadath_used:
-					active_strike.strike_state = StrikeState.StrikeState_Cleanup
-					continue
 				do_remaining_effects(player1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
-				if active_strike.unknown_khadath_used:
-					active_strike.strike_state = StrikeState.StrikeState_Cleanup
-					continue
 				var hit = determine_if_attack_hits(player1, player2, card1)
 				if hit:
 					active_strike.player1_hit = true
@@ -9017,14 +9026,8 @@ func continue_resolve_strike():
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Before
 					active_strike.remaining_effect_list = get_all_effects_for_timing("before", player2, card2)
 			StrikeState.StrikeState_Card2_Before:
-				if active_strike.unknown_khadath_used:
-					active_strike.strike_state = StrikeState.StrikeState_Cleanup
-					continue
 				do_remaining_effects(player2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
-				if active_strike.unknown_khadath_used:
-					active_strike.strike_state = StrikeState.StrikeState_Cleanup
-					continue
 				var hit = determine_if_attack_hits(player2, player1, card2)
 				if hit:
 					active_strike.player2_hit = true
@@ -11238,16 +11241,7 @@ func do_relocate_card_from_hand(performing_player : Player, card_ids : Array) ->
 				# Umina Dreamlands: move card from hand to set_aside, handle old card.
 				var umina_ph_card = card_db.get_card(card_id)
 				if umina_ph_card != null:
-					if performing_player.set_aside_cards.size() > 0:
-						var umina_ph_old = performing_player.set_aside_cards[0]
-						if performing_player.exceeded and umina_ph_old.owner_id != performing_player.my_id:
-							var umina_ph_owner = _get_player(umina_ph_old.owner_id)
-							umina_ph_owner.add_to_hand(umina_ph_old, true)
-						elif performing_player.exceeded:
-							performing_player.add_to_hand(umina_ph_old, not performing_player.umina_dreamlands_facedown)
-						else:
-							performing_player.add_to_discards(umina_ph_old)
-						performing_player.remove_card_from_set_aside(umina_ph_old.id)
+					_umina_make_room_in_dreamlands(performing_player)
 					performing_player.remove_card_from_hand(card_id, true, false)
 					performing_player.add_to_set_aside(umina_ph_card)
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "places %s into Dreamlands." % _log_card_name(umina_ph_card.id))
@@ -11816,16 +11810,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 					# Umina Terror Whispers: put discarded card into Dreamlands.
 					var umina_tw_dest_card = card_db.get_card(card_id)
 					if umina_tw_dest_card != null:
-						if performing_player.set_aside_cards.size() > 0:
-							var umina_tw_old = performing_player.set_aside_cards[0]
-							if performing_player.exceeded and umina_tw_old.owner_id != performing_player.my_id:
-								var umina_tw_owner = _get_player(umina_tw_old.owner_id)
-								umina_tw_owner.add_to_hand(umina_tw_old, true)
-							elif performing_player.exceeded:
-								performing_player.add_to_hand(umina_tw_old, not performing_player.umina_dreamlands_facedown)
-							else:
-								performing_player.add_to_discards(umina_tw_old)
-							performing_player.remove_card_from_set_aside(umina_tw_old.id)
+						_umina_make_room_in_dreamlands(performing_player)
 						performing_player.remove_card_from_discards(card_id)
 						performing_player.add_to_set_aside(umina_tw_dest_card)
 						_append_log_full(Enums.LogType.LogType_Effect, performing_player, "puts %s from discard into Dreamlands." % _log_card_name(card_db.get_card_name(card_id)))

@@ -19381,7 +19381,7 @@
 					"choice": [
 						{
 							"effect_type": "advance",
-							"amount": 99,
+							"amount": 9,
 							"use_semicolon_for_and": true,
 							"and": {
 								"condition": "advanced_through",
@@ -19390,12 +19390,7 @@
 						},
 						{
 							"effect_type": "retreat",
-							"amount": 99,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "add_to_gauge_boost_play_cleanup"
-							}
+							"amount": 9
 						}
 					]
 				}
@@ -21509,8 +21504,7 @@
 			{
 				"timing": "after",
 				"effect_type": "advance",
-				"amount": 99,
-				"override_description": "After: Advance as far as possible."
+				"amount": 9
 			}
 		],
 		"boost": {
@@ -36168,7 +36162,17 @@
 			},
 			{
 				"timing": "hit",
-				"effect_type": "tournelouse_transform_any_from_hand"
+				"effect_type": "repeat_effect_optionally",
+				"amount": "TRANSFORMABLE_HAND_COUNT",
+				"first_not_automatic": true,
+				"linked_effect": {
+					"effect_type": "transform_card_from_hand"
+				},
+				"and": {
+					"effect_type": "draw",
+					"amount": 3
+				},
+				"override_description": "Hit: You may transform any number of cards from your hand, then draw 3 cards."
 			}
 		],
 		"boost": {
@@ -36939,8 +36943,17 @@
 				{
 					"timing": "action",
 					"text": "Spend 2 gauge to initiate a strike (opponent wild swings)",
-					"effect_type": "umina_terror_whispers_action",
+					"effect_type": "gauge_for_effect",
 					"gauge_cost": 2,
+					"gauge_max": 2,
+					"min_gauge": 2,
+					"per_gauge_effect": null,
+					"can_pass": true,
+					"pass_as_cancel_to_pick_action": true,
+					"overall_effect": {
+						"effect_type": "strike",
+						"opponent_forced_wild": true
+					},
 					"override_description": "Action: Spend 2 gauge to initiate a strike. Your opponent must wild swing."
 				}
 			]
@@ -37102,8 +37115,14 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "umina_unknown_khadath",
-				"override_description": "Swallow your opponent's attack card into your Dreamlands, then this card gains its force as gauge."
+				"effect_type": "umina_place_opponent_attack_to_dreamlands",
+				"and": {
+					"effect_type": "add_strike_to_gauge_after_cleanup",
+					"and": {
+						"effect_type": "end_the_strike"
+					}
+				},
+				"override_description": "Before: Place the opponent's attack into your Dreamlands and add this card to your Gauge. End the Strike."
 			}
 		],
 		"boost": {

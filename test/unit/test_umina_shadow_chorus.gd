@@ -242,3 +242,63 @@ func test_unknown_khadath_faster_swallows_attack_and_ends_strike():
 		"Khadath should move defender attack into Umina Dreamlands")
 	assert_not_null(find_card_by_instance_id(player1, init_card_id, [player1.gauge]),
 		"Khadath should move itself to Umina gauge on card1 path too")
+
+func test_unknown_khadath_ends_the_strike_so_nobody_takes_damage():
+	# Khadath is speed 6, so it goes first and ends the strike before the
+	# opponent's Assault (which would otherwise hit for 4) can activate.
+	position_players(player1, 5, player2, 4)  # dist1, in range of Assault
+	var p1_gauge = give_gauge(player1, 3)
+
+	execute_strike(player1, player2, "umina_unknown_khadath", "standard_normal_assault",
+		false, false,
+		[p1_gauge], [])
+
+	validate_life(player1, 30, player2, 30)
+
+func test_unknown_khadath_evicts_the_previous_dreamlands_card():
+	position_players(player1, 5, player2, 2)  # dist3
+	var p1_gauge = give_gauge(player1, 3)
+	put_in_dreamlands(player1, "standard_normal_focus")
+	var old_dreamlands_id = player1.set_aside_cards[0].id
+
+	var strike_cards = execute_strike(player1, player2, "umina_unknown_khadath", "standard_normal_assault",
+		false, false,
+		[p1_gauge], [])
+
+	# Dreamlands only holds one card; while not exceeded the old one is discarded.
+	assert_eq(player1.set_aside_cards.size(), 1)
+	assert_eq(player1.set_aside_cards[0].id, strike_cards[1])
+	assert_not_null(find_card_by_instance_id(player1, old_dreamlands_id, [player1.discards]),
+		"the previous Dreamlands card should be discarded")
+
+func test_unknown_khadath_still_ends_the_strike_against_a_face_attack():
+	# Face attacks live in a persistent zone rather than the deck, so they cannot
+	# be taken; the rest of the ability (gauge + end the strike) still happens.
+	default_game_setup("galdred")
+	position_players(player1, 5, player2, 4)  # dist1, in range of The Beast Within
+	var p1_gauge = give_gauge(player1, 3)
+	var p2_gauge = give_gauge(player2, 6)
+	advance_turn(player1)  # hand the turn to Galdred so he can exceed
+	# Galdred's exceed sets The Beast Within as his face attack and strikes with it.
+	assert_true(game_logic.do_exceed(player2, p2_gauge))
+
+	var strike_cards = execute_strike(player2, player1, -1, "umina_unknown_khadath",
+		false, false,
+		[], [p1_gauge],
+		false,
+		"", "",
+		true, false)  # init_use_face_attack
+
+	assert_eq(player1.set_aside_cards.size(), 0,
+		"a face attack cannot be placed into Dreamlands")
+	assert_not_null(find_card_by_instance_id(player1, strike_cards[1], [player1.gauge]),
+		"Khadath should still add itself to gauge")
+	# The Beast Within loses speed per card in Galdred's hand, so Khadath (speed 6)
+	# goes first and ends the strike before it can hit.
+	validate_life(player1, 30, player2, 30)
+	var beast_returned = false
+	for set_aside_card in player2.set_aside_cards:
+		if set_aside_card.definition["id"] == "galdred_thebeastwithin":
+			beast_returned = true
+	assert_true(beast_returned,
+		"The Beast Within should return to Galdred's set aside zone")

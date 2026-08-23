@@ -13,7 +13,7 @@ func _prepare_terror_whispers_transform() -> void:
 func _find_twh_action_index() -> int:
 	var actions = player1.get_bonus_actions()
 	for i in range(actions.size()):
-		if actions[i].get("effect_type", "") == "umina_terror_whispers_action":
+		if "wild swing" in actions[i].get("text", ""):
 			return i
 	return -1
 
@@ -47,6 +47,27 @@ func test_terror_whispers_action_pay_then_force_opponent_wild_swing():
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_Strike_ForceWildSwing, player1)
 	assert_false(player1.opponent_next_strike_forced_wild_swing)
+
+func test_terror_whispers_action_opponent_really_wild_swings():
+	_prepare_terror_whispers_transform()
+	var action_idx = _find_twh_action_index()
+	assert_ne(action_idx, -1)
+	position_players(player1, 4, player2, 5)
+
+	var gauge_ids = give_gauge(player1, 2)
+	assert_true(game_logic.do_bonus_turn_action(player1, action_idx))
+	assert_true(game_logic.do_gauge_for_effect(player1, gauge_ids))
+
+	var wild_id = set_player_topdeck(player2, "standard_normal_cross")
+	var held_id = give_player_specific_card(player2, "standard_normal_grasp")
+	var strike_id = give_player_specific_card(player1, "standard_normal_assault")
+	assert_true(game_logic.do_strike(player1, strike_id, false, -1))
+
+	# The opponent gets no say: their attack is the top card of their deck.
+	assert_false(player2.is_card_in_deck(wild_id),
+		"the opponent should have wild swung with their top card")
+	assert_true(player2.is_card_in_hand(held_id),
+		"the opponent's hand should be untouched by the forced wild swing")
 
 func test_terror_whispers_action_cancel_gauge_payment_returns_without_strike():
 	_prepare_terror_whispers_transform()

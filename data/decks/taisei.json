@@ -90,6 +90,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "taisei_chaosscissors",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "taisei_chaosscissors",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "taisei_nightmaretares",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "taisei_nightmaretares",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
 			"definition_id": "taisei_dusttodust",
 			"image_name": "specials",
 			"image_index": 0
@@ -138,26 +158,6 @@
 			"definition_id": "taisei_blackvolt",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "taisei_chaosscissors",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "taisei_chaosscissors",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "taisei_nightmaretares",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "taisei_nightmaretares",
-			"image_name": "specials",
-			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",

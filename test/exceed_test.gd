@@ -155,8 +155,12 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1, use_face_attack = 
 			## TODO: Figure out if the test should terminate early here
 	return card_id
 
-func do_strike_response(player, card_id, ex_card_id = -1):
-	if card_id != -1:
+func do_strike_response(player, card_id, ex_card_id = -1, use_face_attack = false):
+	if use_face_attack:
+		assert_true(game_logic.do_strike(player, -1, false, -1, false, true),
+				"Unsuccessful attempt to respond with face attack (%s)" % [player.face_attack_id])
+		card_id = player.face_attack_id
+	elif card_id != -1:
 		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id),
 				"Unsuccessful attempt to respond to strike with %s%s" % [
 						"EX " if ex_card_id >= 0 else "",
@@ -474,7 +478,7 @@ func execute_strike(initiator: Player, defender: Player,
 			def_card_ex_id = give_player_specific_card(defender, def_card_def_id)
 		do_strike_response(defender, def_card_id, def_card_ex_id)
 	elif def_use_face_attack:
-		def_card_id = do_and_validate_strike(defender, -1, -1, true) # face attack
+		def_card_id = do_strike_response(defender, -1, -1, true) # face attack
 	else:
 		def_card_id = do_strike_response(defender, -1)  # wild swing
 	process_decisions(defender, game_logic.StrikeState.StrikeState_Defender_SetEffects, def_choices)

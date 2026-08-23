@@ -47,6 +47,7 @@ func test_bargeist_can_pay_gauge_cost_by_sealing_transforms():
 	assert_true(player1.is_card_in_sealed(transform_id_1))
 	assert_true(player1.is_card_in_sealed(transform_id_2))
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 0))
 	var transform_choice_index = -1
 	for i in range(game_logic.decision_info.choice.size()):
 		if game_logic.decision_info.choice[i].get("transform_card_id", -1) == hand_transform_id:
@@ -82,8 +83,11 @@ func test_bargeist_hit_choice_can_finish_and_draw_three():
 		[gauge_ids], [],
 		true)
 
+	# First prompt is "transform another card?" -- index 1 is the Pass that ends
+	# the repeat chain and triggers the trailing draw 3.
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
-	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(game_logic.decision_info.choice.size(), 2)
+	assert_true(game_logic.do_choice(player1, 1))
 	assert_eq(player1.hand.size(), hand_size_before + 3)
 
 func test_bargeist_hit_choice_can_transform_then_choose_again():
@@ -98,6 +102,9 @@ func test_bargeist_hit_choice_can_transform_then_choose_again():
 		true)
 
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 0))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
 	var transform_choice_index = -1
 	for i in range(game_logic.decision_info.choice.size()):
 		if game_logic.decision_info.choice[i].get("transform_card_id", -1) == transform_id:
@@ -106,7 +113,6 @@ func test_bargeist_hit_choice_can_transform_then_choose_again():
 	assert_ne(transform_choice_index, -1)
 	assert_true(game_logic.do_choice(player1, transform_choice_index))
 	assert_true(player1.is_card_in_transforms(transform_id))
-	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
 
 func test_bargeist_hit_choice_can_transform_netherstorm_then_choose_again():
 	position_players(player1, 3, player2, 5)
@@ -118,6 +124,9 @@ func test_bargeist_hit_choice_can_transform_netherstorm_then_choose_again():
 		false, false,
 		[gauge_ids], [],
 		true)
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 0))
 
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
 	var netherstorm_choice_index = -1
@@ -296,3 +305,108 @@ func test_death_omen_hit_effect_triggers_with_transform():
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
 	assert_true(game_logic.do_choose_from_boosts(player1, [transform_id]))
 	assert_true(player1.is_card_in_sealed(transform_id))
+
+# ===== Bargeist Fang hit: repeat_effect_optionally + trailing draw 3 =====
+# The "and" on a repeat means "once the whole chain is finished", so the draw 3
+# must land after every transform, not after the first one.
+
+func _bargeist_transform_choice_index(card_id : int) -> int:
+	for i in range(game_logic.decision_info.choice.size()):
+		if game_logic.decision_info.choice[i].get("transform_card_id", -1) == card_id:
+			return i
+	return -1
+
+func _empty_hand(player):
+	var discard_ids = []
+	for card in player.hand:
+		discard_ids.append(card.id)
+	player.discard(discard_ids)
+
+func test_bargeist_transforms_two_cards_then_draws_three_at_the_very_end():
+	position_players(player1, 3, player2, 5)
+	var gauge_ids = give_gauge(player1, 2)
+	_empty_hand(player1)
+	var first_id = give_player_specific_card(player1, "standard_normal_assault")
+	var second_id = give_player_specific_card(player1, "tournelouse_netherstorm")
+	var hand_size_before = player1.hand.size()
+
+	execute_strike(player1, player2,
+		"tournelouse_bargeist_fang", "standard_normal_grasp",
+		false, false,
+		[gauge_ids], [],
+		true)
+
+	# Repeat 1: opt in, then pick the first card.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, _bargeist_transform_choice_index(first_id)))
+	assert_true(player1.is_card_in_transforms(first_id))
+	assert_eq(player1.hand.size(), hand_size_before - 1,
+		"the draw must not have happened yet")
+
+	# Repeat 2: opt in again, then pick the second card.
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, _bargeist_transform_choice_index(second_id)))
+	assert_true(player1.is_card_in_transforms(second_id))
+
+	# Both cards left hand, then the chain ended and drew 3.
+	assert_eq(player1.hand.size(), hand_size_before - 2 + 3)
+	assert_eq(_bargeist_transform_choice_index(first_id), -1,
+		"the repeat chain should be over")
+
+func test_bargeist_stopping_after_one_transform_still_draws_three():
+	position_players(player1, 3, player2, 5)
+	var gauge_ids = give_gauge(player1, 2)
+	var first_id = give_player_specific_card(player1, "standard_normal_assault")
+	give_player_specific_card(player1, "tournelouse_netherstorm")
+	var hand_size_before = player1.hand.size()
+
+	execute_strike(player1, player2,
+		"tournelouse_bargeist_fang", "standard_normal_grasp",
+		false, false,
+		[gauge_ids], [],
+		true)
+
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, _bargeist_transform_choice_index(first_id)))
+
+	# Decline the second repeat; the trailing draw still resolves.
+	assert_eq(game_logic.decision_info.choice.size(), 2)
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(player1.hand.size(), hand_size_before - 1 + 3)
+
+func test_bargeist_draws_three_with_nothing_transformable_in_hand():
+	position_players(player1, 3, player2, 5)
+	var gauge_ids = give_gauge(player1, 2)
+	# Clear the hand so there is nothing that can be transformed.
+	_empty_hand(player1)
+	var hand_size_before = player1.hand.size()
+
+	execute_strike(player1, player2,
+		"tournelouse_bargeist_fang", "standard_normal_grasp",
+		false, false,
+		[gauge_ids], [],
+		true)
+
+	# No repeats are possible, so the chain ends immediately and just draws.
+	assert_eq(player1.hand.size(), hand_size_before + 3)
+
+func test_bargeist_only_offers_repeats_up_to_transformable_hand_count():
+	position_players(player1, 3, player2, 5)
+	var gauge_ids = give_gauge(player1, 2)
+	_empty_hand(player1)
+	var only_id = give_player_specific_card(player1, "standard_normal_assault")
+	var hand_size_before = player1.hand.size()
+
+	execute_strike(player1, player2,
+		"tournelouse_bargeist_fang", "standard_normal_grasp",
+		false, false,
+		[gauge_ids], [],
+		true)
+
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, _bargeist_transform_choice_index(only_id)))
+
+	# The one transformable card is spent, so the chain ends and draws right away.
+	assert_true(player1.is_card_in_transforms(only_id))
+	assert_eq(player1.hand.size(), hand_size_before - 1 + 3)

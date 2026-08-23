@@ -50,6 +50,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "minato_streetcar_disaster",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "minato_streetcar_disaster",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "minato_hellward_bound",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "minato_hellward_bound",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
 			"definition_id": "minato_jump_the_shark",
 			"image_name": "specials",
 			"image_index": 0
@@ -98,26 +118,6 @@
 			"definition_id": "minato_bus_stop",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "minato_streetcar_disaster",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "minato_streetcar_disaster",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "minato_hellward_bound",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "minato_hellward_bound",
-			"image_name": "specials",
-			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",

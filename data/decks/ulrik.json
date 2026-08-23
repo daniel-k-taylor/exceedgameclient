@@ -75,6 +75,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "ulrik_secondstrike",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "ulrik_secondstrike",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "ulrik_atomicelectric",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "ulrik_atomicelectric",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
 			"definition_id": "ulrik_lightningjavelin",
 			"image_name": "specials",
 			"image_index": 0
@@ -123,26 +143,6 @@
 			"definition_id": "ulrik_noescape",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "ulrik_secondstrike",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "ulrik_secondstrike",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "ulrik_atomicelectric",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "ulrik_atomicelectric",
-			"image_name": "specials",
-			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",

@@ -73,6 +73,10 @@
 		}
 	},
 	"cards": [
+		{ "definition_id": "renea_neutralizer", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "renea_neutralizer", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "renea_anticipation", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "renea_anticipation", "image_name": "specials", "image_index": 6 },
 		{ "definition_id": "renea_paranormal_investigation", "image_name": "specials", "image_index": 0 },
 		{ "definition_id": "renea_paranormal_investigation", "image_name": "specials", "image_index": 0 },
 		{ "definition_id": "renea_strafe_fire", "image_name": "specials", "image_index": 1 },
@@ -83,10 +87,6 @@
 		{ "definition_id": "renea_lethal_force", "image_name": "specials", "image_index": 3 },
 		{ "definition_id": "renea_called_shot", "image_name": "specials", "image_index": 4 },
 		{ "definition_id": "renea_called_shot", "image_name": "specials", "image_index": 4 },
-		{ "definition_id": "renea_neutralizer", "image_name": "specials", "image_index": 5 },
-		{ "definition_id": "renea_neutralizer", "image_name": "specials", "image_index": 5 },
-		{ "definition_id": "renea_anticipation", "image_name": "specials", "image_index": 6 },
-		{ "definition_id": "renea_anticipation", "image_name": "specials", "image_index": 6 },
 		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
 		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
 		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },

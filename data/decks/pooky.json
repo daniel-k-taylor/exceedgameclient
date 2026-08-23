@@ -81,6 +81,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "pooky_hattrick",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "pooky_hattrick",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "pooky_drunkenrampage",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "pooky_drunkenrampage",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
 			"definition_id": "pooky_gamblingimin",
 			"image_name": "specials",
 			"image_index": 0
@@ -129,26 +149,6 @@
 			"definition_id": "pooky_pookydrinks",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "pooky_hattrick",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "pooky_hattrick",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "pooky_drunkenrampage",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "pooky_drunkenrampage",
-			"image_name": "specials",
-			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_grasp",

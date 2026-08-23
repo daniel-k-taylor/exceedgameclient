@@ -96,6 +96,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "umina_unknown_khadath",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "umina_unknown_khadath",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "umina_call_of_the_dreamlands",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "umina_call_of_the_dreamlands",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
 			"definition_id": "umina_terror_whispers",
 			"image_name": "specials",
 			"image_index": 0
@@ -144,26 +164,6 @@
 			"definition_id": "umina_shadow_chorus",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "umina_unknown_khadath",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "umina_unknown_khadath",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "umina_call_of_the_dreamlands",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "umina_call_of_the_dreamlands",
-			"image_name": "specials",
-			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",

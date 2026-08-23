@@ -1019,6 +1019,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if effect.get("limitation") == "range_to_opponent":
 				limitation_str = " with Range to Opponent"
 			effect_str += "%s per card in %s%s" % [per_effect, zone_name, limitation_str]
+		StrikeEffects.EndTheStrike:
+			effect_str += "End the Strike"
 		StrikeEffects.ExceedNow:
 			effect_str += "Exceed"
 		StrikeEffects.MayExceedNowWithCost:
@@ -1441,6 +1443,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					repeats = "once for every 2 sealed normals"
 				elif repeats == "GAUGE_COUNT":
 					repeats = "once for each gauge"
+				elif repeats == "TRANSFORMABLE_HAND_COUNT":
+					repeats = "any number of times"
 				else:
 					repeats += " time(s)"
 				effect_str += "; you may repeat this %s." % repeats
@@ -1650,6 +1654,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Strike"
 		StrikeEffects.Strike:
 			effect_str += "Strike"
+			if effect.get("opponent_forced_wild", false):
+				effect_str += "; the opponent must wild swing"
 		StrikeEffects.StrikeWild:
 			effect_str += "Wild swing"
 			if 'card_name' in effect:
@@ -1715,8 +1721,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Seal a transform, Power +%s" % effect.get("amount", 2)
 		StrikeEffects.SealTransformForArmorup:
 			effect_str += "Seal a transform, Armor +%s" % effect.get("amount", 2)
-		StrikeEffects.TournelouseTransformAnyFromHand:
-			effect_str += "You may transform any number of cards from hand, then draw 3"
+		StrikeEffects.TransformCardFromHand:
+			effect_str += "Transform a card from your hand"
 		StrikeEffects.TournelouseOuroboros:
 			effect_str += "Spend 1 force to swap a card in hand with a transform"
 		StrikeEffects.TopdeckFromHand:
@@ -1821,18 +1827,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Copy a card from your Dreamlands"
 		"umina_whispers_in_the_dark":
 			effect_str += "Draw 1, then perform the immediate boost of a card in your Dreamlands, ignoring its force cost"
-		"umina_unknown_khadath":
-			effect_str += "Swallow the opponent's attack into your Dreamlands; this card gains its force as gauge"
+		"umina_place_opponent_attack_to_dreamlands":
+			effect_str += "Place the opponent's attack into your Dreamlands"
 		"umina_dream_telling_power":
 			effect_str += "Gain power equal to a card in your Dreamlands (up to +5)"
 		"umina_call_of_dreamlands_hit":
 			effect_str += "Reveal both hands; +1 power for each special and ultra revealed"
 		"umina_sleeper_wakes":
 			effect_str += "Cards enter your Dreamlands face-down"
-		"umina_terror_whispers_action":
-			effect_str += "Spend 2 gauge to initiate a strike; the opponent wild swings"
-		"umina_terror_whispers_start_strike":
-			effect_str += "Initiate a strike; the opponent wild swings"
 		"umina_seal_dreamlands_for_triggers":
 			effect_str += "Seal a card from your Dreamlands to add its effects to this attack"
 		"umina_do_seal_dreamlands":

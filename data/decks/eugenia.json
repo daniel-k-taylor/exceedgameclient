@@ -85,6 +85,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "eugenia_queen_of_hearts",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "eugenia_queen_of_hearts",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "eugenia_cats_cradle",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "eugenia_cats_cradle",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
 			"definition_id": "eugenia_shimmer_of_madness",
 			"image_name": "specials",
 			"image_index": 0
@@ -133,26 +153,6 @@
 			"definition_id": "eugenia_color_spray",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "eugenia_queen_of_hearts",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "eugenia_queen_of_hearts",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "eugenia_cats_cradle",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "eugenia_cats_cradle",
-			"image_name": "specials",
-			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",

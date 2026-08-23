@@ -71,6 +71,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "luciya_ride_the_lightning",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "luciya_ride_the_lightning",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "luciya_skies_aflame",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "luciya_skies_aflame",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
 			"definition_id": "luciya_downburst",
 			"image_name": "specials",
 			"image_index": 0
@@ -119,26 +139,6 @@
 			"definition_id": "luciya_firefly_gunner",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "luciya_ride_the_lightning",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "luciya_ride_the_lightning",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "luciya_skies_aflame",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "luciya_skies_aflame",
-			"image_name": "specials",
-			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",

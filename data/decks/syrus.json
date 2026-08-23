@@ -90,6 +90,10 @@
 		}
 	},
 	"cards": [
+		{ "definition_id": "syrus_symphony_of_the_deep", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "syrus_symphony_of_the_deep", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "syrus_dredge_fury", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "syrus_dredge_fury", "image_name": "specials", "image_index": 6 },
 		{ "definition_id": "syrus_tidal_whirl", "image_name": "specials", "image_index": 0 },
 		{ "definition_id": "syrus_tidal_whirl", "image_name": "specials", "image_index": 0 },
 		{ "definition_id": "syrus_aria_of_the_winds", "image_name": "specials", "image_index": 1 },
@@ -100,10 +104,6 @@
 		{ "definition_id": "syrus_treasure_hunter", "image_name": "specials", "image_index": 3 },
 		{ "definition_id": "syrus_albatross_talon", "image_name": "specials", "image_index": 4 },
 		{ "definition_id": "syrus_albatross_talon", "image_name": "specials", "image_index": 4 },
-		{ "definition_id": "syrus_symphony_of_the_deep", "image_name": "specials", "image_index": 5 },
-		{ "definition_id": "syrus_symphony_of_the_deep", "image_name": "specials", "image_index": 5 },
-		{ "definition_id": "syrus_dredge_fury", "image_name": "specials", "image_index": 6 },
-		{ "definition_id": "syrus_dredge_fury", "image_name": "specials", "image_index": 6 },
 		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
 		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
 		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
