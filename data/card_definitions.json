@@ -25647,7 +25647,6 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "rangeup",
-					"works_outside_strike": true,
 					"amount": 0,
 					"amount2": 1
 				},
@@ -33751,7 +33750,11 @@
 					"source": "gauge",
 					"destination": "discard",
 					"amount": 1,
-					"limitation": ""
+					"limitation": "",
+					"and": {
+						"effect_type": "add_top_discard_to_gauge",
+						"amount": 1
+					}
 				}
 			}
 		],
@@ -36696,9 +36699,12 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "advance",
+				"effect_type": "close",
 				"amount": 8,
-				"stop_after_passing_opponent": true
+				"and": {
+					"effect_type": "advance",
+					"amount": 1
+				}
 			}
 		],
 		"boost": {
@@ -36910,7 +36916,15 @@
 				"choice": [
 					{
 						"effect_type": "advance",
+						"amount": 1
+					},
+					{
+						"effect_type": "advance",
 						"amount": 2
+					},
+					{
+						"effect_type": "retreat",
+						"amount": 1
 					},
 					{
 						"effect_type": "retreat",

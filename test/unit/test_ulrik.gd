@@ -32,3 +32,24 @@ func test_lightning_javelin_pays_two_gauge():
 
 func test_lightning_javelin_pays_three_gauge():
 	_run_lightning_javelin_payment_test(3)
+
+func test_atomic_bolt_closes_then_advances_past_the_opponent():
+	# Before: Close 8, then Advance 1, which carries Ulrik past the opponent.
+	position_players(player1, 2, player2, 6)
+	give_gauge(player1, 3)
+
+	execute_strike(player1, player2, "ulrik_atomicbolt", "standard_normal_focus",
+		false, false, [get_cards_from_gauge(player1, 3)], [])
+
+	validate_positions(player1, 7, player2, 6)
+
+func test_atomic_bolt_stops_when_the_opponent_is_against_the_wall():
+	# Close 8 puts Ulrik next to the opponent, but the Advance 1 has nowhere to
+	# go because the opponent is on the last space.
+	position_players(player1, 3, player2, 9)
+	give_gauge(player1, 3)
+
+	execute_strike(player1, player2, "ulrik_atomicbolt", "standard_normal_focus",
+		false, false, [get_cards_from_gauge(player1, 3)], [])
+
+	validate_positions(player1, 8, player2, 9)

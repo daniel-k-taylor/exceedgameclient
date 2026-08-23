@@ -83,18 +83,27 @@ func add_continuous_boost(player, def_id):
 	player.hand.erase(boost_card)
 	return boost_id
 
-func test_pooky_dragon_breath_ale_extends_range_outside_strike():
+func test_pooky_dragon_breath_ale_extends_range_during_a_strike():
+	# Dragon Breath Ale grants +1 max range while striking.
 	position_players(player1, 3, player2, 6)
-	var boost_id = give_player_specific_card(player1, "pooky_snackattack")
-	var attack_id = give_player_specific_card(player1, "pooky_snackattack")
-	var attack_card = game_logic.get_card_database().get_card(attack_id)
+	add_continuous_boost(player1, "pooky_snackattack")
 
-	assert_false(player1.does_card_contain_range_to_opponent(attack_id))
-	assert_true(game_logic.do_boost(player1, boost_id))
-	assert_eq(player1.continuous_boosts.size(), 1)
-	assert_eq(player1.build_outside_strike_range_effect_list().size(), 1)
-	assert_eq(player1.get_total_max_range_bonus(attack_card), 1)
-	assert_true(player1.does_card_contain_range_to_opponent(attack_id))
+	# Focus is range 1-2; the boost's +1 lets it reach distance 3. Grasp is
+	# faster but only has range 1, so it whiffs without moving anyone.
+	execute_strike(player1, player2, "standard_normal_focus", "standard_normal_grasp",
+		false, false, [], [])
+
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 30, player2, 26)
+
+func test_pooky_focus_cannot_reach_distance_three_without_the_ale():
+	position_players(player1, 3, player2, 6)
+
+	execute_strike(player1, player2, "standard_normal_focus", "standard_normal_grasp",
+		false, false, [], [])
+
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 30, player2, 30)
 
 func test_pooky_gambling_reveal_chains_into_second_gambling():
 	position_players(player1, 3, player2, 6)
