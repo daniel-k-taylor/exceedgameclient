@@ -1,6 +1,35 @@
-extends Node
+﻿extends Node
 
 const CardHighlightColor = "#7DF9FF" # Light blue
+
+func get_speed_description(card_definition) -> String:
+	if not card_definition:
+		return ""
+
+	var speed = card_definition.get("speed")
+	var card_type = card_definition.get("type", "")
+	if speed == null or card_type == "":
+		return ""
+
+	var speed_prefix = ""
+	match card_type:
+		"normal":
+			speed_prefix = "N"
+		"special":
+			speed_prefix = "S"
+		"ultra":
+			speed_prefix = "U"
+		_:
+			return ""
+
+	return " (%s%s)" % [speed_prefix, str(speed)]
+
+func get_display_name_with_speed(card_definition) -> String:
+	if not card_definition:
+		return "MISSING CARD"
+
+	var display_name = card_definition.get("display_name", "MISSING CARD")
+	return "%s%s" % [display_name, get_speed_description(card_definition)]
 
 class EffectSummary:
 	var effect
@@ -139,16 +168,54 @@ func get_timing_text(timing):
 			text += "At start of opponent's turn: "
 		"set_strike":
 			text += "When you set a strike, "
+		"begin_turn":
+			text += "At the start of your turn, "
+		"after_non_strike_action":
+			text += "After a non-strike action, "
+		"on_any_boost":
+			text += "When you boost, "
+		"on_strike_reveal":
+			text += "[b]On reveal:[/b] "
+		"on_stunned":
+			text += "When you are stunned, "
 		"opponent_set_strike":
 			text += ""
 		"opponent_moved_past":
 			text += "If opponent moves past you, "
+		"moved_past":
+			text += "If you move past opponent, "
 		"when_hit":
 			text += "When hit, "
 		"on_stop_on_space":
 			text += "When boost entered during strike, stop movement; "
 		"on_spend_life":
 			text += "When you spend life, "
+		"on_reshuffle":
+			text += "When you shuffle your discards into your deck, "
+		"counter_boost":
+			text += "When your opponent boosts, "
+		"endofstrike":
+			text += "At the end of the strike, "
+		"on_cancel_boost":
+			text += "When you cancel, "
+		"on_change_cards":
+			text += "When you change cards, "
+		"on_continuous_boost":
+			text += "When you play a continuous boost, "
+		"on_move_action":
+			text += "When you take a move action, "
+		"on_prepare":
+			text += "When you prepare, "
+		"on_retreat":
+			text += "When you retreat, "
+		"on_spend_gauge":
+			text += "When you spend gauge, "
+		"opponent_before":
+			text += "Before your opponent's attack, "
+		"extra_strike_option", "never":
+			# Not player-facing triggers: "extra_strike_option" is surfaced as a
+			# strike choice in the UI and "never" marks effects that never fire.
+			text += ""
 		_:
 			text += "MISSING TIMING"
 	return text
@@ -188,7 +255,7 @@ func get_condition_text(effect, amount, amount2, detail):
 		"canceled_this_turn":
 			text += "If canceled this turn, "
 		"copy_of_attack_in_zones":
-			var zones = effect['condition_zones'].join("/")
+			var zones = "/".join(effect['condition_zones'])
 			text += "If copy of attack in %s, " % zones
 		"discarded_matches_attack_speed":
 			text += "If discarded card matches attack speed, "
@@ -210,6 +277,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If your life is less than opponent's, "
 		"not_canceled_this_turn":
 			text += "If not canceled this turn, "
+		"boost_is_immediate":
+			text += "If this is an Instant Boost, "
 		"not_full_push":
 			text += "If not full push, "
 		"not_full_pull":
@@ -272,6 +341,18 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"opponent_stunned":
 			text += "If opponent stunned, "
+		"has_continuous_boost":
+			text += "If you have a continuous boost, "
+		"has_continuous_boost_attack":
+			text += "If you have a continuous boost, "
+		"min_continuous_boosts":
+			text += "If you have %s or more continuous boosts, " % amount
+		"min_continuous_boosts_attack":
+			text += "If you have %s or more continuous boosts, " % amount
+		"pooky_gambling_normals":
+			text += ""
+		"min_gauge":
+			text += "If you have %s or more cards in gauge, " % amount
 		"pulled_past":
 			text += "If pulled opponent past you, "
 		"used_character_action":
@@ -298,6 +379,12 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"is_special_or_ultra_attack":
 			text += "For specials/ultras, "
+		"has_any_transform":
+			text += "If you have a transform, "
+		"count_numbers":
+			# Used by the boost summary to collapse duplicate Tournelouse normal
+			# transforms into a single line with a copy count.
+			text += "x%s " % amount
 		"opponent_is_special_attack":
 			text += "If opponent strikes with a special, "
 		"is_normal_attack":
@@ -398,6 +485,51 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you spent gauge this strike, "
 		"has_once_per_game_resource":
 			text += ""
+		"manual_reshuffle":
+			text += "if you reshuffled as your action, "
+		"during_strike":
+			text += "during a strike, "
+		"boosted_from_gauge":
+			text += "If you boosted from gauge, "
+		"can_continuous_boost_from_gauge":
+			text += "If you can boost a continuous boost from gauge, "
+		"choose_cards_from_top_deck_action":
+			text += "If you chose to %s, " % effect.get('condition_details', detail)
+		"did_end_of_turn_draw":
+			text += "If you drew at end of turn, "
+		"has_card_with_range_to_opponent":
+			text += "If you have a card in hand with range to the opponent, "
+		"has_transform":
+			text += "If you have a transform in play, "
+		"initiated_after_moving":
+			text += "If you initiated after moving at least %s space(s), " % amount
+		"initiated_face_up":
+			text += "If you initiated face up, "
+		"is_not_critical":
+			text += "If not critical, "
+		"no_boost_in_play":
+			text += "If you have no boosts in play, "
+		"no_strike_this_turn":
+			text += "If you haven't struck this turn, "
+		"not_buddy_in_play":
+			var absent_buddy = detail
+			if absent_buddy == "":
+				absent_buddy = effect.get('condition_buddy_id', "your buddy")
+			text += "If %s is not in play, " % absent_buddy
+		"initiated_at_range":
+			text += "If you initiated at range %s-%s, " % [effect.get('range_min', 0), effect.get('range_max', 0)]
+		"not_discarding_boost":
+			text += "If this boost isn't being discarded, "
+		"not_exceeded":
+			text += "If not exceeded, "
+		"opponent_top_discard_is_special":
+			text += "If the top card of opponent's discard pile is a special, "
+		"strike_x_greater_than":
+			text += "If X is greater than %s, " % amount
+		"top_discard_is_continous_boost":
+			text += "If the top card of your discard pile is a continuous boost, "
+		"was_not_wild_swing":
+			text += "If your attack wasn't a wild swing, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -420,6 +552,10 @@ func get_effect_type_heading(effect):
 			effect_str += "Pull "
 		StrikeEffects.Powerup:
 			effect_str += "Power +"
+		StrikeEffects.SealTransformForPowerup:
+			effect_str += "Power +"
+		StrikeEffects.SealTransformForArmorup:
+			effect_str += "Armor +"
 		StrikeEffects.PullNotPast:
 			effect_str += "Pull without pulling past "
 		StrikeEffects.Push:
@@ -472,6 +608,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Add card to overdrive after strike."
 		StrikeEffects.AddToSetAsideImmediately:
 			effect_str += "Add card to set aside zone."
+		StrikeEffects.AddSetAsideCardToDeck:
+			var set_aside_card = CardDataManager.card_data.get(effect.get('id', ''))
+			var set_aside_name = effect.get('id', "a set aside card")
+			if set_aside_card:
+				set_aside_name = set_aside_card.get('display_name', set_aside_name)
+			effect_str += "Add %s from your set aside zone to your deck." % set_aside_name
 		StrikeEffects.AddToGaugeBoostPlayCleanup:
 			effect_str += "Add card to gauge"
 		StrikeEffects.AddToGaugeImmediately:
@@ -548,6 +690,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+ Armor per damage dealt"
 		StrikeEffects.ArmorupBonusArmorCounters:
 			effect_str += "+ Armor per counter on this card"
+		StrikeEffects.PowerupBonusMovePowerCounters:
+			effect_str += "+ Power per movement counter on your continuous boosts"
+		StrikeEffects.ArmorupBonusMoveArmorCounters:
+			effect_str += "+ Armor per movement counter on your continuous boosts"
 		StrikeEffects.ArmorupCurrentPower:
 			effect_str += "+ Armor equal to power"
 		StrikeEffects.ArmorupOpponentPerForceSpentThisTurn:
@@ -571,6 +717,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.BlockOpponentMove:
 			effect_str += "Opponent cannot move"
 		StrikeEffects.RemoveBlockOpponentMove:
+			effect_str += ""
+		StrikeEffects.BlockOpponentAdvanceClose:
+			effect_str += "Opponent cannot advance or close"
+		StrikeEffects.RemoveBlockOpponentAdvanceClose:
 			effect_str += ""
 		StrikeEffects.BonusAction:
 			effect_str += "Take another action"
@@ -747,10 +897,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.DiscardOpponentGauge:
 			effect_str += "Discard a card from opponent's gauge."
 		StrikeEffects.DiscardOpponentTopdeck:
-			effect_str += "Discard a card from the top of the opponent's deck"
+			if 'amount' in effect and str(effect['amount']) != "1":
+				effect_str += "Discard the top %s cards of the opponent's deck" % effect['amount']
+			else:
+				effect_str += "Discard a card from the top of the opponent's deck"
 		StrikeEffects.DiscardTopdeck:
 			if 'card_name' in effect:
 				effect_str += "Discard [color=%s]%s[/color] from the top of your deck" % [CardHighlightColor, effect['card_name']]
+			elif 'amount' in effect and str(effect['amount']) != "1":
+				effect_str += "Discard the top %s cards of your deck" % effect['amount']
 			else:
 				effect_str += "Discard a card from the top of your deck"
 		StrikeEffects.DiscardRandom:
@@ -815,9 +970,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.PlayAttackFromHand:
 			effect_str += "Play an attack from your hand, paying its costs."
 		StrikeEffects.CalculateRangeFromBuddy:
-			effect_str += "Calculate range from %s." % effect['buddy_name']
+			effect_str += "Calculate range from %s." % effect.get('buddy_name', "your buddy")
 		StrikeEffects.CalculateRangeFromBuddyCurrentLocation:
-			effect_str += "Calculate range from %s's current location" % effect['buddy_name']
+			effect_str += "Calculate range from %s's current location" % effect.get('buddy_name', "your buddy")
 		StrikeEffects.CalculateRangeFromCenter:
 			effect_str += "Calculate range from the center of the arena."
 		StrikeEffects.CalculateRangeFromSetFromBoostSpace:
@@ -866,6 +1021,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if effect.get("limitation") == "range_to_opponent":
 				limitation_str = " with Range to Opponent"
 			effect_str += "%s per card in %s%s" % [per_effect, zone_name, limitation_str]
+		StrikeEffects.EndTheStrike:
+			effect_str += "End the Strike"
 		StrikeEffects.ExceedNow:
 			effect_str += "Exceed"
 		StrikeEffects.MayExceedNowWithCost:
@@ -913,7 +1070,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.GuardupPerTwoCardsInHand:
 			effect_str += "+1 Guard per 2 cards in hand"
 		StrikeEffects.GuardupPerGauge:
-			effect_str += "+" + str(effect['amount']) + " Guard per card in gauge."
+			# The engine adds exactly one guard per gauge card and never reads
+			# an "amount" here, so quoting one would misrepresent the card.
+			effect_str += "+1 Guard per card in gauge."
 		StrikeEffects.IgnoreArmor:
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent ignores armor"
@@ -938,6 +1097,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Increase push/pull effects by %s" % effect['amount']
 		StrikeEffects.IncrementBonusArmorCounters:
 			effect_str += "Add a counter to this card"
+		StrikeEffects.IncrementBonusMovePowerCounters:
+			effect_str += "Add a power counter for each space moved"
+		StrikeEffects.IncrementBonusMoveArmorCounters:
+			effect_str += "Add an armor counter for each space moved"
+		StrikeEffects.LowerSpeedMisses:
+			effect_str += "Attacks with equal or lower Speed miss"
 		StrikeEffects.InvertRange:
 			effect_str += "Attack Range is inverted"
 		StrikeEffects.LightningrodStrike:
@@ -1136,7 +1301,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var opponent_str = ""
 			if effect.get("count_opponent"):
 				opponent_str = "opponent's "
-			effect_str += "+" + str(effect['amount']) + " Power per card in " + opponent_str + "gauge up to " + str(effect['amount_max']) + "."
+			# amount_max is optional in the engine (it defaults to no cap), so
+			# only mention a ceiling when the card actually has one.
+			var cap_str = ""
+			if 'amount_max' in effect:
+				cap_str = " up to %s" % str(effect['amount_max'])
+			effect_str += "+" + str(effect['amount']) + " Power per card in " + opponent_str + "gauge" + cap_str + "."
 		StrikeEffects.PowerupPerSpentGaugeMatchingRangeToOpponent:
 			effect_str += "+" + str(effect['amount']) + " Power per spent gauge matching range to opponent."
 		StrikeEffects.PowerupPerSealedNormal:
@@ -1184,6 +1354,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Push " + str(effect['amount']) + extra_info
 		StrikeEffects.PushFromSource:
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
+		StrikeEffects.PushSelf:
+			effect_str += "Get pushed " + str(effect['amount'])
 		StrikeEffects.PullFromSource:
 			effect_str += "Pull " + str(effect['amount']) + " towards attack source"
 			if effect.get("skip_if_on_source"):
@@ -1273,6 +1445,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					repeats = "once for every 2 sealed normals"
 				elif repeats == "GAUGE_COUNT":
 					repeats = "once for each gauge"
+				elif repeats == "TRANSFORMABLE_HAND_COUNT":
+					repeats = "any number of times"
 				else:
 					repeats += " time(s)"
 				effect_str += "; you may repeat this %s." % repeats
@@ -1286,6 +1460,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Reshuffle discard pile into deck"
 		StrikeEffects.ResetBonusArmorCounters:
 			effect_str += "Remove all counters"
+		StrikeEffects.ResetBonusMovePowerCounters:
+			effect_str += "Remove all movement power counters"
+		StrikeEffects.ResetBonusMoveArmorCounters:
+			effect_str += "Remove all movement armor counters"
 		StrikeEffects.Retreat:
 			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
 				effect_str += "Retreat that much."
@@ -1478,6 +1656,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Strike"
 		StrikeEffects.Strike:
 			effect_str += "Strike"
+			if effect.get("opponent_forced_wild", false):
+				effect_str += "; the opponent must wild swing"
 		StrikeEffects.StrikeWild:
 			effect_str += "Wild swing"
 			if 'card_name' in effect:
@@ -1512,6 +1692,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += effect['description']
 		StrikeEffects.SwapDeckAndSealed:
 			effect_str += "Swap all sealed cards with deck"
+		StrikeEffects.SwapDeckAndDiscard:
+			effect_str += "Swap your deck and discard pile"
 		StrikeEffects.SwapPowerSpeed:
 			effect_str += "Swap Power and Speed"
 		StrikeEffects.TakeBonusActions:
@@ -1533,16 +1715,126 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Transform %s" % effect['card_name']
 			else:
 				effect_str += "Transform attack"
+		StrikeEffects.AllowDuplicateNormalTransform:
+			effect_str += "This turn you may hold a second transform of the same-named normal"
+		StrikeEffects.MaySealTransformForGauge:
+			effect_str += "You may seal transforms to pay gauge costs"
+		StrikeEffects.SealTransformForPowerup:
+			effect_str += "Seal a transform, Power +%s" % effect.get("amount", 2)
+		StrikeEffects.SealTransformForArmorup:
+			effect_str += "Seal a transform, Armor +%s" % effect.get("amount", 2)
+		StrikeEffects.TransformCardFromHand:
+			effect_str += "Transform a card from your hand"
+		StrikeEffects.TournelouseOuroboros:
+			effect_str += "Spend 1 force to swap a card in hand with a transform"
 		StrikeEffects.TopdeckFromHand:
 			effect_str += "Put a card from your hand on top of your deck"
 		StrikeEffects.WhenHitForceForArmor:
 			effect_str += ("When hit, spend %s for %s armor each." % [
 					"gauge" if effect.get("use_gauge_instead", false) else "force",
 					effect["amount"]])
+		StrikeEffects.MoveContinuousBoosts:
+			var boost_destination = effect.get("destination", "sealed")
+			if boost_destination == "sealed":
+				effect_str += "Seal all your continuous boosts"
+			else:
+				effect_str += "Add all your continuous boosts to your %s" % boost_destination
+		StrikeEffects.MoveToRange:
+			effect_str += "Move to any space at range %s from the opponent" % effect["amount"]
+		StrikeEffects.SpeedupCounterOnBoost:
+			effect_str += "+%s Speed while this boost is in play" % effect["amount"]
+		StrikeEffects.TopdeckForEffect:
+			var topdeck_word = "seal" if effect.get("destination", "discard") == "sealed" else "discard"
+			effect_str += "You may %s up to %s cards from the top of your deck; for each one, %s" % [
+				topdeck_word, effect["amount_max"], get_effect_text(effect["per_card_effect"])]
 		StrikeEffects.ZeroVectorDialogue:
 			effect_str += "Named card is invalid for both players."
-		StrikeEffects.ZsoltNormalPassive:
-			effect_str += "advance or retreat up to 1"
+		StrikeEffects.SyrusDredgeFuryKeepChoice:
+			effect_str += "Choose one spent gauge card to add to your hand"
+		StrikeEffects.SyrusRecklessGreed:
+			effect_str += "You may discard a boost from play to strike"
+		StrikeEffects.SyrusReturnToHandUntil7:
+			effect_str += "Randomly return cards from your discards to your hand until you have 7, then shuffle your discards"
+		StrikeEffects.PookyGamblingReveal:
+			effect_str += "Set this as a continuous boost and replace this attack with a Wild Swing"
+		StrikeEffects.PookySetZolsTarget:
+			effect_str += "Place this into play as a facedown continuous boost"
+		"renea_briefcase_hit":
+			effect_str += "Put the bottom card of the opponent's discard pile with a Boost into your Briefcase"
+		"renea_conspiracy_unearthed":
+			effect_str += "The opponent reveals their hand; choose a card to add to their gauge"
+		"renea_conspiracy_unearthed_do":
+			effect_str += "Add the chosen card to the opponent's gauge"
+		"renea_fd_order_first":
+			effect_str += "Resolve this facedown boost's effect first"
+		"renea_on_exceed":
+			effect_str += "Put up to 3 cards with Boosts from the opponent's discard pile into your Briefcase"
+		"renea_pre_strike_done":
+			effect_str += ""
+		"renea_pre_strike_reveal":
+			effect_str += "Reveal your facedown continuous boosts and resolve their immediate effects"
+		"renea_return_normals_from_discard":
+			effect_str += "Return up to 2 normal attacks from your discard pile to your hand"
+		"renea_called_shot":
+			effect_str += "Name a card; the opponent discards a copy or reveals their hand"
+		"renea_reveal_facedown_boosts":
+			effect_str += "Reveal your facedown continuous boosts"
+		"renea_reveal_fd_do":
+			effect_str += "Resolve this facedown boost first"
+		"umina_place_hand_to_dreamlands":
+			effect_str += "Place a card from your hand into your Dreamlands"
+		"umina_place_hand_to_dreamlands_do":
+			effect_str += "Place a card into your Dreamlands"
+		"umina_begin_turn_dreamlands":
+			effect_str += "Look at the top card of your deck; put it into your Dreamlands or discard it"
+		"umina_begin_turn_dreamlands_put":
+			effect_str += "Put the top card into your Dreamlands"
+		"umina_begin_turn_dreamlands_discard":
+			effect_str += "Discard the top card"
+		"umina_flip_dreamlands":
+			effect_str += "Flip Dreamlands to its exceeded side"
+		"umina_place_discard_to_dreamlands":
+			effect_str += "Put a card from your discard pile into your Dreamlands"
+		"umina_out_of_mind_hit":
+			effect_str += "If a card is in your Dreamlands, add it to gauge and gain its power (up to +5); otherwise add your hand to gauge and draw 3"
+		"umina_slipping_away":
+			effect_str += "When you place a card into your Dreamlands, you may spend 1 force to move 1 space"
+		"umina_slipping_away_move":
+			effect_str += "Move 1 space"
+		"range_1_immunity":
+			effect_str += "Immune to attacks at range 1"
+		"umina_dark_reflections":
+			effect_str += "Name a card; the opponent discards a copy or reveals their hand, then place it into your Dreamlands"
+		"umina_dark_reflections_place":
+			effect_str += "Place the discarded card into your Dreamlands"
+		"umina_dark_thoughts_hit":
+			effect_str += "The opponent discards a card at random; you may put it into your Dreamlands"
+		"umina_dark_thoughts_place":
+			effect_str += "Put the discarded card into your Dreamlands"
+		"umina_spiraling_descent":
+			effect_str += "While a card is in your Dreamlands, the opponent cannot boost or strike with a copy of it"
+		"umina_shadow_chorus_copy":
+			effect_str += "Copy a card from your Dreamlands"
+		"umina_whispers_in_the_dark":
+			effect_str += "Draw 1, then perform the immediate boost of a card in your Dreamlands, ignoring its force cost"
+		"umina_place_opponent_attack_to_dreamlands":
+			effect_str += "Place the opponent's attack into your Dreamlands"
+		"umina_dream_telling_power":
+			effect_str += "Gain power equal to a card in your Dreamlands (up to +5)"
+		"umina_call_of_dreamlands_hit":
+			effect_str += "Reveal both hands; +1 power for each special and ultra revealed"
+		"umina_sleeper_wakes":
+			effect_str += "Cards enter your Dreamlands face-down"
+		"umina_seal_dreamlands_for_triggers":
+			effect_str += "Seal a card from your Dreamlands to add its effects to this attack"
+		"umina_do_seal_dreamlands":
+			effect_str += "Seal the Dreamlands card and add its effects to this attack"
+		StrikeEffects.CanSealForForce:
+			effect_str += "You may seal cards from your discard pile to generate Force"
+		StrikeEffects.CanSealForGauge:
+			effect_str += "You may seal 3 cards from your discard pile to generate 1 Gauge"
+		"minato_outrun_the_past":
+			effect_str += "Seal up to 4 cards from your discard or gauge; draw 1 for every 2 sealed"
 		_:
 			effect_str += "MISSING EFFECT"
 	return effect_str
@@ -1567,6 +1859,8 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'silent_effect' in effect and effect['silent_effect']:
 		silent_effect = true
 	if not silent_effect:
+		if effect.get('once_per_turn', ""):
+			effect_str += "The first time each turn, "
 		if 'condition' in effect and not skip_condition:
 			var amount = 0
 			var amount2 = 0

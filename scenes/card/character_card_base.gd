@@ -47,7 +47,6 @@ func _ready():
 func hide_focus():
 	$MainPanelContainer/Focus.texture_pressed = null
 	$MainPanelContainer/Focus.texture_hover = null
-	$MainPanelContainer/Focus.tooltip_text = ""
 
 func exceed(is_exceed : bool):
 	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.visible = not is_exceed
@@ -111,14 +110,16 @@ func _physics_process(delta):
 func clamp_to_screen(pos : Vector2, size: Vector2) -> Vector2:
 	var screen_size = get_viewport().content_scale_size
 	var new_pos = pos
+	var max_x = max(0.0, screen_size.x - size.x)
+	var max_y = max(0.0, screen_size.y - size.y)
 	if new_pos.x < 0:
 		new_pos.x = 0
-	if new_pos.x + size.x > screen_size.x:
-		new_pos.x = screen_size.x - size.x
+	if new_pos.x > max_x:
+		new_pos.x = max_x
 	if new_pos.y < 0:
 		new_pos.y = 0
-	if new_pos.y + size.y > screen_size.y:
-		new_pos.y = screen_size.y - size.y
+	if new_pos.y > max_y:
+		new_pos.y = max_y
 	return new_pos
 
 func focus():

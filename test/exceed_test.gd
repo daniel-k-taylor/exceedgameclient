@@ -63,10 +63,15 @@ func give_specific_cards(p1, id1, p2, id2):
 		test_ids.append(give_player_specific_card(p2, id2))
 	return test_ids
 
-func add_transform(player, card_id):
+func add_transform(player, card_id, resolve_now_effects := false):
 	give_player_specific_card(player, card_id)
-	player.add_to_transforms(player.hand[-1])
+	var card = player.hand[-1]
+	player.add_to_transforms(card)
 	player.hand.remove_at(player.hand.size() - 1)
+	if resolve_now_effects:
+		# Mirrors do_ex_transform: transforms apply their "now" effects when played.
+		for effect in game_logic.get_card_database().get_card_boost_effects_now_immediate(card):
+			game_logic.do_effect_if_condition_met(player, card.id, effect, null)
 
 func set_player_topdeck(player, card_id):
 	var new_id = give_player_specific_card(player, card_id)
@@ -155,8 +160,12 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1, use_face_attack = 
 			## TODO: Figure out if the test should terminate early here
 	return card_id
 
-func do_strike_response(player, card_id, ex_card_id = -1):
-	if card_id != -1:
+func do_strike_response(player, card_id, ex_card_id = -1, use_face_attack = false):
+	if use_face_attack:
+		assert_true(game_logic.do_strike(player, -1, false, -1, false, true),
+				"Unsuccessful attempt to respond with face attack (%s)" % [player.face_attack_id])
+		card_id = player.face_attack_id
+	elif card_id != -1:
 		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id),
 				"Unsuccessful attempt to respond to strike with %s%s" % [
 						"EX " if ex_card_id >= 0 else "",
@@ -176,7 +185,16 @@ func advance_turn(player):
 	assert_true(game_logic.do_prepare(player),
 			"Player %s tried to prepare but could not (%s)." % [
 					player.my_id + 1, game_or_decision_state_string()])
-	if player.hand.size() > player.max_hand_size:
+	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and \
+			game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseToDiscard and \
+			game_logic.decision_info.player == player.my_id:
+		var cards = []
+		if not game_logic.decision_info.can_pass:
+			var amount = game_logic.decision_info.effect.get("amount", 0)
+			for i in range(min(amount, player.hand.size())):
+				cards.append(player.hand[i].id)
+		assert_true(game_logic.do_choose_to_discard(player, cards))
+	elif player.hand.size() > player.max_hand_size:
 		var cards = []
 		var to_discard = player.hand.size() - player.max_hand_size
 		for i in range(to_discard):
@@ -465,7 +483,7 @@ func execute_strike(initiator: Player, defender: Player,
 			def_card_ex_id = give_player_specific_card(defender, def_card_def_id)
 		do_strike_response(defender, def_card_id, def_card_ex_id)
 	elif def_use_face_attack:
-		def_card_id = do_and_validate_strike(defender, -1, -1, true) # face attack
+		def_card_id = do_strike_response(defender, -1, -1, true) # face attack
 	else:
 		def_card_id = do_strike_response(defender, -1)  # wild swing
 	process_decisions(defender, game_logic.StrikeState.StrikeState_Defender_SetEffects, def_choices)

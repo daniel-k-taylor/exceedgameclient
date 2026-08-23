@@ -166,8 +166,7 @@ func test_galdred_violenttransgression_large_hand():
 func test_galdred_secretformula_instant():
 	position_players(player1, 3, player2, 7)
 
-	give_player_specific_card(player1, "galdred_bloodfrenzy")
-	player1.add_to_transforms(player1.hand[-1])
+	add_transform(player1, "galdred_bloodfrenzy", true)
 	player1.discard_hand()
 
 	var boostcard_id = give_player_specific_card(player1, "standard_normal_cross")
@@ -187,8 +186,7 @@ func test_galdred_secretformula_instant():
 func test_galdred_secretformula_continuous():
 	position_players(player1, 3, player2, 7)
 
-	give_player_specific_card(player1, "galdred_bloodfrenzy")
-	player1.add_to_transforms(player1.hand[-1])
+	add_transform(player1, "galdred_bloodfrenzy", true)
 	player1.discard_hand()
 
 	var boostcard_id = give_player_specific_card(player1, "standard_normal_sweep")

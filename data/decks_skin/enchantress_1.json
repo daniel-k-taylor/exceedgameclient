@@ -1,0 +1,208 @@
+{
+	"id": "enchantress",
+	"season": 4,
+	"display_name": "The Enchantress",
+	"exceed_cost": 4,
+	"disable_end_of_turn_draw": true,
+	"on_exceed": {
+		"effect_type": "shuffle_hand_to_deck",
+		"and": {
+			"effect_type": "reshuffle_discard_into_deck",
+			"and": {
+				"effect_type": "set_enchantress_draw_choice"
+			}
+		}
+	},
+	"ability_effects": [
+		{
+			"timing": "end_of_turn",
+			"condition": "max_cards_in_hand",
+			"condition_amount": 0,
+			"effect_type": "draw_to",
+			"amount": 6
+		},
+		{
+			"timing": "cleanup",
+			"condition": "max_cards_in_hand",
+			"condition_amount": 0,
+			"effect_type": "draw_to",
+			"amount": 6
+		}
+	],
+	"exceed_ability_effects": [
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/OhxNWjk.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/9RIXdLo.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/jANKwbe.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/hltEPTp.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/74gES24.jpg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "enchantress_rapidbeam",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "enchantress_rapidbeam",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "enchantress_shatteringscream",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "enchantress_shatteringscream",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "enchantress_homingorb",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "enchantress_homingorb",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "enchantress_magicshot",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "enchantress_magicshot",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "enchantress_firewave",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "enchantress_firewave",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "enchantress_flyingcharge",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "enchantress_flyingcharge",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "enchantress_spiralorb",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "enchantress_spiralorb",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

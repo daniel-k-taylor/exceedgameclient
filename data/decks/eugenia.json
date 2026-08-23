@@ -4,6 +4,13 @@
 	"author": "User",
 	"difficulty": "***",
 	"display_name": "Eugenia",
+	"opponent_discard_passive": true,
+	"face_attack_bonus_when_exceeded": {
+		"power": 1,
+		"speed": 1
+	},
+	"face_attack_forbids_ex": true,
+	"transform_zone_rejects_opponent_cards_when_exceeded": true,
 	"buddy_exceeds": true,
 	"buddy_card": "wonderland",
 	"buddy_display_name": "Wonderland",
@@ -32,15 +39,8 @@
 			"NOTE": "Eugenia normal passive handled in _on_player_discard via deck_def check"
 		}
 	],
-	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"character_effect": true,
-			"effect_type": "pass",
-			"hide_effect": true,
-			"NOTE": "Eugenia exceeded passive handled in _on_player_discard via deck_def check"
-		}
-	],
+	"exceed_ability_effects": [],
+	"NOTE_exceed_ability": "Eugenia's exceeded passive is handled in _on_player_discard (see the opponent_discard_passive flag).",
 	"on_exceed": {
 		"effect_type": "add_to_set_aside_immediately",
 		"card_id": "wonderland",
@@ -85,6 +85,26 @@
 	},
 	"cards": [
 		{
+			"definition_id": "eugenia_queen_of_hearts",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "eugenia_queen_of_hearts",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "eugenia_cats_cradle",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "eugenia_cats_cradle",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
 			"definition_id": "eugenia_shimmer_of_madness",
 			"image_name": "specials",
 			"image_index": 0
@@ -133,26 +153,6 @@
 			"definition_id": "eugenia_color_spray",
 			"image_name": "specials",
 			"image_index": 4
-		},
-		{
-			"definition_id": "eugenia_queen_of_hearts",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "eugenia_queen_of_hearts",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "eugenia_cats_cradle",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "eugenia_cats_cradle",
-			"image_name": "specials",
-			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",

@@ -1,0 +1,247 @@
+{
+	"id": "ken",
+	"season": 3,
+	"display_name": "Ken Masters",
+	"exceed_cost": 3,
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 1,
+		"and": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "close", "amount": 1 },
+				{ "effect_type": "close", "amount": 2 },
+				{ "effect_type": "pass" }
+			]
+		}
+	},
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "close",
+			"amount": 1,
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
+		}
+	}],
+	"character_action_exceeded": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "close",
+			"amount": 1,
+			"and": {
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		}
+	}],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/Ycx96uz.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/AkD5ozJ.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/ln74Y6r.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "ken_shinryuken",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "ken_shinryuken",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "ken_gurensenpukyaku",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "ken_gurensenpukyaku",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "ken_axekick",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "ken_axekick",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "ken_kneebash",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "ken_kneebash",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "ken_tatsumakisenpukyaku",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "ken_tatsumakisenpukyaku",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "ken_hadoken",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "ken_hadoken",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "ken_shoryuken",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "ken_shoryuken",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

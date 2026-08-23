@@ -145,7 +145,6 @@ expand_mode = 1
 
 [node name="Focus" type="TextureButton" parent="MainPanelContainer"]
 layout_mode = 2
-tooltip_text = "Open Deck Reference"
 texture_pressed = ExtResource("4_vb7wr")
 texture_hover = ExtResource("4_7csga")
 stretch_mode = 0

@@ -37,6 +37,34 @@ offset_bottom = 720.0
 mouse_filter = 2
 color = Color(0.392157, 0.392157, 0.392157, 1)
 
+[node name="BackgroundImage" type="TextureRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="FriendTrackLayer" type="TextureRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="EnemyTrackLayer" type="TextureRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="RotationLayoutOverlay" type="ColorRect" parent="."]
+visible = false
+z_index = 100
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.08, 0.08, 0.08, 1)
+
 [node name="ArenaNode" type="Node2D" parent="."]
 position = Vector2(0, 325)
 
@@ -799,6 +827,16 @@ offset_bottom = 691.0
 theme_override_font_sizes/font_size = 24
 text = "Exit to Menu"
 
+[node name="RuntimeHealthDebugToggleButton" type="Button" parent="."]
+visible = false
+offset_left = 7.0
+offset_top = 597.0
+offset_right = 152.0
+offset_bottom = 645.0
+theme_override_font_sizes/font_size = 18
+text = "Show
+Perf"
+
 [node name="HugeCard" type="Sprite2D" parent="."]
 visible = false
 z_index = 20
@@ -850,6 +888,28 @@ offset_bottom = 720.0
 
 [node name="CardPopoutParent" type="Node2D" parent="."]
 
+[node name="RuntimeHealthDebugPanel" type="PanelContainer" parent="."]
+visible = false
+z_index = 100
+offset_left = 8.0
+offset_top = 230.0
+offset_right = 280.0
+offset_bottom = 390.0
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="RuntimeHealthDebugPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="RuntimeHealthDebugLabel" type="Label" parent="RuntimeHealthDebugPanel/MarginContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Runtime Health"
+autowrap_mode = 2
+
 [node name="TurnStartAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("27_aidi8")
 
@@ -894,6 +954,7 @@ access = 2
 [connection signal="number_picker_updated" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_number_picker_updated"]
 [connection signal="ultra_force_toggled" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_ultra_force_toggled"]
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]
+[connection signal="pressed" from="RuntimeHealthDebugToggleButton" to="." method="_on_runtime_health_debug_toggle_button_pressed"]
 [connection signal="pressed" from="EmoteButton" to="." method="_on_emote_button_pressed"]
 [connection signal="action_pressed" from="SlideoutDialog" to="." method="_on_slideout_dialog_action_pressed"]
 [connection signal="close_button_pressed" from="CombatLog" to="." method="_on_combat_log_close_button_pressed"]

@@ -428,6 +428,25 @@ func discard_to(pos, target_state):
 	return_state = target_state
 	change_state(CardState.CardState_Discarding)
 
+func finish_animation_immediately():
+	match state:
+		CardState.CardState_Focusing:
+			set_card_and_focus(target_pos, target_rotation, target_scale)
+		CardState.CardState_Unfocusing:
+			set_card_and_focus(target_pos, target_rotation, target_scale)
+			change_state(return_state)
+		CardState.CardState_DrawingToHand:
+			if not manual_flip_needed and not skip_flip_when_drawing:
+				flip_card_to_front(true)
+			set_card_and_focus(target_pos, target_rotation, original_scale)
+			change_state(CardState.CardState_InHand)
+		CardState.CardState_Discarding:
+			set_card_and_focus(target_pos, target_rotation, target_scale)
+			change_state(return_state)
+		_:
+			return
+	animation_time = 0
+
 func change_state(new_state):
 	state = new_state
 
@@ -440,14 +459,16 @@ func clamp_to_screen(center_pos : Vector2, size: Vector2) -> Vector2:
 	var screen_size = get_viewport().content_scale_size
 	var top_left = center_pos - size / 2
 	var new_top_left = top_left
+	var max_x = max(0.0, screen_size.x - size.x)
+	var max_y = max(0.0, screen_size.y - size.y)
 	if new_top_left.x < 0:
 		new_top_left.x = 0
-	if new_top_left.x + size.x > screen_size.x:
-		new_top_left.x = screen_size.x - size.x
+	if new_top_left.x > max_x:
+		new_top_left.x = max_x
 	if new_top_left.y < 0:
 		new_top_left.y = 0
-	if new_top_left.y + size.y > screen_size.y:
-		new_top_left.y = screen_size.y - size.y
+	if new_top_left.y > max_y:
+		new_top_left.y = max_y
 	var new_center = new_top_left + size / 2
 
 	new_center = new_center - global_pos

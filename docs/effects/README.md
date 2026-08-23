@@ -63,6 +63,18 @@ docs/effects/
 - [By Category](index.md#by-category) - Effects grouped by functionality
 - [By Timing](index.md#by-timing) - Effects grouped by when they can be used
 
+### Shared Optional Fields
+
+These may be added to any effect:
+
+- `condition` - Only run the effect when the condition is met. `boost_is_immediate`, for
+  example, only passes when the boost currently resolving is an Instant Boost.
+- `negative_condition_effect` - Effect to run instead when `condition` fails.
+- `once_per_turn` - A string key. The effect only triggers the first time that key is
+  reached each turn, whether or not the player follows through on any choice it offers.
+  Keys are tracked per player and cleared at the start of each turn, so pick something
+  unique like `"pooky_drunken_fury"`.
+
 ## Format
 
 Each effect documentation includes:

@@ -1,0 +1,230 @@
+{
+	"id": "meilien",
+	"season": 1,
+	"display_name": "Mei Lien",
+	"exceed_cost": 3,
+	"ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "during_strike",
+			"condition": "copy_of_attack_in_zones",
+			"condition_zones": [
+				"discard"
+			],
+			"effect_type": "rangeup",
+			"amount": 0,
+			"amount2": 1,
+			"dynamic": true
+		},
+		{
+			"character_effect": true,
+			"timing": "during_strike",
+			"condition": "copy_of_attack_in_zones",
+			"condition_zones": [
+				"gauge"
+			],
+			"effect_type": "powerup",
+			"amount": 2,
+			"dynamic": true
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "during_strike",
+			"condition": "copy_of_attack_in_zones",
+			"condition_zones": [
+				"discard"
+			],
+			"effect_type": "rangeup",
+			"amount": 0,
+			"amount2": 2,
+			"dynamic": true
+		},
+		{
+			"character_effect": true,
+			"timing": "during_strike",
+			"condition": "copy_of_attack_in_zones",
+			"condition_zones": [
+				"gauge"
+			],
+			"effect_type": "powerup",
+			"amount": 4,
+			"dynamic": true
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/k10cQcW.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/Vdg324i.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/ij6Tz5n.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/PFHTq9B.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "meilien_dragontempest",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "meilien_dragontempest",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "meilien_raijinoath",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "meilien_raijinoath",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "meilien_raijinknife",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "meilien_raijinknife",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "meilien_cloudrider",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "meilien_cloudrider",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "meilien_fujindrum",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "meilien_fujindrum",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "meilien_halberdier",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "meilien_halberdier",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "meilien_dragonthrash",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "meilien_dragonthrash",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

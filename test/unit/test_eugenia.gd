@@ -482,3 +482,19 @@ func test_wanderlust_boost_search_deck():
 		"Selected card should be in transform zone")
 	assert_eq(player2.hand.size(), p2_hand_before + 1,
 		"Opponent should have 1 more card (from top-deck search)")
+
+
+func test_faq_u2_wonderland_face_attack_cannot_be_used_for_ex_attack():
+	var gauge_ids = give_gauge(player1, 6)
+	assert_true(game_logic.do_exceed(player1, gauge_ids))
+	advance_turn(player2)
+
+	var real_card = player1.hand[0]
+	player1.hand.remove_at(0)
+	player1.set_aside_cards.append(real_card)
+	var ex_copy_id = give_player_specific_card(player1, "wonderland")
+
+	assert_false(game_logic.do_strike(player1, -1, false, ex_copy_id, false, true),
+		"Wonderland face attack cannot be paired with a hand copy for EX")
+	assert_true(player1.is_card_in_hand(ex_copy_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)

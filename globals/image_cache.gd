@@ -38,6 +38,9 @@ func load_image(url : String):
 		return null
 	return Image.load_from_file(image_cache_map[url])
 
+func get_local_portrait_path(character_id : String) -> String:
+	return "res://assets/portraits/%s.png" % character_id
+
 func _generate_image_filename():
 	var random_filename = ""
 	for i in range(random_filename_length):

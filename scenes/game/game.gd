@@ -12,6 +12,7 @@ const Test_StartWithGauge = false
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 const CardPopoutScene = preload("res://scenes/game/card_popout.tscn")
 const CharacterScene = preload("res://scenes/game/character.tscn")
+const BackgroundManager = preload("res://globals/game_background_manager.gd")
 
 @onready var player_emote : EmoteDisplay = $PlayerEmote
 @onready var opponent_emote : EmoteDisplay = $OpponentEmote
@@ -19,6 +20,15 @@ const CharacterScene = preload("res://scenes/game/character.tscn")
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 @onready var arena_layout = $ArenaNode/RowButtons
 @onready var arena_graphics = $ArenaNode/RowPlatforms
+@onready var friend_track_layer : TextureRect = $FriendTrackLayer
+@onready var enemy_track_layer : TextureRect = $EnemyTrackLayer
+@onready var background_image : TextureRect = $BackgroundImage
+
+# Extra track overlay layers for wide characters when a non-classic background
+# is active. Built lazily in _initialize_track_overlay_layers().
+var friend_track_overlay_layers : Array[TextureRect] = []
+var enemy_track_overlay_layers : Array[TextureRect] = []
+var resolved_arena_style : String = BackgroundManager.DEFAULT_BACKGROUND_ID
 
 @onready var huge_card : Sprite2D = $HugeCard
 
@@ -30,11 +40,20 @@ const CharacterScene = preload("res://scenes/game/character.tscn")
 
 @onready var slideout_dialog : SlideoutDialog = $SlideoutDialog
 
+# Rotation reflow + runtime health debug overlay nodes (added in game.tscn).
+# Fetched defensively so game.gd still works if the nodes are absent.
+@onready var rotation_layout_overlay : Control = get_node_or_null("RotationLayoutOverlay")
+@onready var runtime_health_debug_panel : Control = get_node_or_null("RuntimeHealthDebugPanel")
+@onready var runtime_health_debug_label : Label = get_node_or_null("RuntimeHealthDebugPanel/MarginContainer/RuntimeHealthDebugLabel")
+@onready var runtime_health_debug_toggle_button : Button = get_node_or_null("RuntimeHealthDebugToggleButton")
+
 const OffScreen = Vector2(-1000, -1000)
 const ChoiceCopyIdRangeStart = 70000
 const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
+# Layout is authored against this fixed base size and scaled to the live viewport.
+const BaseViewportSize = Vector2(1280.0, 720.0)
 
 const SlideoutStartPosition = Vector2(1280, 380)
 
@@ -59,8 +78,78 @@ const StrikeRevealDelay : float = 2.0
 const MoveDelay : float = 1.0
 const BoostDelay : float = 2.0
 const SmallNoticeDelay : float = 1.0
+
+# --- Web-runtime health governor tuning (all no-op when not running on web) ---
+const WebRuntimeAnimationBacklogThreshold : int = 8
+const WebRuntimeAnimationBacklogScale : float = 0.25
+const WebRuntimeAnimationMinimumDelay : float = 0.1
+const WebRuntimeLoadYieldBatchSize : int = 4
+const WebRuntimeArenaVisualYieldFrames : int = 1
+const WebRuntimeEventYieldBatchSize : int = 6
+const WebRuntimeEventYieldDelay : float = 0.05
+const WebRuntimeRotationSettleFrames : int = 2
+const WebRuntimeMinimumViewportSize := Vector2(320.0, 240.0)
+const WebRuntimeMaximumInvalidViewportRetries : int = 8
+const WebRuntimeBacklogThresholdModerate : int = 12
+const WebRuntimeBacklogThresholdSevere : int = 24
+const WebRuntimeEventBudgetUnlimited : int = -1
+const WebRuntimeEventBudgetModerate : int = 8
+const WebRuntimeEventBudgetSevere : int = 4
+const WebRuntimeSlowFrameWarningDelta : float = 0.05
+const WebRuntimeSlowFrameSevereDelta : float = 0.085
+const WebRuntimeSlowFrameWarningCount : int = 1
+const WebRuntimeSlowFrameSevereCount : int = 3
+const WebRuntimeRecoveryStableFrames : int = 45
+const ShowRuntimeHealthDebugOverlay : bool = true
+const CombatLogVisibleEntryLimit = 500
+
+enum RuntimeBacklogLevel {
+	RuntimeBacklogLevel_None,
+	RuntimeBacklogLevel_Moderate,
+	RuntimeBacklogLevel_Severe,
+}
+
+enum RuntimeFramePressureLevel {
+	RuntimeFramePressureLevel_None,
+	RuntimeFramePressureLevel_Warning,
+	RuntimeFramePressureLevel_Severe,
+}
+
+enum RuntimeHealthState {
+	RuntimeHealthState_Healthy,
+	RuntimeHealthState_Warning,
+	RuntimeHealthState_Backlogged,
+	RuntimeHealthState_Recovery,
+}
+
 var remaining_delay = 0
+# RESERVED HOOK (a) reconnect restore fast-forward: the reconnect workstream drives
+# these two flags. The health governor already consults `restore_fast_forwarding`
+# so replay fast-forward stays "Healthy". Left defaulted so game.gd compiles today.
+var restore_fast_forward_pending := false
+var restore_fast_forwarding := false
 var events_to_process = []
+
+# Web-runtime health governor state (all inert off web).
+var runtime_health_debug_overlay_enabled : bool = false
+var runtime_backlog_level : int = RuntimeBacklogLevel.RuntimeBacklogLevel_None
+var runtime_health_state : int = RuntimeHealthState.RuntimeHealthState_Healthy
+var runtime_pending_event_pressure_count : int = 0
+var runtime_slow_frame_count : int = 0
+var runtime_stable_frame_count : int = WebRuntimeRecoveryStableFrames
+var runtime_last_frame_delta : float = 0.0
+var runtime_event_batch_in_progress : bool = false
+var deferred_player_hand_layout : bool = false
+var deferred_opponent_hand_layout : bool = false
+var deferred_card_count_refresh : bool = false
+
+# Responsive layout + rotation reflow state.
+var _viewport_layout_ready : bool = false
+var _viewport_layout_generation : int = 0
+var _rotation_layout_in_progress : bool = false
+var _last_stable_viewport_size : Vector2 = BaseViewportSize
+var _responsive_position_nodes : Array = []
+var _responsive_anchor_roots : Array = []
 
 var damage_popup_pool:Array[DamagePopup] = []
 
@@ -88,6 +177,9 @@ var select_gauge_valid_card_types = []
 var select_boost_options = {}
 var select_card_name_boost_restriction = ""
 var selected_boost_to_pay_for = -1
+# Renea: face-up (false) / face-down (true) placement chosen for a continuous
+# boost whose cost is still being paid. null means "use the card's default".
+var selected_boost_facedown_override = null
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
 var instructions_strike_options = {}
@@ -114,6 +206,10 @@ var discard_ex_first_for_strike = false
 var use_free_force = false
 var can_spend_life_for_force = false
 var can_spend_life_for_gauge = false
+# Minato "seal cards to pay costs": while true, the number picker seals top
+# discards to generate Force / Gauge for the current payment.
+var can_seal_for_force = false
+var can_seal_for_gauge = false
 var current_pay_costs_is_ex = false
 var preparing_character_action = false
 var prepared_character_action_data = {}
@@ -280,6 +376,76 @@ func printlog(text):
 	if GlobalSettings.is_logging_enabled():
 		print("UI: %s" % text)
 
+# --- Tournelouse transform choices ---
+# All of Tournelouse's transform-related decisions are optional and select cards
+# from the transform zone rather than the boost zone, so the UI needs to detect
+# them to offer a Cancel button and to allow selecting the right cards.
+
+func is_tournelouse_transform_bonus_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and decision_effect.get("effect_type") in [StrikeEffects.SealTransformForPowerup, StrikeEffects.SealTransformForArmorup]
+
+func is_tournelouse_transform_zone_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and (is_tournelouse_transform_bonus_choice() or decision_effect.get("tournelouse_ouroboros") or decision_effect.get("tournelouse_ouroboros_return_transform"))
+
+func is_tournelouse_ouroboros_force_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and decision_effect.get("tournelouse_ouroboros_force")
+
+func is_tournelouse_ouroboros_hand_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and decision_effect.get("tournelouse_ouroboros_select_hand")
+
+func is_tournelouse_ouroboros_transform_return_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and decision_effect.get("tournelouse_ouroboros_return_transform")
+
+func is_tournelouse_ouroboros_legal_hand_transform(card_id : int) -> bool:
+	if not game_wrapper:
+		return false
+	var decision_info = game_wrapper.get_decision_info()
+	return decision_info.choice != null and card_id in decision_info.choice
+
+func is_tournelouse_ouroboros_paid_card(card_id : int) -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and card_id in decision_effect.get("paid_card_ids", [])
+
+# Bargeist Fang can't be returned when doing so would leave a duplicate of the
+# normal card being transformed already in the transform zone.
+func is_tournelouse_ouroboros_bargeist_return_blocked(card_id : int) -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	if decision_effect == null or not decision_effect.get("tournelouse_ouroboros_return_transform"):
+		return false
+	if game_wrapper.get_card_database().get_card(card_id).definition.get("id") != "tournelouse_bargeist_fang":
+		return false
+	var hand_card_id = decision_effect.get("hand_card_id", -1)
+	if hand_card_id == -1:
+		return false
+	var hand_card = game_wrapper.get_card_database().get_card(hand_card_id)
+	if hand_card.definition['type'] != "normal":
+		return false
+	for boost_card in $AllCards/PlayerBoosts.get_children():
+		if boost_card.card_id != card_id and game_wrapper.is_card_in_transforms(Enums.PlayerId.PlayerId_Player, boost_card.card_id):
+			var transform_card = game_wrapper.get_card_database().get_card(boost_card.card_id)
+			if transform_card.definition['display_name'] == hand_card.definition['display_name']:
+				return true
+	return false
+
 # Called when the node enters the scene tree for the first time.
 var started_directly : bool = true
 var image_loader : CardImageLoader
@@ -290,6 +456,13 @@ func set_not_started_directly():
 func _ready():
 	image_loader = CardImageLoader.new()
 	add_child(image_loader)
+
+	resolved_arena_style = BackgroundManager.resolve_background_id(GlobalSettings.ArenaStyle)
+	_initialize_track_overlay_layers()
+
+	_initialize_responsive_layout_state()
+	if get_viewport():
+		get_viewport().size_changed.connect(_on_viewport_size_changed)
 
 	NetworkManager.connect("players_update", _on_players_update)
 
@@ -307,7 +480,13 @@ func initialization_after_begin_game():
 	if not game_wrapper.is_ai_game():
 		$AIMoveButton.visible = false
 	else:
-		ai_player = AIPlayer.new(game_wrapper.current_game, game_wrapper.current_game.opponent)
+		# AI difficulty is a persistent local preference. Default is the fair
+		# "rules" policy; "omniscient" is an opt-in cheating (hard) AI that reads
+		# hidden information.
+		var ai_policy : Node = AIPolicyRules.new()
+		if GlobalSettings.AIMode == "omniscient":
+			ai_policy = AIPolicyOmniscient.new()
+		ai_player = AIPlayer.new(game_wrapper.current_game, game_wrapper.current_game.opponent, ai_policy)
 
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
@@ -353,6 +532,8 @@ func initialization_after_begin_game():
 	ChoiceTagRegex.compile("\\[.*\\]")
 
 	setup_characters()
+	_viewport_layout_ready = true
+	_refresh_viewport_layout_metrics(true)
 
 func _on_players_update(_players, _matches, _queues : Array, newly_available_match : bool):
 	if (game_wrapper.is_ai_game() or observer_mode) and newly_available_match:
@@ -409,8 +590,15 @@ func begin_remote_game(game_start_message):
 	opponent_clock_remaining = starting_timer
 
 	var starting_message_queue = []
+	restore_fast_forward_pending = false
+	restore_fast_forwarding = false
 	if observer_mode:
 		starting_message_queue = game_start_message['observer_log']
+	elif game_start_message.has('restore_log'):
+		# Resuming a dropped remote game: replay the server-provided log with
+		# zero animation delay, then resume live play.
+		starting_message_queue = game_start_message['restore_log']
+		restore_fast_forward_pending = true
 
 	var p1deck
 	if game_start_message.get('player1_custom_deck'):
@@ -444,19 +632,19 @@ func begin_remote_game(game_start_message):
 	var my_player_info
 	var opponent_player_info
 
-	if game_start_message['your_player_id'] == game_start_message['player1_id']:
+	if str(game_start_message['your_player_id']) == str(game_start_message['player1_id']):
 		my_player_info = player1_info
 		player_deck = player1_info['deck']
 		opponent_player_info = player2_info
 		opponent_deck = player2_info['deck']
-		if game_start_message['starting_player_id'] == game_start_message['player2_id']:
+		if str(game_start_message['starting_player_id']) == str(game_start_message['player2_id']):
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 	else:
 		my_player_info = player2_info
 		player_deck = player2_info['deck']
 		opponent_player_info = player1_info
 		opponent_deck = player1_info['deck']
-		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
+		if str(game_start_message['starting_player_id']) == str(game_start_message['player1_id']):
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 
 	player_deck = CardDataManager.convert_floats_to_ints(player_deck)
@@ -571,7 +759,10 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	if 'hide_buddy_reference' in deck and deck['hide_buddy_reference']:
 		buddy_character_card.visible = false
 	elif 'buddy_card' in deck:
-		if deck.get('buddy_exceeds'):
+		# buddy_exceeds only means the buddy has separate exceeded art. Some
+		# buddies (Umina's Dreamlands) are a zone the player uses from turn
+		# one, and this card doubles as the button that opens that zone.
+		if deck.get('buddy_exceeds') and not deck.get('buddy_visible_before_exceed', false):
 			buddy_character_card.visible = false
 		else:
 			buddy_character_card.visible = true
@@ -638,6 +829,7 @@ func first_run():
 	move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
 	cached_player_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player)
 	cached_opponent_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent)
+	await _prepare_initial_arena_visuals()
 	update_arena_squares()
 	_update_buttons()
 
@@ -652,11 +844,29 @@ func create_character_reference_card(exceeded : bool, zone, image_resources):
 		image_url = image_resources['character_exceeded']['url']
 	_create_reference_card(image_url, "Character Card", zone, CardBase.CharacterCardReferenceId)
 
-func create_buddy_reference_card(buddy_id, exceeded : bool, zone, click_buddy_id, image_resources):
+func create_buddy_reference_card(buddy_id, exceeded : bool, zone, click_buddy_id, image_resources,
+		card_name : String = "Extra Card"):
 	var image_url = image_resources[buddy_id]['url']
 	if exceeded:
 		image_url = image_resources[buddy_id + '_exceeded']['url']
-	_create_reference_card(image_url, "Extra Card", zone, click_buddy_id)
+	_create_reference_card(image_url, card_name, zone, click_buddy_id)
+
+# Some buddies reuse a single piece of art for their base and exceeded forms
+# (Renea's Briefcase, for example). Those are distinct ids pointing at the same
+# picture, so listing them by id shows the same card twice. Collapse the list
+# down to one entry per distinct artwork.
+func _unique_buddy_graphics(buddy_graphic_list, image_resources) -> Array:
+	var unique_ids = []
+	var seen_urls = []
+	for buddy_id in buddy_graphic_list:
+		var buddy_graphic = buddy_id
+		if buddy_id in image_resources and 'url' in image_resources[buddy_id]:
+			buddy_graphic = image_resources[buddy_id]['url']
+		if buddy_graphic in seen_urls:
+			continue
+		seen_urls.append(buddy_graphic)
+		unique_ids.append(buddy_id)
+	return unique_ids
 
 func _create_reference_card(image_url : String, card_name : String, zone,
 		card_id : int):
@@ -693,7 +903,8 @@ func spawn_deck(deck_list,
 		allow_click_buddy,
 		set_aside_zone,
 		is_opponent,
-		image_resources):
+		image_resources,
+		buddy_reference_name : String = ""):
 	var card_db = game_wrapper.get_card_database()
 	var card_back_url = image_resources['cardback']['url']
 
@@ -713,6 +924,16 @@ func spawn_deck(deck_list,
 
 	create_character_reference_card(false, copy_zone, image_resources)
 	create_character_reference_card(true, copy_zone, image_resources)
+
+	# Characters whose extra-cards popout is redirected to another zone (Renea's
+	# Briefcase, Umina's Dreamlands, Eugenia's Wonderland, Djanette's Spell
+	# Circle) would otherwise never display their marker card anywhere, because
+	# that popout shows the stored cards instead. Put it in the deck reference
+	# alongside the character card.
+	if buddy_reference_name:
+		for buddy_id in _unique_buddy_graphics(buddy_graphic_list, image_resources):
+			create_buddy_reference_card(buddy_id, false, copy_zone,
+				CardBase.BuddyCardReferenceId, image_resources, buddy_reference_name)
 
 	var previous_def_id = ""
 	var buddy_card_id_links = {}
@@ -739,15 +960,10 @@ func spawn_deck(deck_list,
 			previous_def_id = card.definition['id']
 
 	# Setup buddy if they have one.
-	var created_buddy_cards = []
 	if buddy_graphic_list:
-		for buddy_id in buddy_graphic_list:
-			if buddy_id in created_buddy_cards:
-				# Skip any that share graphics.
-				continue
-			created_buddy_cards.append(buddy_id)
+		for buddy_id in _unique_buddy_graphics(buddy_graphic_list, image_resources):
 			var buddy_card_id = CardBase.BuddyCardReferenceId
-			if allow_click_buddy and buddy_card_id_links:
+			if allow_click_buddy and buddy_id in buddy_card_id_links:
 				buddy_card_id = buddy_card_id_links[buddy_id]
 			create_buddy_reference_card(buddy_id, false, buddy_copy_zone, buddy_card_id, image_resources)
 
@@ -773,6 +989,8 @@ func spawn_emote(
 	is_image_emote : bool,
 	emote : String
 ):
+	if restore_fast_forwarding:
+		return
 	var emote_display = opponent_emote
 	if player_id == Enums.PlayerId.PlayerId_Player:
 		emote_display = player_emote
@@ -807,13 +1025,24 @@ func spawn_all_cards():
 	var player_can_click_buddy = player_deck.get("link_extra_cards_to_buddies", false)
 	var opponent_can_click_buddy = opponent_deck.get("link_extra_cards_to_buddies", false)
 
+	# Only decks whose buddy popout is redirected elsewhere need their marker
+	# card surfaced in the deck reference list.
+	var player_buddy_reference_name = ""
+	if player_deck.get("buddy_link_to_zone"):
+		player_buddy_reference_name = player_deck.get("buddy_display_name", "Extra Card")
+	var opponent_buddy_reference_name = ""
+	if opponent_deck.get("buddy_link_to_zone"):
+		opponent_buddy_reference_name = opponent_deck.get("buddy_display_name", "Extra Card")
+
 	var player_image_resources = player_deck['image_resources']
 	var opponent_image_resources = opponent_deck['image_resources']
 
 	await spawn_deck(game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
-		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, false, player_image_resources)
+		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, false, player_image_resources,
+		player_buddy_reference_name)
 	await spawn_deck(game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
-		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, true, opponent_image_resources)
+		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, true, opponent_image_resources,
+		opponent_buddy_reference_name)
 
 func get_arena_location_button(arena_location):
 	var target_square = arena_layout.get_child(arena_location - 1)
@@ -862,6 +1091,7 @@ func update_character_facing():
 func _process(delta):
 	if exiting:
 		return
+	_update_runtime_frame_health(delta)
 	if not first_run_done:
 		if not first_run_in_progress:
 			if not setup_characters_complete:
@@ -894,6 +1124,8 @@ func _process(delta):
 
 		if events.size() == 0 and observer_live:
 			game_wrapper.observer_process_next_message_from_queue()
+		elif events.size() == 0 and (restore_fast_forwarding or restore_fast_forward_pending):
+			_advance_restore_fast_forward()
 
 	# Update opponent thinking spinner
 	if ui_state == UIState.UIState_WaitingOnOpponent or ui_state == UIState.UIState_WaitForGameServer:
@@ -965,8 +1197,498 @@ func begin_delay(delay : float, remaining_events : Array):
 		previous_ui_state = ui_state
 		previous_ui_sub_state = ui_sub_state
 	change_ui_state(UIState.UIState_PlayingAnimation, UISubState.UISubState_None)
-	remaining_delay = delay
+	remaining_delay = get_runtime_animation_delay(delay, remaining_events.size(), _is_web_runtime())
+	if restore_fast_forwarding:
+		# While replaying a reconnect restore log, apply everything with no delay.
+		remaining_delay = 0
 	events_to_process = remaining_events
+
+# Drains the reconnect restore log one message at a time with zero animation
+# delay. Once the log is fully replayed, live play resumes normally.
+func _advance_restore_fast_forward():
+	if restore_fast_forward_pending:
+		restore_fast_forward_pending = false
+		restore_fast_forwarding = true
+	var processed_something = game_wrapper.observer_process_next_message_from_queue()
+	if not processed_something:
+		restore_fast_forwarding = false
+
+# --- Web-runtime detection --------------------------------------------------
+
+func _is_web_runtime() -> bool:
+	return OS.has_feature("web")
+
+func _is_mobile_web_runtime() -> bool:
+	return _is_web_runtime() and (
+		OS.has_feature("mobile")
+		or OS.has_feature("web_android")
+		or OS.has_feature("web_ios")
+	)
+
+# --- Web-runtime health governor (pure helpers; safe to unit test) -----------
+
+static func get_runtime_animation_delay(delay : float, pending_event_count : int, web_runtime : bool) -> float:
+	if not web_runtime or pending_event_count <= WebRuntimeAnimationBacklogThreshold:
+		return delay
+	return maxf(WebRuntimeAnimationMinimumDelay, delay * WebRuntimeAnimationBacklogScale)
+
+static func get_runtime_backlog_level(pending_event_count : int, web_runtime : bool) -> int:
+	if not web_runtime or pending_event_count < WebRuntimeBacklogThresholdModerate:
+		return RuntimeBacklogLevel.RuntimeBacklogLevel_None
+	if pending_event_count >= WebRuntimeBacklogThresholdSevere:
+		return RuntimeBacklogLevel.RuntimeBacklogLevel_Severe
+	return RuntimeBacklogLevel.RuntimeBacklogLevel_Moderate
+
+static func get_runtime_event_budget(pending_event_count : int, web_runtime : bool) -> int:
+	match get_runtime_backlog_level(pending_event_count, web_runtime):
+		RuntimeBacklogLevel.RuntimeBacklogLevel_Moderate:
+			return WebRuntimeEventBudgetModerate
+		RuntimeBacklogLevel.RuntimeBacklogLevel_Severe:
+			return WebRuntimeEventBudgetSevere
+		_:
+			return WebRuntimeEventBudgetUnlimited
+
+static func get_runtime_frame_pressure_level(slow_frame_count : int, web_runtime : bool) -> int:
+	if not web_runtime:
+		return RuntimeFramePressureLevel.RuntimeFramePressureLevel_None
+	if slow_frame_count >= WebRuntimeSlowFrameSevereCount:
+		return RuntimeFramePressureLevel.RuntimeFramePressureLevel_Severe
+	if slow_frame_count >= WebRuntimeSlowFrameWarningCount:
+		return RuntimeFramePressureLevel.RuntimeFramePressureLevel_Warning
+	return RuntimeFramePressureLevel.RuntimeFramePressureLevel_None
+
+static func get_runtime_backlog_level_name(level : int) -> String:
+	match level:
+		RuntimeBacklogLevel.RuntimeBacklogLevel_Moderate:
+			return "Moderate"
+		RuntimeBacklogLevel.RuntimeBacklogLevel_Severe:
+			return "Severe"
+		_:
+			return "None"
+
+static func get_runtime_frame_pressure_level_name(level : int) -> String:
+	match level:
+		RuntimeFramePressureLevel.RuntimeFramePressureLevel_Warning:
+			return "Warning"
+		RuntimeFramePressureLevel.RuntimeFramePressureLevel_Severe:
+			return "Severe"
+		_:
+			return "None"
+
+static func get_runtime_health_state_name(state : int) -> String:
+	match state:
+		RuntimeHealthState.RuntimeHealthState_Warning:
+			return "Warning"
+		RuntimeHealthState.RuntimeHealthState_Backlogged:
+			return "Backlogged"
+		RuntimeHealthState.RuntimeHealthState_Recovery:
+			return "Recovery"
+		_:
+			return "Healthy"
+
+static func get_runtime_event_budget_name(budget : int) -> String:
+	if budget == WebRuntimeEventBudgetUnlimited:
+		return "Unlimited"
+	return str(budget)
+
+static func get_runtime_health_debug_color(state : int) -> Color:
+	match state:
+		RuntimeHealthState.RuntimeHealthState_Warning:
+			return Color("ffd54f")
+		RuntimeHealthState.RuntimeHealthState_Backlogged:
+			return Color("ff8a65")
+		RuntimeHealthState.RuntimeHealthState_Recovery:
+			return Color("80deea")
+		_:
+			return Color("c5e1a5")
+
+static func get_runtime_health_state(current_state : int, pending_event_count : int, slow_frame_count : int, stable_frame_count : int, web_runtime : bool) -> int:
+	if not web_runtime:
+		return RuntimeHealthState.RuntimeHealthState_Healthy
+	var backlog_level = get_runtime_backlog_level(pending_event_count, true)
+	var frame_pressure_level = get_runtime_frame_pressure_level(slow_frame_count, true)
+	var pressure_level = maxi(backlog_level, frame_pressure_level)
+	if pressure_level >= RuntimeBacklogLevel.RuntimeBacklogLevel_Severe:
+		return RuntimeHealthState.RuntimeHealthState_Backlogged
+	if pressure_level >= RuntimeBacklogLevel.RuntimeBacklogLevel_Moderate:
+		return RuntimeHealthState.RuntimeHealthState_Warning
+	if current_state != RuntimeHealthState.RuntimeHealthState_Healthy:
+		if stable_frame_count < WebRuntimeRecoveryStableFrames:
+			return RuntimeHealthState.RuntimeHealthState_Recovery
+	return RuntimeHealthState.RuntimeHealthState_Healthy
+
+static func get_runtime_event_budget_for_health_state(health_state : int) -> int:
+	match health_state:
+		RuntimeHealthState.RuntimeHealthState_Backlogged:
+			return WebRuntimeEventBudgetSevere
+		RuntimeHealthState.RuntimeHealthState_Warning, RuntimeHealthState.RuntimeHealthState_Recovery:
+			return WebRuntimeEventBudgetModerate
+		_:
+			return WebRuntimeEventBudgetUnlimited
+
+static func should_yield_runtime_batch(processed_count : int, batch_size : int, web_runtime : bool) -> bool:
+	return web_runtime and batch_size > 0 and processed_count > 0 and processed_count % batch_size == 0
+
+func runtime_yield_for_loading_batch(processed_count : int):
+	if should_yield_runtime_batch(processed_count, WebRuntimeLoadYieldBatchSize, _is_web_runtime()):
+		await get_tree().process_frame
+
+func _update_runtime_frame_health(delta : float):
+	runtime_last_frame_delta = delta
+	if not _is_web_runtime() or restore_fast_forwarding:
+		runtime_pending_event_pressure_count = 0
+		runtime_health_state = RuntimeHealthState.RuntimeHealthState_Healthy
+		runtime_slow_frame_count = 0
+		runtime_stable_frame_count = WebRuntimeRecoveryStableFrames
+		_request_runtime_health_debug_overlay_refresh()
+		return
+	if delta >= WebRuntimeSlowFrameSevereDelta:
+		runtime_slow_frame_count += 2
+		runtime_stable_frame_count = 0
+	elif delta >= WebRuntimeSlowFrameWarningDelta:
+		runtime_slow_frame_count += 1
+		runtime_stable_frame_count = 0
+	else:
+		runtime_slow_frame_count = maxi(0, runtime_slow_frame_count - 1)
+		runtime_stable_frame_count += 1
+	_update_runtime_health_state(events_to_process.size())
+
+func _update_runtime_health_state(pending_event_count : int):
+	runtime_pending_event_pressure_count = pending_event_count
+	if restore_fast_forwarding:
+		runtime_backlog_level = RuntimeBacklogLevel.RuntimeBacklogLevel_None
+		runtime_health_state = RuntimeHealthState.RuntimeHealthState_Healthy
+		_request_runtime_health_debug_overlay_refresh()
+		return
+	runtime_backlog_level = get_runtime_backlog_level(pending_event_count, _is_web_runtime())
+	runtime_health_state = get_runtime_health_state(runtime_health_state, pending_event_count, runtime_slow_frame_count, runtime_stable_frame_count, _is_web_runtime())
+	_request_runtime_health_debug_overlay_refresh()
+
+func _begin_runtime_event_batch(batch_event_count : int):
+	runtime_event_batch_in_progress = true
+	_update_runtime_health_state(batch_event_count + events_to_process.size())
+
+func _end_runtime_event_batch():
+	_flush_deferred_ui_updates()
+	runtime_event_batch_in_progress = false
+	_update_runtime_health_state(events_to_process.size())
+
+func _flush_deferred_ui_updates():
+	# Placeholder for deferred hand/card-count refreshes coalesced during a backlog.
+	# The batching hooks above no-op off web; wire concrete refreshes here as needed.
+	deferred_player_hand_layout = false
+	deferred_opponent_hand_layout = false
+	deferred_card_count_refresh = false
+
+func _should_defer_runtime_ui_refreshes() -> bool:
+	return _is_web_runtime() and runtime_event_batch_in_progress and runtime_health_state != RuntimeHealthState.RuntimeHealthState_Healthy
+
+func _should_skip_low_priority_visuals() -> bool:
+	return _rotation_layout_in_progress or (_is_web_runtime() and not restore_fast_forwarding and runtime_health_state == RuntimeHealthState.RuntimeHealthState_Backlogged)
+
+func _should_skip_bonus_label_visuals() -> bool:
+	return _is_web_runtime() and not restore_fast_forwarding and runtime_health_state != RuntimeHealthState.RuntimeHealthState_Healthy
+
+func _should_show_runtime_health_debug_overlay() -> bool:
+	return ShowRuntimeHealthDebugOverlay and _is_web_runtime() and runtime_health_debug_overlay_enabled
+
+func _update_runtime_health_debug_toggle_button():
+	if runtime_health_debug_toggle_button == null:
+		return
+	runtime_health_debug_toggle_button.visible = ShowRuntimeHealthDebugOverlay and _is_web_runtime()
+	runtime_health_debug_toggle_button.text = "Hide\nPerf" if runtime_health_debug_overlay_enabled else "Show\nPerf"
+
+func _request_runtime_health_debug_overlay_refresh():
+	if not _should_show_runtime_health_debug_overlay():
+		return
+	_refresh_runtime_health_debug_overlay()
+
+func _refresh_runtime_health_debug_overlay():
+	if runtime_health_debug_panel == null or runtime_health_debug_label == null:
+		return
+	var should_show = _should_show_runtime_health_debug_overlay()
+	runtime_health_debug_panel.visible = should_show
+	_update_runtime_health_debug_toggle_button()
+	if not should_show:
+		return
+	var frame_pressure_level = get_runtime_frame_pressure_level(runtime_slow_frame_count, true)
+	var event_budget = get_runtime_event_budget_for_health_state(runtime_health_state)
+	runtime_health_debug_label.modulate = get_runtime_health_debug_color(runtime_health_state)
+	runtime_health_debug_label.text = "Runtime Health\nState: %s\nEvent pressure: %s (%d)\nFrame pressure: %s (%.1fms)\nSlow frames: %d\nStable frames: %d/%d\nEvent budget: %s\nBatching: %s\nDeferred queue: %d\nFast-forward: %s" % [
+		get_runtime_health_state_name(runtime_health_state),
+		get_runtime_backlog_level_name(runtime_backlog_level),
+		runtime_pending_event_pressure_count,
+		get_runtime_frame_pressure_level_name(frame_pressure_level),
+		runtime_last_frame_delta * 1000.0,
+		runtime_slow_frame_count,
+		runtime_stable_frame_count,
+		WebRuntimeRecoveryStableFrames,
+		get_runtime_event_budget_name(event_budget),
+		"Yes" if runtime_event_batch_in_progress else "No",
+		events_to_process.size(),
+		"Yes" if restore_fast_forwarding else "No",
+	]
+
+func _on_runtime_health_debug_toggle_button_pressed():
+	runtime_health_debug_overlay_enabled = not runtime_health_debug_overlay_enabled
+	_refresh_runtime_health_debug_overlay()
+
+# --- Responsive layout engine ------------------------------------------------
+
+func _initialize_responsive_layout_state():
+	if _responsive_position_nodes.size() > 0 or _responsive_anchor_roots.size() > 0:
+		return
+
+	var tracked_node_paths := [
+		"ArenaNode", "OpponentLife", "PlayerLife", "PlayerZones", "OpponentZones",
+		"PlayerBoostZone", "OpponentBoostZone", "ChoicePopoutShowButton",
+		"ObserverNextButton", "ObserverPreviousButton", "ObserverPlayToLive",
+		"ExitToMenu", "HugeCard", "EmoteButton",
+		"AllCards/PlayerDiscardButton", "AllCards/OpponentDiscardButton",
+	]
+	for node_path in tracked_node_paths:
+		var node = get_node_or_null(node_path)
+		if node == null:
+			continue
+		_responsive_position_nodes.append({
+			"node": node,
+			"base_position": node.position,
+		})
+
+	var anchor_pairs := [
+		["PlayerDeck", "PlayerDeck/DeckButton"],
+		["OpponentDeck", "OpponentDeck/DeckButton"],
+		["PlayerStrike", "PlayerStrike/StrikeZone"],
+		["OpponentStrike", "OpponentStrike/StrikeZone"],
+		["OpponentHand", "OpponentHand/HandSpawn"],
+	]
+	for pair in anchor_pairs:
+		var root = get_node_or_null(pair[0])
+		var anchor = get_node_or_null(pair[1])
+		if root == null or anchor == null:
+			continue
+		_responsive_anchor_roots.append({
+			"root": root,
+			"base_anchor_position": anchor.position,
+		})
+
+func _scale_base_position(base_position : Vector2, viewport_scale : Vector2) -> Vector2:
+	return Vector2(base_position.x * viewport_scale.x, base_position.y * viewport_scale.y)
+
+static func get_rotation_safe_position(target_position : Vector2, node_size : Vector2, viewport_size : Vector2) -> Vector2:
+	return Vector2(
+		clampf(target_position.x, -node_size.x, viewport_size.x),
+		clampf(target_position.y, -node_size.y, viewport_size.y))
+
+func _apply_responsive_root_layout(viewport_size : Vector2):
+	var viewport_scale = Vector2(
+		viewport_size.x / BaseViewportSize.x,
+		viewport_size.y / BaseViewportSize.y
+	)
+
+	for entry in _responsive_position_nodes:
+		var node = entry["node"]
+		var scaled_position := _scale_base_position(entry["base_position"], viewport_scale)
+		var node_size : Vector2 = node.size if node is Control else Vector2.ZERO
+		node.position = get_rotation_safe_position(scaled_position, node_size, viewport_size)
+
+	for entry in _responsive_anchor_roots:
+		var root = entry["root"]
+		var base_anchor_position : Vector2 = entry["base_anchor_position"]
+		var scaled_anchor_position := _scale_base_position(base_anchor_position, viewport_scale) - base_anchor_position
+		var root_size : Vector2 = root.size if root is Control else Vector2.ZERO
+		root.position = get_rotation_safe_position(scaled_anchor_position, root_size, viewport_size)
+
+	var background_node = get_node_or_null("Background")
+	if background_node:
+		background_node.size = viewport_size
+	var row_buttons = get_node_or_null("ArenaNode/RowButtons")
+	if row_buttons:
+		row_buttons.size.x = viewport_size.x
+	var row_platforms = get_node_or_null("ArenaNode/RowPlatforms")
+	if row_platforms:
+		row_platforms.custom_minimum_size.x = viewport_size.x
+		row_platforms.size.x = viewport_size.x
+	var row_lightning = get_node_or_null("ArenaNode/RowLightningInfoButtons")
+	if row_lightning:
+		row_lightning.custom_minimum_size.x = viewport_size.x
+		row_lightning.size.x = viewport_size.x
+	var action_container = get_node_or_null("AllCards/ActionContainer")
+	if action_container:
+		action_container.size.x = viewport_size.x
+	if rotation_layout_overlay:
+		rotation_layout_overlay.size = viewport_size
+
+func _refresh_world_positions_after_layout():
+	if not first_run_done:
+		return
+
+	if cached_player_location > 0:
+		move_character_to_arena_square($PlayerCharacter, cached_player_location, true, Character.CharacterAnim.CharacterAnim_None)
+	if cached_opponent_location > 0:
+		move_character_to_arena_square($OpponentCharacter, cached_opponent_location, true, Character.CharacterAnim.CharacterAnim_None)
+
+	var player_logic = game_wrapper.current_game.player if game_wrapper.current_game else null
+	var opponent_logic = game_wrapper.current_game.opponent if game_wrapper.current_game else null
+
+	for buddy in player_buddies:
+		if buddy.visible and player_logic:
+			var buddy_location = player_logic.get_buddy_location(buddy.get_buddy_id())
+			if buddy_location != -1:
+				move_character_to_arena_square(buddy, buddy_location, true, Character.CharacterAnim.CharacterAnim_None, -1)
+
+	for buddy in opponent_buddies:
+		if buddy.visible and opponent_logic:
+			var buddy_location = opponent_logic.get_buddy_location(buddy.get_buddy_id())
+			if buddy_location != -1:
+				move_character_to_arena_square(buddy, buddy_location, true, Character.CharacterAnim.CharacterAnim_None, -1)
+
+	for location in range(1, 10):
+		var player_rod = player_lightningrod_tracking.get(location, {}).get("character")
+		if player_rod != null:
+			move_character_to_arena_square(player_rod, location, true, Character.CharacterAnim.CharacterAnim_None, -1)
+		var opponent_rod = opponent_lightningrod_tracking.get(location, {}).get("character")
+		if opponent_rod != null:
+			move_character_to_arena_square(opponent_rod, location, true, Character.CharacterAnim.CharacterAnim_None, -1)
+
+	update_character_facing()
+	update_arena_squares()
+
+func _refresh_viewport_layout_metrics(relayout_hands := false):
+	if not is_inside_tree() or get_viewport() == null:
+		return
+
+	var viewport_size = Vector2(get_viewport().content_scale_size)
+	if viewport_size.x <= 0 or viewport_size.y <= 0:
+		return
+
+	_apply_responsive_root_layout(viewport_size)
+
+	CenterCardOval = viewport_size * Vector2(0.5, 1.35)
+	HorizontalRadius = viewport_size.x * 0.55
+	VerticalRadius = viewport_size.y * 0.4
+
+	if not relayout_hands or not _viewport_layout_ready:
+		return
+
+	layout_player_hand(true)
+	layout_player_hand(false)
+	_refresh_world_positions_after_layout()
+
+# --- Rotation reflow pipeline (web only; desktop keeps canvas_items scaling) --
+
+func _on_viewport_size_changed():
+	if not _is_web_runtime():
+		# Off web, canvas_items stretch already scales the whole scene; leave it be.
+		return
+	if not _viewport_layout_ready:
+		_refresh_viewport_layout_metrics(false)
+		return
+	_schedule_rotation_layout_refresh()
+
+func _schedule_rotation_layout_refresh():
+	_viewport_layout_generation += 1
+	var layout_generation := _viewport_layout_generation
+	if not _rotation_layout_in_progress:
+		_rotation_layout_in_progress = true
+		if rotation_layout_overlay:
+			rotation_layout_overlay.visible = true
+		GlobalSettings.set_web_rotation_render_scale(_is_mobile_web_runtime())
+		_begin_rotation_layout_visual_pause()
+		_run_rotation_layout_refresh(layout_generation)
+
+static func is_rotation_layout_request_current(request_generation : int, current_generation : int) -> bool:
+	return request_generation == current_generation
+
+static func is_rotation_viewport_size_valid(viewport_size : Vector2) -> bool:
+	return viewport_size.x >= WebRuntimeMinimumViewportSize.x and viewport_size.y >= WebRuntimeMinimumViewportSize.y
+
+func _begin_rotation_layout_visual_pause():
+	$OpponentDeck/ThinkingIndicator.visible = false
+	_finish_all_card_animations()
+	_finish_all_character_animations()
+	for popup in find_children("*", "DamagePopup", true, false):
+		popup.pause_for_rotation_layout()
+	if player_emote.has_method("pause_for_rotation_layout"):
+		player_emote.pause_for_rotation_layout()
+	if opponent_emote.has_method("pause_for_rotation_layout"):
+		opponent_emote.pause_for_rotation_layout()
+
+func _run_rotation_layout_refresh(layout_generation : int, invalid_viewport_retries := 0):
+	for _frame in range(WebRuntimeRotationSettleFrames):
+		await get_tree().process_frame
+	if not is_rotation_layout_request_current(layout_generation, _viewport_layout_generation):
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+
+	var viewport_size := Vector2(get_viewport().content_scale_size)
+	if not is_rotation_viewport_size_valid(viewport_size):
+		if invalid_viewport_retries >= WebRuntimeMaximumInvalidViewportRetries:
+			_apply_responsive_root_layout(_last_stable_viewport_size)
+			_finish_rotation_layout_refresh()
+			return
+		await get_tree().process_frame
+		_run_rotation_layout_refresh(_viewport_layout_generation, invalid_viewport_retries + 1)
+		return
+	await get_tree().process_frame
+	if not is_rotation_layout_request_current(layout_generation, _viewport_layout_generation):
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+	var confirmed_viewport_size := Vector2(get_viewport().content_scale_size)
+	if confirmed_viewport_size != viewport_size:
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+	if not is_rotation_viewport_size_valid(confirmed_viewport_size):
+		_finish_rotation_layout_refresh()
+		return
+	_last_stable_viewport_size = confirmed_viewport_size
+
+	_apply_responsive_root_layout(_last_stable_viewport_size)
+	CenterCardOval = _last_stable_viewport_size * Vector2(0.5, 1.35)
+	HorizontalRadius = _last_stable_viewport_size.x * 0.55
+	VerticalRadius = _last_stable_viewport_size.y * 0.4
+	await get_tree().process_frame
+	if not is_rotation_layout_request_current(layout_generation, _viewport_layout_generation):
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+
+	layout_player_hand(true)
+	layout_player_hand(false)
+	_finish_all_card_animations()
+	await get_tree().process_frame
+	if not is_rotation_layout_request_current(layout_generation, _viewport_layout_generation):
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+
+	_refresh_world_positions_after_layout()
+	_finish_all_character_animations()
+	_finish_rotation_layout_refresh()
+
+func _finish_rotation_layout_refresh():
+	GlobalSettings.set_web_rotation_render_scale(false)
+	if rotation_layout_overlay:
+		rotation_layout_overlay.visible = false
+	_rotation_layout_in_progress = false
+
+func _finish_all_card_animations():
+	for card in find_children("*", "CardBase", true, false):
+		card.finish_animation_immediately()
+
+func _finish_all_character_animations():
+	$PlayerCharacter.finish_movement()
+	$OpponentCharacter.finish_movement()
+	for buddy in player_buddies:
+		buddy.finish_movement()
+	for buddy in opponent_buddies:
+		buddy.finish_movement()
+	for location in range(1, 10):
+		var player_rod = player_lightningrod_tracking.get(location, {}).get("character")
+		if player_rod != null:
+			player_rod.finish_movement()
+		var opponent_rod = opponent_lightningrod_tracking.get(location, {}).get("character")
+		if opponent_rod != null:
+			opponent_rod.finish_movement()
+
 
 func get_discard_location(discard_node):
 	var discard_pos = discard_node.global_position + discard_node.size * discard_node.scale /2
@@ -1106,8 +1828,20 @@ func is_card_in_player_reference(reference_cards, card_id):
 			return true
 	return false
 
+func _should_open_or_refresh_popout(open_popout : bool, popout_type : CardPopoutType) -> bool:
+	return open_popout or (card_popout_parent.get_child_count() > 0 and popout_type_showing == popout_type)
+
+func _selection_contains_stored_zone_strike_card() -> bool:
+	for selected in selected_cards:
+		if game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, selected.card_id):
+			return true
+	return false
+
 func can_select_card(card):
 	if observer_mode:
+		return false
+
+	if card.card_id in [CardBase.CharacterCardReferenceId, CardBase.BuddyCardReferenceId]:
 		return false
 
 	var in_gauge = game_wrapper.is_card_in_gauge(Enums.PlayerId.PlayerId_Player, card.card_id)
@@ -1118,6 +1852,7 @@ func can_select_card(card):
 	var in_set_aside = game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_overdrive = game_wrapper.is_card_in_overdrive(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_player_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id)
+	var in_player_transforms = game_wrapper.is_card_in_transforms(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var is_sustained = game_wrapper.is_card_sustained(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
 	var in_player_reference = is_card_in_player_reference($AllCards/PlayerAllCopy.get_children(), card.card_id)
@@ -1133,8 +1868,17 @@ func can_select_card(card):
 			if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
 				return true
 			return false
-		elif in_set_aside and game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
-			return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
+		elif in_set_aside:
+			if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
+				# Renea: the Briefcase may only be boosted from once per turn, so
+				# gray the cards out instead of offering a doomed selection.
+				var renea_sa = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+				if renea_sa.deck_flag("boost_from_stored_zone_grants_action_when_exceeded") and renea_sa.exceeded and renea_sa.renea_boost_from_briefcase_used:
+					return false
+				return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
+			# Lets the player pick the card first and then choose Strike, the
+			# same way a card in hand works.
+			return game_wrapper.can_strike_with_set_aside_card(Enums.PlayerId.PlayerId_Player, card.card_id)
 		return in_hand or in_gauge
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
@@ -1142,6 +1886,10 @@ func can_select_card(card):
 				return false
 			return in_hand and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
+			# Tournelouse Ouroboros: only the normals the engine offered may be
+			# chosen from hand, and a card already spent as payment can't be reused.
+			if is_tournelouse_ouroboros_hand_choice():
+				return in_hand and not is_tournelouse_ouroboros_paid_card(card.card_id) and is_tournelouse_ouroboros_legal_hand_transform(card.card_id) and len(selected_cards) < select_card_require_max
 			var limitation = game_wrapper.get_decision_info().limitation
 			var meets_limitation = true
 			var game_card = game_wrapper.get_card_database().get_card(card.card_id)
@@ -1185,6 +1933,10 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_StrikeForce:
 			return in_gauge or in_hand
 		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+			# Tournelouse's transform choices reuse this sub-state but pick from
+			# the transform zone, and already-paid cards can't be picked twice.
+			if is_tournelouse_transform_zone_choice():
+				return in_player_transforms and not is_tournelouse_ouroboros_paid_card(card.card_id) and len(selected_cards) < select_card_require_max
 			return in_player_boosts and not is_sustained and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_CharacterAction_Force:
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
@@ -1192,6 +1944,10 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ForceForEffect:
+			# Tournelouse Ouroboros: paying force from hand would leave no card to
+			# transform, so block it when it is the player's last card.
+			if is_tournelouse_ouroboros_force_choice() and in_hand and game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player) <= 1:
+				return false
 			var force_selected = get_force_in_selected_cards()
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
 			var total_force = force_selected + new_force
@@ -1218,11 +1974,15 @@ func can_select_card(card):
 				if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
 					return true
 				return false
-			var face_attack_card = game_wrapper.get_face_attack_card(Enums.PlayerId.PlayerId_Player)
-			var is_eugenia_wonderland_card = in_set_aside and \
-				game_wrapper.get_player_deck_definition(Enums.PlayerId.PlayerId_Player).get("id") == "eugenia" and \
-				face_attack_card and face_attack_card.id == card.card_id
-			return in_hand or is_eugenia_wonderland_card
+			var can_strike_from_stored_zone = in_set_aside and \
+				game_wrapper.can_strike_with_set_aside_card(Enums.PlayerId.PlayerId_Player, card.card_id)
+			if can_strike_from_stored_zone:
+				# A stored-zone card cannot be EXed, so it is only selectable
+				# on its own.
+				return len(selected_cards) == 0 or (len(selected_cards) == 1 and selected_cards[0].card_id == card.card_id)
+			if _selection_contains_stored_zone_strike_card():
+				return false
+			return in_hand
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
 		UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
@@ -1283,6 +2043,10 @@ func can_select_card(card):
 			var card_type = logic_card.definition['type']
 			var limitation = game_wrapper.get_decision_info().limitation
 			var source = game_wrapper.get_decision_info().source
+			# Umina "Terror Whispers": Shadow Chorus may not enter the Dreamlands.
+			if source == "discard" and game_wrapper.get_decision_info().destination == "umina_dreamlands":
+				if logic_card.definition.get("id") == "umina_shadow_chorus":
+					return false
 			var meets_limitation = false
 			match limitation:
 				"normal":
@@ -1327,6 +2091,13 @@ func modify_card_selection(card, selected):
 	if card_popout_parent.get_child_count() > 0:
 		var popout = card_popout_parent.get_child(0)
 		popout.modify_card_selection(card.card_id, selected)
+
+func get_selected_card_ids() -> Array:
+	var selected_card_ids : Array = []
+	for card in selected_cards:
+		if is_instance_valid(card):
+			selected_card_ids.append(card.card_id)
+	return selected_card_ids
 
 func on_card_clicked(card : CardBase):
 	if observer_mode:
@@ -1876,7 +2647,8 @@ func _on_choose_from_boosts(event):
 		_on_player_boost_zone_clicked_zone()
 		selected_cards = []
 		var cancel_allowed = false
-		if select_card_require_min == 0:
+		# Tournelouse's transform bonus / Ouroboros return are always optional.
+		if select_card_require_min == 0 or is_tournelouse_transform_bonus_choice() or is_tournelouse_ouroboros_transform_return_choice():
 			cancel_allowed = true
 		enable_instructions_ui("", true, cancel_allowed)
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseBoostsToSustain)
@@ -1891,6 +2663,8 @@ func _on_choose_from_discard(event):
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		# Show the correct popout window.
 		if source == "discard":
+			_on_player_discard_button_pressed()
+		elif source == "outrun_seal":
 			_on_player_discard_button_pressed()
 		elif source == "gauge":
 			_on_player_gauge_gauge_clicked()
@@ -1985,10 +2759,33 @@ func get_string_for_action_choice(choice):
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass, player = Enums.PlayerId.PlayerId_Player):
 	current_topdeck_choosing_player = player
 	var card_ids = game_wrapper.get_player_top_cards(player, look_amount)
+	var card_db = game_wrapper.get_card_database()
+	# Eugenia's Wanderlust looks at effectively the whole deck, so sort the
+	# revealed cards into deck-reference order and show remaining counts.
+	var is_wanderlust_choose = _is_wanderlust_choose_from_topdeck()
+	if is_wanderlust_choose:
+		var reference_order = _get_deck_reference_order_for_player(player)
+		card_ids.sort_custom(func(a, b):
+			var card_a = card_db.get_card(a)
+			var card_b = card_db.get_card(b)
+			var id_a = card_a.definition.get("id", "") if card_a else ""
+			var id_b = card_b.definition.get("id", "") if card_b else ""
+			var order_a = reference_order.get(id_a, 9999)
+			var order_b = reference_order.get(id_b, 9999)
+			if order_a == order_b:
+				return a < b
+			return order_a < order_b
+		)
 	for card_id in card_ids:
 		var card = find_card_on_board(card_id)
 		card.flip_card_to_front(true)
 		reparent_to_zone(card, choice_zone_parent)
+		if is_wanderlust_choose:
+			var logic_card = card_db.get_card(card_id)
+			if logic_card:
+				var card_str_id = logic_card.definition.get("id", "")
+				if card_str_id != "":
+					card.set_remaining_count(game_wrapper.count_cards_in_deck_and_hand(player, card_str_id))
 
 	var button1 = get_string_for_action_choice(action_choices[0])
 	var button2 = ""
@@ -2053,6 +2850,34 @@ func begin_choose_opponent_card_to_discard(card_ids):
 	_on_choice_popout_show_button_pressed()
 
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard)
+
+func _is_wanderlust_choose_from_topdeck() -> bool:
+	if game_wrapper == null:
+		return false
+	var decision_info = game_wrapper.get_decision_info()
+	if decision_info == null or decision_info.type != Enums.DecisionType.DecisionType_ChooseFromTopDeck:
+		return false
+	if decision_info.choice_card_id < 0:
+		return false
+	var source_card = game_wrapper.get_card_database().get_card(decision_info.choice_card_id)
+	if source_card == null:
+		return false
+	return source_card.definition.get("id", "") == "eugenia_queen_of_hearts"
+
+func _get_deck_reference_order_for_player(player : Enums.PlayerId) -> Dictionary:
+	var order_map = {}
+	var deck_list = game_wrapper.get_player_deck_list(player)
+	var card_db = game_wrapper.get_card_database()
+	var order_index = 0
+	for card in deck_list:
+		var logic_card = card_db.get_card(card.id)
+		if logic_card == null:
+			continue
+		var card_str_id = logic_card.definition.get("id", "")
+		if card_str_id != "" and not order_map.has(card_str_id):
+			order_map[card_str_id] = order_index
+			order_index += 1
+	return order_map
 
 func _on_discard_event(event):
 	var player = event['event_player']
@@ -2174,6 +2999,10 @@ func _on_add_to_stored(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	var facedown = event['extra_info']
+	# Umina's "The Sleeper Wakes" flips the Dreamlands face-down dynamically, so
+	# fall back to the player's current stored-zone config when the event is silent.
+	if facedown == null:
+		facedown = game_wrapper._get_player(player).is_stored_zone_facedown()
 	if not facedown:
 		make_card_revealed(card)
 
@@ -2273,7 +3102,7 @@ func _on_exceed_revert_event(event):
 			$PlayerCharacter.set_exceed(false)
 		player_character_card.exceed(false)
 		player_buddy_character_card.exceed(false)
-		if player_deck.get('buddy_exceeds'):
+		if player_deck.get('buddy_exceeds') and not player_deck.get('buddy_visible_before_exceed', false):
 			player_buddy_character_card.visible = false
 
 	else:
@@ -2284,7 +3113,7 @@ func _on_exceed_revert_event(event):
 			$OpponentCharacter.set_exceed(false)
 		opponent_character_card.exceed(false)
 		opponent_buddy_character_card.exceed(false)
-		if opponent_deck.get('buddy_exceeds'):
+		if opponent_deck.get('buddy_exceeds') and not opponent_deck.get('buddy_visible_before_exceed', false):
 			opponent_buddy_character_card.visible = false
 
 	spawn_damage_popup("Revert!", player)
@@ -2408,6 +3237,10 @@ func _on_force_wild_swing(event):
 
 func _on_game_over(event):
 	printlog("GAME OVER for %s" % game_wrapper.get_player_name(event['event_player']))
+	if not observer_mode and not replay_mode:
+		# Let NetworkManager know the match ended normally so a post-game
+		# opponent disconnect does not trigger the reconnect-waiting overlay.
+		NetworkManager.set_active_remote_match_finished(true)
 	game_over_stuff.visible = true
 	save_replay_button.visible = replay_saving_enabled
 	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
@@ -2506,6 +3339,10 @@ func set_instructions(text):
 	current_instruction_text = text
 
 func update_discard_selection_message_choose():
+	if is_tournelouse_ouroboros_hand_choice():
+		set_instructions("Select a card from your hand to transform.")
+		return
+
 	var decision_info = game_wrapper.get_decision_info()
 	var destination = decision_info.destination
 	if preparing_character_action:
@@ -2563,7 +3400,12 @@ func update_discard_selection_message():
 func update_sustain_selection_message():
 	if select_card_require_min == select_card_require_max:
 		var num_remaining = select_card_require_min - len(selected_cards)
-		set_instructions("Select %s more card(s) from your boosts to sustain." % num_remaining)
+		if is_tournelouse_transform_bonus_choice():
+			set_instructions("Select %s more card(s) from your transforms to seal." % num_remaining)
+		elif is_tournelouse_ouroboros_transform_return_choice():
+			set_instructions("Select a transform card to return to your hand.")
+		else:
+			set_instructions("Select %s more card(s) from your boosts to sustain." % num_remaining)
 	else:
 		var num_remaining = select_card_require_max - len(selected_cards)
 		set_instructions("Select up to %s more card(s) from your boosts to sustain." % [num_remaining])
@@ -2598,6 +3440,8 @@ func get_gauge_generated():
 	var gauge_generated = min(gauge_from_free_bonus, select_card_require_max)
 	gauge_generated += len(selected_cards)
 	gauge_generated += get_gauge_from_spent_life()
+	if can_seal_for_gauge:
+		gauge_generated += int(action_menu.number_panel_current_number / 3.0)
 	return gauge_generated
 
 func update_gauge_selection_message():
@@ -2634,14 +3478,14 @@ func update_gauge_for_effect_message():
 	elif select_gauge_valid_card_types:
 		gauge_name_str = "%s(s) from gauge" % '/'.join(select_gauge_valid_card_types)
 
-	if decision_effect['per_gauge_effect']:
+	if decision_effect.get('per_gauge_effect'):
 		var effect = decision_effect['per_gauge_effect']
 		var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 		if to_hand:
 			effect_str = "Return up to %s %s to your hand for %s per card." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 		else:
 			effect_str = "Spend up to %s %s for %s per card." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
-	elif decision_effect['overall_effect']:
+	elif decision_effect.get('overall_effect'):
 		var effect = decision_effect['overall_effect']
 		var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 		if to_hand:
@@ -2673,7 +3517,13 @@ func get_force_in_selected_cards():
 
 	var total_force = game_wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, card_ids, reason, treat_ultras_as_single_force, use_free_force)
 	total_force += get_force_from_spent_life()
+	total_force += get_force_from_sealed()
 	return total_force
+
+func get_force_from_sealed() -> int:
+	if can_seal_for_force:
+		return action_menu.number_panel_current_number
+	return 0
 
 func get_force_from_spent_life():
 	if can_spend_life_for_force:
@@ -2689,6 +3539,7 @@ func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int
 	if use_free_force:
 		force_needed_from_cards -= game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
 	force_needed_from_cards -= get_spent_life_for_force()
+	force_needed_from_cards -= get_force_from_sealed()
 	force_needed_from_cards = max(0, force_needed_from_cards)
 
 	# Sum up force from selected cards
@@ -2753,7 +3604,7 @@ func update_force_generation_message():
 			if preparing_character_action:
 				decision_effect = prepared_character_action_data['effect']
 			var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
-			if decision_effect['per_force_effect']:
+			if decision_effect.get('per_force_effect'):
 				var effect = decision_effect['per_force_effect']
 				var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 				var force_str = "up to %s" % decision_effect['force_max']
@@ -2763,7 +3614,7 @@ func update_force_generation_message():
 				if 'force_effect_interval' in decision_effect:
 					per_force_str = "%s force" % decision_effect['force_effect_interval']
 				effect_str = "Generate %s force for %s per %s." % [force_str, effect_text, per_force_str]
-			elif decision_effect['overall_effect']:
+			elif decision_effect.get('overall_effect'):
 				var effect = decision_effect['overall_effect']
 				var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 				effect_str = "Generate %s force for %s." % [decision_effect['force_max'], effect_text]
@@ -2855,6 +3706,8 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 			current_action_menu_choices.append({"action": func(): pass})
 	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, reason) > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
+	can_seal_for_gauge = false
+	can_seal_for_force = p.deck_flag("can_seal_discards_for_resources") and not p.exceeded and p.discards.size() > 0
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	action_menu.set_force_ultra_toggle(false)
 	action_menu.set_discard_ex_first_toggle(true)
@@ -2880,6 +3733,11 @@ func begin_gauge_selection(
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	selected_cards = []
+	var seal_gauge_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	can_seal_for_force = false
+	var seal_gauge_per = seal_gauge_p.deck_flag("discards_per_gauge_until_exceed", 0)
+	can_seal_for_gauge = seal_gauge_p.deck_flag("can_seal_discards_for_resources") and not seal_gauge_p.exceeded \
+		and seal_gauge_per > 0 and seal_gauge_p.discards.size() >= seal_gauge_per
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	discard_ex_first_for_strike = true
 	action_menu.set_discard_ex_first_toggle(true)
@@ -2993,6 +3851,7 @@ func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool, 
 
 func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : String, ignore_costs : bool, boost_amount : int):
 	selected_cards = []
+	selected_boost_facedown_override = null
 	var count_str = "a"
 	var plural = ""
 	select_card_require_min = 1
@@ -3182,6 +4041,15 @@ func add_revealed_card(card_id : int):
 
 func _on_reveal_card_from_hand(event):
 	var player = event['event_player']
+	# Renea: when a face-down boost is revealed, flip its visual face-up. Hand
+	# reveals stay hidden in the hand zone because the engine already tracks them
+	# as known cards for the public hand display.
+	var reveal_card = find_card_on_board(event['number'])
+	if reveal_card:
+		var parent_zone = reveal_card.get_parent()
+		var in_hand_zone = parent_zone == $AllCards/PlayerHand or parent_zone == $AllCards/OpponentHand
+		if not in_hand_zone:
+			make_card_revealed(reveal_card)
 	spawn_damage_popup("Card Revealed!", player)
 	if player == Enums.PlayerId.PlayerId_Player:
 		update_eyes_on_hand_icons()
@@ -3379,7 +4247,13 @@ func _on_effect_do_boost(event):
 	var player = event['event_player']
 	var card_id = event['number']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		game_wrapper.submit_boost(player, card_id, [], false, 0)
+		var facedown_override = null
+		var placement_choice = await _get_renea_boost_placement_choice(player, card_id)
+		if placement_choice == -1:
+			return
+		if placement_choice >= 0:
+			facedown_override = placement_choice == 1
+		game_wrapper.submit_boost(player, card_id, [], false, 0, [], facedown_override)
 	else:
 		ai_effect_do_boost(card_id)
 
@@ -3454,11 +4328,14 @@ func _on_force_for_effect(event):
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForEffect)
 		select_card_up_to_force = effect['force_max']
 		var require_max = -1
-		if effect['overall_effect']:
+		if effect.get('overall_effect'):
 			require_max = select_card_up_to_force
 		var can_cancel = true
 		if 'required' in effect and effect['required']:
 			can_cancel = false
+		# Tournelouse Ouroboros: paying the force is always optional.
+		if is_tournelouse_ouroboros_force_choice():
+			can_cancel = true
 		begin_generate_force_selection(require_max, can_cancel, false, false, true)
 	else:
 		ai_force_for_effect(effect)
@@ -3479,10 +4356,16 @@ func _on_gauge_for_effect(event):
 		if 'required' in effect and effect['required']:
 			select_card_require_min = effect['gauge_max']
 		select_card_require_max = effect['gauge_max']
-		if effect['overall_effect']:
+		if effect.get('overall_effect'):
 			select_card_must_be_max_or_min = true
 		else:
 			select_card_must_be_max_or_min = false
+		if effect.get('allow_partial_gauge_selection', false):
+			# Optional effect (e.g. syrus_dredge_fury_keep_choice): any amount in
+			# [min_gauge, gauge_max] is a legal selection.
+			select_card_must_be_max_or_min = false
+			if 'min_gauge' in effect:
+				select_card_require_min = effect['min_gauge']
 		select_gauge_require_card_id = ""
 		select_gauge_require_card_name = ""
 		select_gauge_valid_card_types = []
@@ -3496,6 +4379,8 @@ func _on_gauge_for_effect(event):
 		ai_gauge_for_effect(effect)
 
 func _on_emote(event):
+	if restore_fast_forwarding:
+		return
 	var player = event['event_player']
 	var is_image_emote = event['number']
 	var emote = event['reason']
@@ -3946,17 +4831,20 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_pay_alternative_life_cost = 0
 			instructions_face_attack_card = null
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
-			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Prepare", "action": _wrap_with_confirmation("Prepare", _on_prepare_button_pressed), "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
 			if exceed_cost >= 0 and not game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
 			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
-				button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
+				button_choices.append({ "text": "Manual Reshuffle", "action": _wrap_with_confirmation("Manual Reshuffle", _on_reshuffle_button_pressed), "disabled": false })
 			var ex_transform_available = game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)
 			var ex_transform_text = "/Transform" if ex_transform_available else ""
-			button_choices.append({ "text": "Boost" + ex_transform_text, "action": _on_boost_button_pressed, "disabled": not (game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) or ex_transform_available) })
-			button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Boost" + ex_transform_text, "action": _wrap_with_confirmation("Boost", _on_boost_button_pressed), "disabled": not (game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) or ex_transform_available) })
+			var turn_strike_action : Callable = _on_strike_button_pressed
+			if _should_warn_about_skipping_strike_character_action():
+				turn_strike_action = _wrap_with_skipped_character_action_confirmation(_on_strike_button_pressed)
+			button_choices.append({ "text": "Strike", "action": turn_strike_action, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
 				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
 				var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
@@ -4047,8 +4935,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 					var may_set_from_boost = 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']
 					can_strike = must_set_from_boost or may_set_from_boost
 			elif only_set_aside:
-				if len(selected_cards) == 1 and game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
-					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['extra'], "", false)
+				if len(selected_cards) == 1:
+					can_strike = game_wrapper.can_strike_with_set_aside_card(
+						Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
+					if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
+						can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['extra'], "", false)
 			elif only_in_gauge:
 				if len(selected_cards) == 1 and game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
 					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['gauge'], "", false)
@@ -4066,8 +4957,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_strike_options = {}
 			instructions_pay_alternative_life_cost = 0
 			instructions_face_attack_card = null
-			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
-			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed,
+			var shortcut_strike_action : Callable = _wrap_with_confirmation(strike_text, _on_shortcut_strike_pressed)
+			if _should_warn_about_skipping_strike_character_action():
+				shortcut_strike_action = _wrap_with_skipped_character_action_confirmation(_on_shortcut_strike_pressed)
+			button_choices.append({ "text": strike_text, "action": shortcut_strike_action, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": boost_text, "action": _wrap_with_confirmation(boost_text, _on_shortcut_boost_pressed),
 				"disabled": (not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player)) and (not can_ex_transform or not game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)) })
 
 			# Check for character actions with card-related shortcuts
@@ -4169,9 +5063,9 @@ func _update_buttons(no_number_picker_update : bool = false):
 	if not preparing_character_action:
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
-				cancel_text = "Pass"
+				cancel_text = "Cancel" if is_tournelouse_ouroboros_force_choice() else "Pass"
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain, UISubState.UISubState_SelectCards_ChooseFromTopdeck, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
-				cancel_text = "Pass"
+				cancel_text = "Cancel" if is_tournelouse_transform_bonus_choice() or is_tournelouse_ouroboros_transform_return_choice() else "Pass"
 			UISubState.UISubState_SelectArena_EffectChoice:
 				cancel_text = "Pass"
 			UISubState.UISubState_SelectCards_GaugeForEffect:
@@ -4215,7 +5109,10 @@ func _update_buttons(no_number_picker_update : bool = false):
 				ultra_force_toggle = true
 				free_force_toggle = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player) > 0
 				show_life_for_force_counter = true
-				update_force_generation_message()
+				if is_tournelouse_ouroboros_force_choice():
+					set_instructions("Select a card to pay 1 force.")
+				else:
+					update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeForce:
 				ex_discard_order_toggle = current_pay_costs_is_ex
 				free_force_toggle = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player) > 0
@@ -4295,6 +5192,22 @@ func _update_buttons(no_number_picker_update : bool = false):
 		instructions_number_picker_min = 0
 		instructions_number_picker_max = game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player)
 
+	# Minato seal-to-pay: the number picker seals top discards. One discard = one
+	# Force; three discards = one Gauge (step of 3).
+	action_menu.number_picker_step = 1
+	if can_seal_for_force and show_life_for_force_counter:
+		var seal_force_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+		var force_reduction = game_wrapper.get_player_force_cost_reduction(Enums.PlayerId.PlayerId_Player)
+		var force_limit = max(0, select_card_require_force - force_reduction) if select_card_require_force > 0 else 99
+		instructions_number_picker_min = 0
+		instructions_number_picker_max = mini(seal_force_player.discards.size(), force_limit)
+	if can_seal_for_gauge and ui_sub_state in [UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_GaugeForBoost, UISubState.UISubState_SelectCards_GaugeForEffect, UISubState.UISubState_SelectCards_CharacterAction_Gauge, UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Exceed]:
+		var seal_gauge_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+		var gauge_want = select_card_require_max if select_card_require_max > 0 else 99
+		instructions_number_picker_min = 0
+		instructions_number_picker_max = mini(seal_gauge_player.discards.size(), gauge_want * 3)
+		action_menu.number_picker_step = 3
+
 	# Set the Action Menu state
 	var action_menu_hidden = false
 	match ui_state:
@@ -4362,10 +5275,26 @@ func _choice_text_without_tags(choice_text):
 func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	var card_ids = []
 	var card_db = game_wrapper.get_card_database()
+	var summary_player = game_wrapper._get_player(player_id)
 	for card in boosts_card_holder.get_children():
 		card_ids.append(card.card_id)
 	var transform_effects = []
 	var normal_effects = []
+	# Only characters whose face-down boosts delay their effects (Renea) keep
+	# those effects secret; for everyone else face-down only hides card identity.
+	var hides_facedown_boost_effects = summary_player.deck_flag("facedown_boosts_delay_effects")
+	if summary_player.deck_flag("seal_discards_at_turn_start_when_exceeded") and summary_player.exceeded and summary_player.minato_seal_power_bonus > 0:
+		normal_effects.append({
+			"override_description": "Awakening: gains +%d Power on next attack." % int(summary_player.minato_seal_power_bonus)
+		})
+	# Tournelouse can stack several copies of the same normal as transforms; show
+	# their shared text once with a count instead of repeating it per copy.
+	var tournelouse_normal_transform_total = 0
+	for card_id in card_ids:
+		var card = card_db.get_card(card_id)
+		if card.definition['type'] == "normal" and card.definition.has("replaced_boost") and card.definition['boost']['boost_type'] == "transform":
+			tournelouse_normal_transform_total += 1
+	var tournelouse_normal_transform_count = 0
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		if game_wrapper.is_card_in_sealed(player_id, card_id):
@@ -4379,16 +5308,51 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 		if card.definition['boost']['boost_type'] == "transform":
 			add_to_effects = transform_effects
 
+		# Renea: a face-down boost's contents are hidden until she reveals it.
+		# Other characters (e.g. Syrus) use face-down purely to hide the card's
+		# identity; their boost effects are public and should still be listed.
+		if hides_facedown_boost_effects and card.definition['boost'].get("facedown"):
+			continue
+
+		var is_tournelouse_normal_transform = card.definition['type'] == "normal" and card.definition.has("replaced_boost") and card.definition['boost']['boost_type'] == "transform"
+		if is_tournelouse_normal_transform:
+			tournelouse_normal_transform_count += 1
+
 		if 'stop_on_space_effect' in card.definition['boost']:
 			var stop_on_space_effect = card.definition['boost']['stop_on_space_effect'].duplicate()
 			stop_on_space_effect['timing'] = "on_stop_on_space"
 			add_to_effects.append(stop_on_space_effect)
+		# Boosts that accumulated a speed counter show it in their effect list.
+		if card.get_meta("speedup_counter", 0) != 0:
+			add_to_effects.append({
+				"effect_type": StrikeEffects.Speedup,
+				"amount": int(card.get_meta("speedup_counter"))
+			})
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive", "reduce_opponent_prepare_draw", "generate_free_force", "gauge_costs_reduced_passive"]:
 				if effect['timing'] != "discarded":
-					add_to_effects.append(effect)
+					if is_tournelouse_normal_transform and tournelouse_normal_transform_count != tournelouse_normal_transform_total:
+						continue
+					var effect_to_add = effect
+					if is_tournelouse_normal_transform:
+						effect_to_add = effect.duplicate(true)
+						effect_to_add["and"] = {
+							"condition": "count_numbers",
+							"condition_amount": tournelouse_normal_transform_count,
+							"effect_type": StrikeEffects.Nothing
+						}
+					add_to_effects.append(effect_to_add)
 
 	var boost_summary = ""
+	# Renea: show how many hidden boosts are in play without revealing them.
+	var renea_facedown_count = 0
+	if hides_facedown_boost_effects:
+		for card_id in card_ids:
+			var renea_fd_card = card_db.get_card(card_id)
+			if renea_fd_card and renea_fd_card.definition['boost'].get("facedown"):
+				renea_facedown_count += 1
+	if renea_facedown_count > 0:
+		boost_summary += "[color=gray]? Face-down boost x %d[/color]\n" % renea_facedown_count
 	# Head with once-per-game mechanic tracking
 	var non_exceed_overdrive_active = game_wrapper.non_exceed_overdrive_active(player_id)
 	if non_exceed_overdrive_active:
@@ -4407,7 +5371,13 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 			boost_summary += GameStrings.get_effect_text(effect) + "\n"
 	for effect in transform_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
-			boost_summary += "[color=purple][TF][/color] " + GameStrings.get_effect_text(effect) + "\n"
+			var transform_text = GameStrings.get_effect_text(effect)
+			# Umina "Spiraling Descent" does nothing while The Sleeper Wakes has
+			# flipped the Dreamlands face-down.
+			if effect.get('effect_type', "") == "umina_spiraling_descent":
+				if summary_player.umina_dreamlands_facedown:
+					transform_text += " [color=gray](Invalid)[/color]"
+			boost_summary += "[color=purple][TF][/color] " + transform_text + "\n"
 
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
@@ -4419,6 +5389,10 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	boost_box.set_text(boost_summary)
 
 func update_arena_squares():
+	var arena_style := resolved_arena_style
+	var uses_classic_arena := BackgroundManager.uses_classic_arena(arena_style)
+	arena_graphics.visible = uses_classic_arena
+	background_image.texture = BackgroundManager.get_background_texture(arena_style)
 	for i in range(1, 10):
 		var square : ArenaSquare = arena_graphics.get_child(i - 1)
 		var player_extra_width = 0
@@ -4434,6 +5408,106 @@ func update_arena_squares():
 		else:
 			square.set_empty()
 
+	var player_center_width = 0
+	if $PlayerCharacter.is_wide:
+		player_center_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Player)
+	var opponent_center_width = 0
+	if $OpponentCharacter.is_wide:
+		opponent_center_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Opponent)
+	friend_track_layer.texture = null if uses_classic_arena else BackgroundManager.get_arena_texture(
+		arena_style, "B", 10 - cached_player_location)
+	enemy_track_layer.texture = null if uses_classic_arena else BackgroundManager.get_arena_texture(
+		arena_style, "R", 10 - cached_opponent_location)
+	_update_track_overlays_for_character(
+		friend_track_overlay_layers, arena_style, "B",
+		cached_player_location, player_center_width, uses_classic_arena)
+	_update_track_overlays_for_character(
+		enemy_track_overlay_layers, arena_style, "R",
+		cached_opponent_location, opponent_center_width, uses_classic_arena)
+
+func _initialize_track_overlay_layers():
+	if not friend_track_overlay_layers.is_empty() or not enemy_track_overlay_layers.is_empty():
+		return
+	for i in range(2):
+		var friend_overlay = _create_track_overlay_layer(friend_track_layer, "FriendTrackLayerExtra%d" % [i + 1])
+		add_child(friend_overlay)
+		move_child(friend_overlay, friend_track_layer.get_index() + i + 1)
+		friend_track_overlay_layers.append(friend_overlay)
+	for i in range(2):
+		var enemy_overlay = _create_track_overlay_layer(enemy_track_layer, "EnemyTrackLayerExtra%d" % [i + 1])
+		add_child(enemy_overlay)
+		move_child(enemy_overlay, enemy_track_layer.get_index() + i + 1)
+		enemy_track_overlay_layers.append(enemy_overlay)
+
+func _create_track_overlay_layer(template_layer : TextureRect, layer_name : String) -> TextureRect:
+	var track_layer := TextureRect.new()
+	track_layer.name = layer_name
+	track_layer.offset_left = template_layer.offset_left
+	track_layer.offset_top = template_layer.offset_top
+	track_layer.offset_right = template_layer.offset_right
+	track_layer.offset_bottom = template_layer.offset_bottom
+	track_layer.mouse_filter = template_layer.mouse_filter
+	track_layer.expand_mode = template_layer.expand_mode
+	track_layer.stretch_mode = template_layer.stretch_mode
+	track_layer.visible = false
+	return track_layer
+
+func _clear_track_overlays(layers : Array[TextureRect]):
+	for layer in layers:
+		layer.texture = null
+		layer.visible = false
+
+func _update_track_overlays_for_character(
+		layers : Array[TextureRect],
+		arena_style : String,
+		prefix : String,
+		center_location : int,
+		extra_width : int,
+		uses_classic_arena : bool):
+	if uses_classic_arena or extra_width <= 0:
+		_clear_track_overlays(layers)
+		return
+	var overlay_index = 0
+	for offset in range(-extra_width, extra_width + 1):
+		if offset == 0:
+			continue
+		if overlay_index >= layers.size():
+			break
+		var board_location = center_location + offset
+		var overlay_texture : Texture2D = null
+		if board_location >= 1 and board_location <= 9:
+			overlay_texture = BackgroundManager.get_arena_texture(arena_style, prefix, 10 - board_location)
+		layers[overlay_index].texture = overlay_texture
+		layers[overlay_index].visible = overlay_texture != null
+		overlay_index += 1
+	for i in range(overlay_index, layers.size()):
+		layers[i].texture = null
+		layers[i].visible = false
+
+func _prepare_initial_arena_visuals():
+	var arena_style := resolved_arena_style
+	var uses_classic_arena := BackgroundManager.uses_classic_arena(arena_style)
+	arena_graphics.visible = uses_classic_arena
+	background_image.texture = BackgroundManager.get_background_texture(arena_style)
+
+	var player_extra_width = 0
+	if $PlayerCharacter.is_wide:
+		player_extra_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Player)
+	var opponent_extra_width = 0
+	if $OpponentCharacter.is_wide:
+		opponent_extra_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Opponent)
+
+	friend_track_layer.texture = null if uses_classic_arena else BackgroundManager.get_arena_texture(
+		arena_style, "B", 10 - cached_player_location)
+	enemy_track_layer.texture = null if uses_classic_arena else BackgroundManager.get_arena_texture(
+		arena_style, "R", 10 - cached_opponent_location)
+	_update_track_overlays_for_character(
+		friend_track_overlay_layers, arena_style, "B",
+		cached_player_location, player_extra_width, uses_classic_arena)
+	_update_track_overlays_for_character(
+		enemy_track_overlay_layers, arena_style, "R",
+		cached_opponent_location, opponent_extra_width, uses_classic_arena)
+
 func selected_cards_between_min_and_max() -> bool:
 	var selected_count = len(selected_cards)
 	return selected_count >= select_card_require_min && selected_count <= select_card_require_max
@@ -4444,17 +5518,21 @@ func can_press_ok():
 
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_StrikeGauge:
+			UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed:
 				return get_gauge_generated() >= select_card_require_min and get_gauge_generated() <= select_card_require_max
-			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_Exceed:
+			UISubState.UISubState_SelectCards_DiscardCards:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination, UISubState.UISubState_SelectCards_DiscardCards_Choose, UISubState.UISubState_SelectCards_DiscardOpponentGauge:
+				if is_tournelouse_ouroboros_hand_choice() and selected_cards.size() == 1 and is_tournelouse_ouroboros_paid_card(selected_cards[0].card_id):
+					return false
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+				if is_tournelouse_ouroboros_transform_return_choice() and selected_cards.size() == 1:
+					return not is_tournelouse_ouroboros_paid_card(selected_cards[0].card_id) and not is_tournelouse_ouroboros_bargeist_return_blocked(selected_cards[0].card_id)
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseFromTopdeck, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
 				return selected_cards_between_min_and_max()
@@ -4470,6 +5548,9 @@ func can_press_ok():
 				# EX attacks can't be set from boosts, however.
 				if len(selected_cards) == 2:
 					if not instructions_ex_allowed:
+						return false
+					# EX strikes cannot be made from the stored zone.
+					if _selection_contains_stored_zone_strike_card():
 						return false
 					if (game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id) or
 						game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, selected_cards[1].card_id)):
@@ -4496,6 +5577,20 @@ func can_press_ok():
 				return true
 			UISubState.UISubState_SelectCards_ForceForEffect:
 				var force_selected = get_force_in_selected_cards()
+				# Tournelouse Ouroboros: exactly one card pays the force, and it
+				# must leave at least one other hand card to transform.
+				if is_tournelouse_ouroboros_force_choice():
+					if force_selected < 1 or selected_cards.size() != 1:
+						return false
+					var selected_card_id = selected_cards[0].card_id
+					if game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, selected_card_id) and game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player) <= 1:
+						return false
+					var decision_choice = game_wrapper.get_decision_info().choice
+					if decision_choice != null:
+						for hand_option in decision_choice:
+							if hand_option != selected_card_id:
+								return true
+					return not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, selected_card_id)
 				if select_card_require_force == -1:
 					var within_force_limit = select_card_up_to_force == -1 or force_selected <= select_card_up_to_force
 					return within_force_limit or can_selected_cards_pay_force(select_card_up_to_force)
@@ -4617,6 +5712,57 @@ func handle_pick_range_ok():
 ## Button Handlers
 ##
 
+func _wrap_with_confirmation(action_text: String, action: Callable) -> Callable:
+	if GlobalSettings.ActionConfirmationEnabled:
+		return func(): _show_action_confirmation(action_text, action)
+	return action
+
+func _show_action_confirmation(action_text: String, action: Callable) -> void:
+	var on_confirm = func(): action.call()
+	var on_cancel = func(): _update_buttons()
+	var confirm_choices = [
+		{ "text": "Confirm", "action": on_confirm },
+		{ "text": "Cancel", "action": on_cancel },
+	]
+	current_action_menu_choices = confirm_choices
+	action_menu.set_choices(
+		"Are you sure you want to %s?" % action_text,
+		confirm_choices,
+		false, -1, -1, false, false, false, 2
+	)
+	action_menu.visible = true
+
+func _should_warn_about_skipping_strike_character_action() -> bool:
+	if ui_state != UIState.UIState_PickTurnAction:
+		return false
+	if game_wrapper.get_active_player() != Enums.PlayerId.PlayerId_Player:
+		return false
+	var current_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if not current_player or not current_player.deck_flag("warn_when_striking_without_character_action"):
+		return false
+	for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
+		if game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i):
+			return true
+	return false
+
+func _wrap_with_skipped_character_action_confirmation(action: Callable) -> Callable:
+	return func(): _show_skipped_character_action_confirmation(action)
+
+func _show_skipped_character_action_confirmation(action: Callable) -> void:
+	var on_confirm = func(): action.call()
+	var on_cancel = func(): _update_buttons()
+	var confirm_choices = [
+		{ "text": "Confirm", "action": on_confirm },
+		{ "text": "Cancel", "action": on_cancel },
+	]
+	current_action_menu_choices = confirm_choices
+	action_menu.set_choices(
+		"Strike without using your character action?",
+		confirm_choices,
+		false, -1, -1, false, false, false, 2
+	)
+	action_menu.visible = true
+
 func _on_prepare_button_pressed():
 	var success = game_wrapper.submit_prepare(Enums.PlayerId.PlayerId_Player)
 	if success:
@@ -4647,13 +5793,129 @@ func _on_reshuffle_button_pressed():
 func _on_boost_button_pressed():
 	var valid_zones = ['hand']
 	if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
-		valid_zones.append('extra')
+		# Renea: the Briefcase may only be boosted from once per turn.
+		var renea_bp = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+		if not renea_bp.deck_flag("boost_from_stored_zone_grants_action_when_exceeded") or not renea_bp.exceeded or not renea_bp.renea_boost_from_briefcase_used:
+			valid_zones.append('extra')
 	if game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
 		valid_zones.append('gauge')
 	begin_boost_choosing(true, valid_zones, "", false, 1)
 
+# Renea's non-exceeded ability lets her place any continuous boost face-down
+# instead of resolving it now. Returns the chosen index (0 face-up, 1 face-down),
+# -1 if the player backed out, or -2 if the choice doesn't apply.
+func _show_boost_placement_choice():
+	current_action_menu_choices = [
+		{"action": func(): pass},
+		{"action": func(): pass}
+	]
+	action_menu.set_choices("Place boost:", [
+		{"text": "Face-up (normal)"},
+		{"text": "Face-down (hidden)"}
+	], false, -1, -1, false, false, true)
+	action_menu.visible = true
+	var idx = await action_menu.choice_selected
+	close_popout()
+	return idx
+
+func _get_renea_boost_placement_choice(player_id : Enums.PlayerId, card_id : int) -> int:
+	var renea_player = game_wrapper._get_player(player_id)
+	if renea_player == null or not renea_player.deck_flag("facedown_boosts_delay_effects") or renea_player.exceeded:
+		return -2
+	var logic_card = game_wrapper.get_card_database().get_card(card_id)
+	if logic_card == null or logic_card.definition['boost']['boost_type'] != "continuous":
+		return -2
+	return await _show_boost_placement_choice()
+
+func _renea_has_facedown_boosts() -> bool:
+	var renea_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if renea_p == null or not renea_p.deck_flag("facedown_boosts_delay_effects"):
+		return false
+	for bc in renea_p.continuous_boosts:
+		if bc.definition["boost"].get("facedown"):
+			return true
+	return false
+
+func _renea_process_facedown_boosts(strike_response : bool = false):
+	deselect_all_cards()
+	# Sent as its own action in online games so both engines resolve the same
+	# face-down effects before the attack card is selected.
+	if game_wrapper.submit_renea_pre_strike_reveal(Enums.PlayerId.PlayerId_Player, strike_response):
+		change_ui_state(UIState.UIState_WaitForGameServer)
+
 func _on_strike_button_pressed():
+	# Minato: "Outrun the Past" (from the Flight transform) triggers before attack
+	# selection, letting the player seal a discard to draw a card.
+	var minato_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if minato_p.deck_flag("can_seal_discards_for_resources") and not minato_p.minato_outrun_triggered_before_strike:
+		for minato_tf in minato_p.transforms:
+			if minato_tf.definition.get("id") == "minato_flight_13":
+				minato_p.minato_outrun_triggered_before_strike = true
+				game_wrapper.current_game.handle_strike_effect(-1, {"effect_type": "minato_outrun_the_past", "minato_otp_sealed": 0}, minato_p)
+				return
+	# Renea reveals her face-down boosts (and resolves their Now effects) before
+	# choosing an attack; the strike UI opens once that finishes.
+	if _renea_has_facedown_boosts():
+		_renea_process_facedown_boosts()
+		return
 	begin_strike_choosing(false, true)
+
+# Re-opens the correct local interaction UI after a reconnect restore, when the
+# game is sitting in a decision but the UI is parked in a wait state.
+func _sync_ui_state_after_restore():
+	if ui_state == UIState.UIState_GameOver:
+		return
+	if ui_state in [UIState.UIState_SelectCards, UIState.UIState_MakeChoice, UIState.UIState_SelectArenaLocation]:
+		_update_buttons()
+		return
+
+	var game_state = game_wrapper.get_game_state()
+	if game_state == Enums.GameState.GameState_PickAction:
+		if game_wrapper.get_active_player() == Enums.PlayerId.PlayerId_Player and not observer_mode:
+			change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+		else:
+			change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
+		return
+
+	if game_state == Enums.GameState.GameState_PlayerDecision:
+		var decision_info = game_wrapper.get_decision_info()
+		if decision_info.player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+			if _restore_local_player_decision_ui(decision_info):
+				return
+		else:
+			change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
+			return
+
+	change_ui_state(UIState.UIState_WaitForGameServer, UISubState.UISubState_None)
+
+# Dispatches to the matching decision handler for the local player. Returns true
+# when the decision type is handled. Types not covered here fall back to a wait
+# state (the engine re-drives them via events on the next poll).
+func _restore_local_player_decision_ui(decision_info) -> bool:
+	var event = {"event_player": decision_info.player}
+	match decision_info.type:
+		Enums.DecisionType.DecisionType_ChooseFromDiscard:
+			_on_choose_from_discard(event)
+			return true
+		Enums.DecisionType.DecisionType_ChooseFromBoosts:
+			_on_choose_from_boosts(event)
+			return true
+		Enums.DecisionType.DecisionType_ChooseFromTopDeck:
+			_on_choose_from_topdeck(event)
+			return true
+		Enums.DecisionType.DecisionType_ForceForEffect:
+			_on_force_for_effect(event)
+			return true
+		Enums.DecisionType.DecisionType_GaugeForEffect:
+			_on_gauge_for_effect(event)
+			return true
+		Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
+			_on_discard_opponent_gauge(event)
+			return true
+		Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
+			_on_choose_arena_location_for_effect(event)
+			return true
+	return false
 
 func _on_bonus_action_pressed(index : int):
 	game_wrapper.submit_bonus_turn_action(Enums.PlayerId.PlayerId_Player, index)
@@ -4746,7 +6008,7 @@ func _on_character_action_pressed(action_idx : int = 0):
 					if 'required' in shortcut_effect and shortcut_effect['required']:
 						select_card_require_min = shortcut_effect['gauge_max']
 					select_card_require_max = shortcut_effect['gauge_max']
-					if shortcut_effect['overall_effect']:
+					if shortcut_effect.get('overall_effect'):
 						select_card_must_be_max_or_min = true
 					else:
 						select_card_must_be_max_or_min = false
@@ -4873,8 +6135,64 @@ func _on_choice_pressed(choice):
 			change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
 
+func _apply_minato_seal_payment() -> int:
+	# Seals top discards to generate Force / Gauge for the current payment and
+	# returns the amount of local "free gauge" it granted (so the caller can clear
+	# it after submitting, since do_gauge_for_effect reads but does not consume it).
+	if not can_seal_for_force and not can_seal_for_gauge:
+		return 0
+	var seal_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	var using_remote_game = game_wrapper.current_game is RemoteGame
+	var is_minato = seal_player.deck_flag("can_seal_discards_for_resources") and not seal_player.exceeded
+	var force_sub_states = [
+		UISubState.UISubState_SelectCards_ForceForBoost,
+		UISubState.UISubState_SelectCards_StrikeForce,
+		UISubState.UISubState_SelectCards_ForceForEffect,
+		UISubState.UISubState_SelectCards_ForceForChange,
+		UISubState.UISubState_SelectCards_ForceForArmor,
+		UISubState.UISubState_SelectCards_MoveActionGenerateForce,
+		UISubState.UISubState_SelectCards_CharacterAction_Force,
+	]
+	var gauge_sub_states = [
+		UISubState.UISubState_SelectCards_StrikeGauge,
+		UISubState.UISubState_SelectCards_GaugeForBoost,
+		UISubState.UISubState_SelectCards_GaugeForEffect,
+		UISubState.UISubState_SelectCards_CharacterAction_Gauge,
+		UISubState.UISubState_SelectCards_BoostCancel,
+		UISubState.UISubState_SelectCards_Exceed,
+	]
+	var minato_sealed_force = 0
+	var minato_sealed_gauge = 0
+	var local_free_gauge_added = 0
+	if can_seal_for_force and is_minato and ui_sub_state in force_sub_states:
+		var seal_ct = mini(action_menu.number_panel_current_number, seal_player.discards.size())
+		if seal_ct > 0:
+			minato_sealed_force = seal_ct
+			if not using_remote_game:
+				seal_player.seal_top_n_discards(seal_ct)
+				seal_player.seal_force_bonus_tmp = minato_sealed_force
+	elif can_seal_for_gauge and is_minato and ui_sub_state in gauge_sub_states:
+		var seal_ct_gauge = int(action_menu.number_panel_current_number / 3.0) * 3
+		if seal_ct_gauge > 0 and seal_player.discards.size() >= seal_ct_gauge:
+			minato_sealed_gauge = int(seal_ct_gauge / 3.0)
+			if not using_remote_game:
+				seal_player.seal_top_n_discards(seal_ct_gauge)
+				if not preparing_character_action:
+					seal_player.free_gauge += minato_sealed_gauge
+					local_free_gauge_added = minato_sealed_gauge
+	if using_remote_game and (minato_sealed_force > 0 or minato_sealed_gauge > 0):
+		game_wrapper.current_game.set_pending_minato_seal_payment(minato_sealed_force, minato_sealed_gauge)
+	can_seal_for_force = false
+	can_seal_for_gauge = false
+	instructions_number_picker_min = -1
+	instructions_number_picker_max = -1
+	return local_free_gauge_added
+
 func _on_instructions_ok_button_pressed(index : int):
 	if can_press_ok():
+		# Minato seal-to-pay: seal top discards to generate Force / Gauge for this
+		# payment before submitting. One discard = one Force; three = one Gauge.
+		var seal_gauge_granted = _apply_minato_seal_payment()
 		var selected_card_ids : Array = []
 		for card in selected_cards:
 			selected_card_ids.append(card.card_id)
@@ -4958,6 +6276,13 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
 				var logic_card = game_wrapper.get_card_database().get_card(single_card_id)
+				var facedown_override = null
+				if logic_card.definition['boost']['boost_type'] != "transform":
+					var placement_choice = await _get_renea_boost_placement_choice(Enums.PlayerId.PlayerId_Player, single_card_id)
+					if placement_choice == -1:
+						return
+					if placement_choice >= 0:
+						facedown_override = placement_choice == 1
 				if logic_card.definition['boost']['boost_type'] == "transform":
 					var ex_transform_id = -1
 					if select_boost_options['limitation'] != "transform": # makes sure it's an EX transform action
@@ -4969,6 +6294,7 @@ func _on_instructions_ok_button_pressed(index : int):
 					if not select_boost_options['ignore_costs'] and gauge_cost > 0:
 						assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle gauge costs for multiple boosts")
 						selected_boost_to_pay_for = single_card_id
+						selected_boost_facedown_override = facedown_override
 						change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
 						begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
 					elif not select_boost_options['ignore_costs'] and force_cost > 0:
@@ -4990,19 +6316,25 @@ func _on_instructions_ok_button_pressed(index : int):
 							close_popout()
 							zsolt_p.free_force = idx
 						selected_boost_to_pay_for = single_card_id
+						selected_boost_facedown_override = facedown_override
 						change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 						begin_generate_force_selection(force_cost, true, false, false, true)
 					else:
 						var additional_boost_ids = selected_card_ids.slice(1)
-						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, spent_life_for_force, additional_boost_ids)
+						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, spent_life_for_force, additional_boost_ids, facedown_override)
 			UISubState.UISubState_SelectCards_ForceForBoost:
-				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force, spent_life_for_force)
+				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force, spent_life_for_force, [], selected_boost_facedown_override)
 			UISubState.UISubState_SelectCards_GaugeForBoost:
-				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, false, false)
+				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, false, false, [], selected_boost_facedown_override)
 			UISubState.UISubState_PickNumberFromRange:
 				success = handle_pick_range_ok()
 
 		if success:
+			if seal_gauge_granted > 0:
+				# do_gauge_for_effect reads free_gauge but does not consume it, so
+				# clear the seal-granted portion here to keep the payment one-shot.
+				var seal_gauge_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+				seal_gauge_player.free_gauge = max(0, seal_gauge_player.free_gauge - seal_gauge_granted)
 			popout_instruction_info = null
 			change_ui_state(UIState.UIState_WaitForGameServer)
 		_update_buttons()
@@ -5010,6 +6342,8 @@ func _on_instructions_ok_button_pressed(index : int):
 func _on_instructions_cancel_button_pressed():
 	if observer_mode:
 		return
+	# Discard any seal-to-pay amount staged by a previous (unsent) submission.
+	game_wrapper.clear_pending_minato_seal_payment()
 
 	var success = false
 
@@ -5022,6 +6356,12 @@ func _on_instructions_cancel_button_pressed():
 		instructions_number_picker_min = -1
 		instructions_number_picker_max = -1
 		can_spend_life_for_gauge = false
+
+	if can_seal_for_force or can_seal_for_gauge:
+		instructions_number_picker_min = -1
+		instructions_number_picker_max = -1
+		can_seal_for_force = false
+		can_seal_for_gauge = false
 
 	if preparing_character_action:
 		deselect_all_cards()
@@ -5064,7 +6404,12 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Player, [])
+			if is_tournelouse_ouroboros_transform_return_choice():
+				success = game_wrapper.submit_cancel_tournelouse_ouroboros_transform_choice(Enums.PlayerId.PlayerId_Player)
+			elif is_tournelouse_transform_bonus_choice():
+				success = game_wrapper.submit_cancel_tournelouse_transform_bonus_choice(Enums.PlayerId.PlayerId_Player)
+			else:
+				success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			deselect_all_cards()
 			close_popout()
@@ -5081,7 +6426,10 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [])
+			if is_tournelouse_ouroboros_hand_choice():
+				success = game_wrapper.submit_cancel_tournelouse_ouroboros_hand_choice(Enums.PlayerId.PlayerId_Player)
+			else:
+				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_DiscardFromReference:
 			deselect_all_cards()
 			close_popout()
@@ -5193,6 +6541,11 @@ func _on_face_attack_button_pressed():
 	_update_buttons()
 
 func _on_shortcut_strike_pressed():
+	# Renea must reveal her face-down boosts before an attack is set; the player
+	# re-picks their card once those resolve.
+	if _renea_has_facedown_boosts():
+		_renea_process_facedown_boosts()
+		return
 	var selected_card_ids : Array = []
 	for card in selected_cards:
 		selected_card_ids.append(card.card_id)
@@ -5211,9 +6564,22 @@ func _on_shortcut_boost_pressed():
 	var card_id : int = selected_cards[0].card_id
 	deselect_all_cards()
 
+	# Renea: the Briefcase may only be boosted from once per turn.
+	var renea_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if renea_p.deck_flag("boost_from_stored_zone_grants_action_when_exceeded") and renea_p.exceeded and renea_p.renea_boost_from_briefcase_used and renea_p.is_card_in_set_aside(card_id):
+		spawn_damage_popup("Briefcase already used this turn!", Enums.PlayerId.PlayerId_Player)
+		return
+
 	var success = false
 
 	var logic_card = game_wrapper.get_card_database().get_card(card_id)
+	var facedown_override = null
+	if logic_card.definition['boost']['boost_type'] != "transform":
+		var placement_choice = await _get_renea_boost_placement_choice(Enums.PlayerId.PlayerId_Player, card_id)
+		if placement_choice == -1:
+			return
+		if placement_choice >= 0:
+			facedown_override = placement_choice == 1
 	if logic_card.definition['boost']['boost_type'] == "transform":
 		var ex_transform_id = -1
 		if len(selected_cards) > 0:
@@ -5226,6 +6592,7 @@ func _on_shortcut_boost_pressed():
 		var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
 		if gauge_cost > 0:
 			selected_boost_to_pay_for = card_id
+			selected_boost_facedown_override = facedown_override
 			change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
 			begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
 		elif force_cost > 0:
@@ -5246,10 +6613,11 @@ func _on_shortcut_boost_pressed():
 				close_popout()
 				zsolt_p.free_force = idx
 			selected_boost_to_pay_for = card_id
+			selected_boost_facedown_override = facedown_override
 			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 			begin_generate_force_selection(force_cost, true, false, false, true)
 		else:
-			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force, 0)
+			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force, 0, [], facedown_override)
 
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
@@ -5294,6 +6662,8 @@ func _on_shortcut_change_pressed():
 	treat_ultras_as_single_force = false
 	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, "CHANGE_CARDS") > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
+	can_seal_for_gauge = false
+	can_seal_for_force = p.deck_flag("can_seal_discards_for_resources") and not p.exceeded and p.discards.size() > 0
 	action_menu.set_force_ultra_toggle(false)
 	action_menu.set_free_force_toggle(use_free_force)
 
@@ -5968,6 +7338,48 @@ func _quit_to_menu():
 	NetworkManager.leave_room()
 	returning_from_game.emit()
 	queue_free()
+
+# Called by main.gd (guarded by has_method) to decide whether losing the server
+# connection should interrupt this match. AI games and replay playback are
+# driven entirely by this client, so they keep running while offline.
+func match_requires_server() -> bool:
+	if replay_mode:
+		return false
+	if game_wrapper == null or game_wrapper.current_game == null:
+		return false
+	return not game_wrapper.is_ai_game()
+
+# Called by main.gd (guarded by has_method) when a reconnect fails terminally
+# or the surviving player cancels the waiting-for-opponent overlay. Tears the
+# match down and returns to the main menu.
+func abandon_match_after_disconnect():
+	if exiting:
+		return
+	exiting = true
+	NetworkManager.set_active_remote_match_finished(true)
+	game_wrapper.end_game()
+	returning_from_game.emit()
+	queue_free()
+
+var resources_released : bool = false
+
+func _exit_tree():
+	_release_match_resources()
+
+func _release_match_resources():
+	# Frees per-match memory (image loader textures/HTTP) on leaving a game.
+	# RESERVED HOOK (c) background system: add
+	#   BackgroundManager.clear_match_texture_cache()
+	# here once the background/skin workstream lands.
+	# RESERVED HOOK (a) reconnect: add NetworkManager reconnect signal disconnects here.
+	if resources_released:
+		return
+	resources_released = true
+	BackgroundManager.clear_match_texture_cache()
+	if image_loader:
+		image_loader.teardown()
+		image_loader.queue_free()
+		image_loader = null
 
 func _on_revealed_cards_button_pressed():
 	reset_revealed_cards()

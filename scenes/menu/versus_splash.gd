@@ -17,6 +17,12 @@ const tween_duration = 1.0
 @onready var you_deck_label : Label = $YouNameBox/YouDeckHbox/YouDeckLabel
 @onready var me_portrait : TextureRect = $MeNameBox/MeDeckHbox/MePortrait
 @onready var you_portrait : TextureRect = $YouNameBox/YouDeckHbox/YouPortrait
+@onready var loading_status_box : PanelContainer = $LoadingStatusBox
+@onready var loading_status_label : Label = $LoadingStatusBox/MarginContainer/LoadingStatusLabel
+
+func set_loading_status(status_text : String):
+	loading_status_box.visible = true
+	loading_status_label.text = status_text
 
 func load_portrait_texture(texture_rect : TextureRect, random_tag : String, deck_id : String):
 	match random_tag:

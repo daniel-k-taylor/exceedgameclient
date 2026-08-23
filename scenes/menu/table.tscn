@@ -31,6 +31,11 @@ theme_override_font_sizes/font_size = 30
 text = "TABLE TITLE"
 horizontal_alignment = 1
 
+[node name="TitleActionButton" type="Button" parent="Title/TitleBox"]
+visible = false
+layout_mode = 2
+text = "Refresh"
+
 [node name="HeaderContainer" type="PanelContainer" parent="."]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ughsc")

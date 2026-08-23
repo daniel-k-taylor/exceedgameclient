@@ -41,6 +41,14 @@ offset_right = 1280.0
 offset_bottom = 720.0
 color = Color(0, 0.482353, 0.482353, 1)
 
+[node name="MenuBackgroundImage" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
 [node name="Title" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = -1
@@ -241,6 +249,11 @@ theme_override_constants/margin_left = 10
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Sol Badguy"
+
+[node name="PlayerSkinSelection" type="OptionButton" parent="PlayerChooser/MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
 
 [node name="ChangePlayerCharacterButton" type="Button" parent="PlayerChooser"]
 layout_mode = 2
@@ -475,6 +488,7 @@ access = 2
 [connection signal="text_changed" from="MenuList/JoinBox/RoomNameBox" to="." method="_on_room_name_box_text_changed"]
 [connection signal="pressed" from="CancelButton" to="." method="_on_cancel_button_pressed"]
 [connection signal="pressed" from="PlayerChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [true]]
+[connection signal="item_selected" from="PlayerChooser/MarginContainer/VBoxContainer/PlayerSkinSelection" to="." method="_on_player_skin_selection_item_selected"]
 [connection signal="focus_entered" from="PlayerNameBox" to="." method="_on_player_name_box_focus_entered"]
 [connection signal="text_changed" from="PlayerNameBox" to="." method="_on_player_name_box_text_changed"]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
