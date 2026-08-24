@@ -140,6 +140,9 @@ func get_player_exceed_cost(id):
 
 func is_player_exceeded(id):
 	return _get_player(id).exceeded
+	
+func is_player_infused(id):
+	return _get_player(id).is_infused()
 
 func get_player_seen_topdeck(id):
 	return _get_player(id).get_seen_topdeck()

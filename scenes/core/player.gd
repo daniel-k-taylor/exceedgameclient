@@ -1,4 +1,4 @@
-﻿class_name Player
+class_name Player
 
 
 class StrikeStatBoosts:
@@ -403,6 +403,7 @@ var once_per_game_resource_name : String
 var has_non_exceed_overdrive : bool
 var non_exceed_overdrive_active : bool
 var spent_gauge_this_turn : bool
+var infused : bool
 
 func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 	my_id = id
@@ -567,6 +568,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	has_non_exceed_overdrive = deck_def.get('has_non_exceed_overdrive', false)
 	non_exceed_overdrive_active = false
 	spent_gauge_this_turn = false
+	infused = false
 
 	if "buddy_cards" in deck_def:
 		var buddy_index = 0
@@ -2014,6 +2016,8 @@ func can_do_character_action(action_index : int) -> bool:
 	if get_available_gauge() < gauge_cost: return false
 	if get_available_force() < force_cost: return false
 
+	if 'can_boost_from_gauge' in action and action['can_boost_from_gauge']:
+		if not can_boost_something(['gauge'], ''): return false
 	if 'can_boost_continuous_boost_from_gauge' in action and action['can_boost_continuous_boost_from_gauge']:
 		if not can_boost_something(['gauge'], 'continuous'): return false
 	if 'can_boost_ultra_boost_from_gauge' in action and action['can_boost_ultra_boost_from_gauge']:
@@ -2049,6 +2053,9 @@ func can_do_character_action(action_index : int) -> bool:
 				used += 1
 		if used >= limit:
 			return false
+			
+	if 'requires_not_infused' in action and action['requires_not_infused']:
+		if is_infused(): return false
 
 	return true
 
@@ -2065,7 +2072,7 @@ func get_extra_strike_option(i : int = 0) -> Variant:
 	# Add a card to the effect.
 	var effect = effects[i]
 	match effect["effect_type"]:
-		"strike_with_buddy_card":
+		StrikeEffects.StrikeWithBuddyCard:
 			# This effect assumes there is 1 card in the set aside zone.
 			if set_aside_cards.size() == 0:
 				return null
@@ -3625,7 +3632,7 @@ func force_opponent_respond_wild_swing() -> bool:
 
 	for boost_card in continuous_boosts:
 		for effect in boost_card.definition['boost']['effects']:
-			if effect['effect_type'] == "opponent_wild_swings":
+			if effect['effect_type'] == StrikeEffects.OpponentWildSwings:
 				return true
 	return false
 
@@ -3742,3 +3749,9 @@ func is_overdrive_active() -> bool:
 		return exceeded
 	else:
 		return non_exceed_overdrive_active
+
+func is_infused() -> bool:
+	for card in get_continuous_boosts_and_transforms():
+		if 'passively_infuse' in card.definition['boost'] and card.definition['boost']['passively_infuse']:
+			return true
+	return infused

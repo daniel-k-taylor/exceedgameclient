@@ -33,6 +33,8 @@ func _is_random_selectable_deck(deck: Dictionary) -> bool:
 	return not deck_id.contains("_") or FileAccess.file_exists("%s/%s.json" % [decks_path, deck_id])
 
 func get_deck(str_id : String) -> Dictionary:
+	if str_id == "random_s8":
+		return get_random_deck(8)
 	if str_id == "random_s7":
 		return get_random_deck(7)
 	if str_id == "random_s6":

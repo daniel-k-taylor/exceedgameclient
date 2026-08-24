@@ -459,7 +459,9 @@ func update_char(char_id: String, is_player: bool) -> void:
 	else:
 		opponent_selected_character = char_id
 	var portrait_id: String
-	if char_id == "random_s7":
+	if char_id == "random_s8":
+		portrait_id = "stlogo"
+	elif char_id == "random_s7":
 		portrait_id = "random"
 	elif char_id == "random_s6":
 		portrait_id = "unilogo"
