@@ -28142,7 +28142,12 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "renea_conspiracy_unearthed",
+					"effect_type": "reveal_hand",
+					"opponent": true,
+					"and": {
+						"effect_type": "choose_opponent_card_to_discard",
+						"destination": "gauge"
+					},
 					"override_description": "The opponent reveals their hand; choose a card to add to their gauge."
 				}
 			]

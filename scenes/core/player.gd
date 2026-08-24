@@ -2072,7 +2072,7 @@ func get_extra_strike_option(i : int = 0) -> Variant:
 	# Add a card to the effect.
 	var effect = effects[i]
 	match effect["effect_type"]:
-		"strike_with_buddy_card":
+		StrikeEffects.StrikeWithBuddyCard:
 			# This effect assumes there is 1 card in the set aside zone.
 			if set_aside_cards.size() == 0:
 				return null
@@ -3632,7 +3632,7 @@ func force_opponent_respond_wild_swing() -> bool:
 
 	for boost_card in continuous_boosts:
 		for effect in boost_card.definition['boost']['effects']:
-			if effect['effect_type'] == "opponent_wild_swings":
+			if effect['effect_type'] == StrikeEffects.OpponentWildSwings:
 				return true
 	return false
 

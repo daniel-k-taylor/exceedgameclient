@@ -1231,10 +1231,10 @@ func continue_setup_strike():
 
 			active_strike.effects_resolved_in_timing += 1
 
-				
+
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
-		
+
 		if active_strike.initiator_wild_strike and active_strike.initiator.delayed_wild_strike:
 			# Do the wild swing now.
 			active_strike.initiator.wild_strike()
@@ -1249,7 +1249,7 @@ func continue_setup_strike():
 				false,
 				false
 			)
-			
+
 		if active_strike.initiator.is_infused():
 			create_event(
 				Enums.EventType.EventType_MarkInfused,
@@ -1299,7 +1299,7 @@ func continue_setup_strike():
 
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
-				
+
 		if active_strike.defender_wild_strike and active_strike.defender.delayed_wild_strike:
 			# Do the wild swing now.
 			active_strike.defender.wild_strike()
@@ -1314,7 +1314,7 @@ func continue_setup_strike():
 				false,
 				false
 			)
-		
+
 		if active_strike.defender.is_infused():
 			create_event(
 				Enums.EventType.EventType_MarkInfused,
@@ -4642,7 +4642,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				else:
 					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s): %s." % _log_card_name(discarded_names))
 					opposing_player.discard(discard_ids)
-		"wonderland_add_card":
+		StrikeEffects.WonderlandAddCard:
 			_exceeded_wonderland_active = false
 			var wc_id = effect['card_id']
 			# Move card from discard or sealed to Wonderland, replacing old card
@@ -4671,45 +4671,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		StrikeEffects.Pass:
 			# Do nothing.
 			pass
-		"renea_return_normals_from_discard":
-			# Paranormal Investigation hit uses the engine's choose_discard (source discard,
-			# destination hand, limitation normal); nothing to do here.
-			pass
-		"renea_called_shot":
-			# Called Shot hit uses the engine's name_card_opponent_discards; nothing to do here.
-			pass
-		"renea_conspiracy_unearthed":
-			# Conspiracy Unearthed: reveal opponent's hand, add your choice to their gauge
-			var renea_cu_opp = _get_player(get_other_player(performing_player.my_id))
-			renea_cu_opp.reveal_hand()
-			var renea_cu_choices = []
-			for renea_cu_card in renea_cu_opp.hand:
-				renea_cu_choices.append({
-					"effect_type": "renea_conspiracy_unearthed_do",
-					"card_id": renea_cu_card.id,
-					"_choice_text": "Add %s to gauge" % card_db.get_card_name(renea_cu_card.id)
-				})
-			if renea_cu_choices.is_empty():
-				return
-			do_effect_if_condition_met(performing_player, card_id, {
-				"effect_type": StrikeEffects.Choice,
-				StrikeEffects.Choice: renea_cu_choices,
-				"override_description": "Opponent's hand is revealed. Choose a card to add to their Gauge."
-			}, null)
-		"renea_conspiracy_unearthed_do":
-			var renea_cu_id = effect.get("card_id", -1)
-			if renea_cu_id == -1:
-				return
-			var renea_cu_opp = _get_player(get_other_player(performing_player.my_id))
-			if not renea_cu_opp.is_card_in_hand(renea_cu_id):
-				return
-			var renea_cu_card = card_db.get_card(renea_cu_id)
-			renea_cu_opp.remove_card_from_hand(renea_cu_id, true, false)
-			renea_cu_opp.add_to_gauge(renea_cu_card)
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "%s is added to opponent's gauge." % _log_card_name(card_db.get_card_name(renea_cu_id)))
-		"renea_pre_strike_reveal":
+		StrikeEffects.ReneaPreStrikeReveal:
 			_renea_handle_pre_strike_reveal(performing_player)
-		"renea_pre_strike_done":
+		StrikeEffects.ReneaPreStrikeDone:
 			# All facedown effects processed
 			active_character_action = false
 			performing_player.renea_pre_strike_effects = []
@@ -4729,7 +4693,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				strike_setup_defender_response()
 			performing_player.renea_pre_strike_needs_fss = true  # reset to default
 			performing_player.renea_pre_strike_response = false
-		"renea_reveal_fd_do":
+		StrikeEffects.ReneaRevealFdDo:
 			# Player chose a specific boost to resolve first; reorder remaining list
 			var renea_fd_idx = effect.get("boost_idx", -1)
 			if renea_fd_idx >= 0:
@@ -4743,7 +4707,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					renea_fd_reorder.erase(chosen_id)
 					renea_fd_reorder.insert(0, chosen_id)
 					renea_fd_player.renea_fd_pending = renea_fd_reorder
-		"renea_fd_order_first":
+		StrikeEffects.ReneaFdOrderFirst:
 			# Pre-strike order choice: move chosen effect to current processing position
 			var renea_order_idx = effect.get("pre_strike_idx", -1)
 			var renea_base_idx = performing_player.renea_pre_strike_index
@@ -4752,7 +4716,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.renea_pre_strike_effects.remove_at(renea_order_idx)
 				performing_player.renea_pre_strike_effects.insert(renea_base_idx, chosen)
 			_renea_process_next(performing_player)
-		"renea_briefcase_hit":
+		StrikeEffects.ReneaBriefcaseHit:
 			# Exceed passive hit: put bottom card of opponent's discard with a
 			# continuous/immediate Boost into the briefcase
 			var renea_bh_opp = _get_player(get_other_player(performing_player.my_id))
@@ -4765,7 +4729,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					performing_player.add_to_briefcase(renea_bh_card)
 					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds %s from bottom of opponent's discard to Briefcase." % _log_card_name(card_db.get_card_name(renea_bh_card.id)))
 					break
-		"renea_on_exceed":
+		StrikeEffects.ReneaOnExceed:
 			# On exceed: put up to 3 cards of opponent's discard with continuous/immediate
 			# boosts into the briefcase
 			var renea_oe_opp = _get_player(get_other_player(performing_player.my_id))
@@ -6895,7 +6859,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will transform extra attack %s." % [_log_card_name(ea_card_name)])
 				active_strike.extra_attack_data.zsolt_extra_transform = true
 
-		"eugenia_passive_mark_used":
+		StrikeEffects.EugeniaPassiveMarkUsed:
 			# Eugenia normal passive: a matching card was actually revealed (not Pass),
 			# so the once-per-turn chance is consumed for this turn. Choosing "Pass"
 			# in the reveal choice does NOT consume the chance.
@@ -6905,7 +6869,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		StrikeEffects.CanSealForForce, StrikeEffects.CanSealForGauge:
 			# Minato's seal-for-resource ability is applied during cost payment, not here.
 			pass
-		"minato_outrun_the_past":
+		StrikeEffects.MinatoOutrunThePast:
 			var minato_otp_total = performing_player.discards.size() + performing_player.gauge.size()
 			if minato_otp_total == 0:
 				return
@@ -6922,7 +6886,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.amount_min = 0
 			decision_info.limitation = ""
 			create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, 0)
-		"minato_one_more_ride":
+		StrikeEffects.MinatoOneMoreRide:
 			if performing_player.sealed.size() > 0:
 				var minato_omr_effect = {
 					"effect_type": StrikeEffects.Choice,
@@ -6943,7 +6907,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				handle_strike_effect(-1, minato_omr_effect, performing_player)
 			else:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "One More Ride did not trigger: no cards in the sealed area.")
-		"umina_place_hand_to_dreamlands":
+		StrikeEffects.UminaPlaceHandToDreamlands:
 			# Action: put a card from hand into Dreamlands (set_aside).
 			if performing_player.exceeded:
 				return
@@ -6964,7 +6928,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.amount_min = 1
 			decision_info.effect = {"restricted_to_card_ids": umina_ph_valid}
 			create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, 1, "", 1)
-		"umina_begin_turn_dreamlands":
+		StrikeEffects.UminaBeginTurnDreamlands:
 			# Exceeded passive: look at top of deck, put into Dreamlands or discard.
 			if not performing_player.exceeded:
 				return
@@ -6981,7 +6945,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				StrikeEffects.Choice: umina_bt_choices,
 				"override_description": "Dreamlands: Top card is %s" % umina_bt_card_name
 			}, null)
-		"umina_begin_turn_dreamlands_put":
+		StrikeEffects.UminaBeginTurnDreamlandsPut:
 			var umina_btp_card_id = effect.get("card_id", -1)
 			if umina_btp_card_id < 0 or performing_player.deck.size() == 0:
 				return
@@ -6999,15 +6963,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "puts topdeck into Dreamlands.")
 			create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, umina_btp_card_id)
 			_umina_check_slipping_away(performing_player, umina_btp_card_id)
-		"umina_begin_turn_dreamlands_discard":
+		StrikeEffects.UminaBeginTurnDreamlandsDiscard:
 			var umina_btd_card_id = effect.get("card_id", -1)
 			if umina_btd_card_id < 0 or performing_player.deck.size() == 0:
 				return
 			performing_player.discard([umina_btd_card_id])
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "discards topdeck.")
-		"umina_flip_dreamlands":
+		StrikeEffects.UminaFlipDreamlands:
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Dreamlands flips to its exceeded side.")
-		"umina_place_discard_to_dreamlands":
+		StrikeEffects.UminaPlaceDiscardToDreamlands:
 			# Terror Whispers hit: put a card from discard into Dreamlands.
 			if performing_player.discards.size() == 0:
 				return
@@ -7029,7 +6993,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.amount_min = 1
 			decision_info.limitation = ""
 			create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, 0)
-		"umina_out_of_mind_hit":
+		StrikeEffects.UminaOutOfMindHit:
 			# Out of Mind hit: Dreamlands card -> gauge + Power, or all hand -> gauge + draw 3.
 			if performing_player.set_aside_cards.size() > 0:
 				var umina_oom_card = performing_player.set_aside_cards[0]
@@ -7052,9 +7016,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					performing_player.remove_card_from_hand(umina_oom_hc.id, true, false)
 					performing_player.add_to_gauge(umina_oom_hc)
 				performing_player.draw(3)
-		"umina_slipping_away":
+		StrikeEffects.UminaSlippingAway:
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Slipping Away active.")
-		"umina_slipping_away_move":
+		StrikeEffects.UminaSlippingAwayMove:
 			var umina_sa_choices = [
 				{"effect_type": "advance", "amount": 1},
 				{"effect_type": "retreat", "amount": 1}
@@ -7064,12 +7028,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				StrikeEffects.Choice: umina_sa_choices,
 				"override_description": "Slipping Away: Move 1"
 			}, null)
-		"umina_dark_reflections":
+		StrikeEffects.UminaDarkReflections:
 			do_effect_if_condition_met(performing_player, card_id, {
 				"effect_type": StrikeEffects.NameCardOpponentDiscards,
 				"discard_effect": { "effect_type": "umina_dark_reflections_place" }
 			}, null)
-		"umina_dark_reflections_place":
+		StrikeEffects.UminaDarkReflectionsPlace:
 			# opposing_player just discarded a card (the named copy); move it to Dreamlands.
 			var umina_pd_card = null
 			if opposing_player.discards.size() > 0:
@@ -7087,7 +7051,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "puts %s into Dreamlands via Dark Reflections." % _log_card_name(umina_pd_card.id))
 			create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, umina_pd_card.id)
 			_umina_check_slipping_away(performing_player, umina_pd_card.id)
-		"umina_dark_thoughts_hit":
+		StrikeEffects.UminaDarkThoughtsHit:
 			var umina_dt_before = opposing_player.discards.size()
 			do_effect_if_condition_met(opposing_player, card_id, {
 				"effect_type": StrikeEffects.DiscardRandom,
@@ -7116,7 +7080,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 						StrikeEffects.Choice: umina_dt_choices,
 						"override_description": "Dark Thoughts: %s discarded" % umina_dt_card_name
 					}, null)
-		"umina_dark_thoughts_place":
+		StrikeEffects.UminaDarkThoughtsPlace:
 			var umina_dtp_id = effect.get("card_id", -1)
 			if umina_dtp_id < 0:
 				return
@@ -7133,7 +7097,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "puts discarded card into Dreamlands.")
 			create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, umina_dtp_id)
 			_umina_check_slipping_away(performing_player, umina_dtp_id)
-		"umina_shadow_chorus_copy":
+		StrikeEffects.UminaShadowChorusCopy:
 			if performing_player.set_aside_cards.size() == 0:
 				return
 			var umina_sc_copy = performing_player.set_aside_cards[0]
@@ -7152,7 +7116,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "copies %s from Dreamlands." % _log_card_name(umina_sc_copy.id))
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Shadow Chorus has no strike card to replace.")
-		"umina_whispers_in_the_dark":
+		StrikeEffects.UminaWhispersInTheDark:
 			performing_player.draw(1)
 			if performing_player.set_aside_cards.size() == 0:
 				return
@@ -7166,7 +7130,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				for umina_witd_ef in umina_witd_boost.get("effects", []):
 					if umina_witd_ef.get("timing") == "immediate":
 						do_effect_if_condition_met(performing_player, umina_witd_card.id, umina_witd_ef, null)
-		"umina_place_opponent_attack_to_dreamlands":
+		StrikeEffects.UminaPlaceOpponentAttackToDreamlands:
 			var umina_uk_card = null
 			if active_strike:
 				umina_uk_card = active_strike.get_player_card(opposing_player)
@@ -7186,7 +7150,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "places the opponent's attack %s into Dreamlands." % _log_card_name(umina_uk_card.id))
 				create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, umina_uk_card.id)
 				_umina_check_slipping_away(performing_player, umina_uk_card.id)
-		"umina_dream_telling_power":
+		StrikeEffects.UminaDreamTellingPower:
 			if performing_player.set_aside_cards.size() > 0:
 				var umina_dtl_card = performing_player.set_aside_cards[0]
 				var umina_dtl_power = umina_dtl_card.definition.get("power", 0)
@@ -7196,7 +7160,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if umina_dtl_power > 0:
 					performing_player.strike_stat_boosts.power += umina_dtl_power
 					create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, umina_dtl_power)
-		"umina_call_of_dreamlands_hit":
+		StrikeEffects.UminaCallOfDreamlandsHit:
 			performing_player.reveal_hand()
 			opposing_player.reveal_hand()
 			var umina_cod_count = 0
@@ -7209,16 +7173,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if umina_cod_count > 0:
 				performing_player.strike_stat_boosts.power += umina_cod_count
 				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, umina_cod_count)
-		"umina_spiraling_descent":
+		StrikeEffects.UminaSpiralingDescent:
 			if performing_player.has_transform("umina_call_of_the_dreamlands"):
 				return
 			if performing_player.set_aside_cards.size() > 0:
 				var umina_sd_card = performing_player.set_aside_cards[0]
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Spiraling Descent: copies of %s are invalid for opponent." % _log_card_name(umina_sd_card.id))
-		"umina_sleeper_wakes":
+		StrikeEffects.UminaSleeperWakes:
 			performing_player.umina_dreamlands_facedown = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Dreamlands cards will enter face-down.")
-		"umina_seal_dreamlands_for_triggers":
+		StrikeEffects.UminaSealDreamlandsForTriggers:
 			if performing_player.set_aside_cards.size() == 0:
 				return
 			var umina_sdt_card = performing_player.set_aside_cards[0]
@@ -7235,14 +7199,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				],
 				"override_description": "Seal Dreamlands card for attack triggers?"
 			}, null)
-		"umina_do_seal_dreamlands":
+		StrikeEffects.UminaDoSealDreamlands:
 			var umina_seal_card_id = effect.get("card_id", -1)
 			if umina_seal_card_id < 0 or not performing_player.is_card_in_set_aside(umina_seal_card_id):
 				return
 			do_seal_effect(performing_player, umina_seal_card_id, "set_aside")
 			add_attack_triggers(performing_player, [umina_seal_card_id], true)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "seals Dreamlands card to add its effects to the attack!")
-		"syrus_return_to_hand_until_7":
+		StrikeEffects.SyrusReturnToHandUntil7:
 			var syrus_target_hand = 7
 			var syrus_needed = syrus_target_hand - performing_player.hand.size()
 			if syrus_needed > 0:
@@ -7255,7 +7219,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					performing_player.add_to_hand(syrus_card, true)
 					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns %s from discards to hand." % _log_card_name(card_db.get_card_name(syrus_card.id)))
 			do_effect_if_condition_met(performing_player, card_id, { "effect_type": StrikeEffects.ShuffleDiscardInPlace }, null)
-		"syrus_dredge_fury_keep_choice":
+		StrikeEffects.SyrusDredgeFuryKeepChoice:
 			var syrus_dfk_ids = performing_player.syrus_dredge_fury_spent_ids
 			if syrus_dfk_ids.is_empty():
 				return
@@ -7279,7 +7243,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				StrikeEffects.Choice: syrus_dfk_choices,
 				"override_description": "Choose one spent Gauge to add to hand"
 			}, null)
-		"syrus_dredge_fury_retrieve":
+		StrikeEffects.SyrusDredgeFuryRetrieve:
 			var syrus_ret_id = effect.get("card_id", -1)
 			if syrus_ret_id == -1 or not performing_player.is_card_in_discards(syrus_ret_id):
 				return
@@ -7287,7 +7251,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.remove_card_from_discards(syrus_ret_id)
 			performing_player.add_to_hand(syrus_ret_card, true)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns %s from discards to hand." % _log_card_name(card_db.get_card_name(syrus_ret_id)))
-		"syrus_reckless_greed":
+		StrikeEffects.SyrusRecklessGreed:
 			if performing_player.syrus_reckless_greed_used:
 				return
 			var syrus_rg_boosts = performing_player.get_boosts(true)
@@ -7305,7 +7269,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				StrikeEffects.Choice: syrus_rg_choices,
 				"override_description": "Discard a Boost from play to Strike"
 			}, null)
-		"syrus_reckless_greed_strike":
+		StrikeEffects.SyrusRecklessGreedStrike:
 			var syrus_rgs_id = effect.get("boost_id", -1)
 			if syrus_rgs_id == -1:
 				return
@@ -9823,7 +9787,7 @@ func boost_play_cleanup(performing_player : Player):
 		if game_state == Enums.GameState.GameState_PlayerDecision:
 			# save the bonus action for later if there's more to resolve
 			performing_player.bonus_actions += 1
-		
+
 		else:
 			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action!")
 			create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, 0)
@@ -10835,7 +10799,7 @@ func do_strike(
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player,
 					"sets their attack from %s." % [strike_option["option_name"]])
 				match strike_option["effect_type"]:
-					"strike_with_buddy_card":
+					StrikeEffects.StrikeWithBuddyCard:
 						# This effect assumes there is 1 card in the set aside zone.
 						for effect in strike_option["special_effects"]:
 							handle_strike_effect(-1, effect, performing_player)
@@ -10927,7 +10891,7 @@ func do_strike(
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player,
 					"sets their attack from %s." % [strike_option["option_name"]])
 				match strike_option["effect_type"]:
-					"strike_with_buddy_card":
+					StrikeEffects.StrikeWithBuddyCard:
 						# This effect assumes there is 1 card in the set aside zone.
 						for effect in strike_option["special_effects"]:
 							handle_strike_effect(-1, effect, performing_player)

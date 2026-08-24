@@ -207,9 +207,10 @@ func test_conspiracy_unearthed_now_effect_adds_opponent_card_to_their_gauge():
 	assert_true(game_logic.do_boost(player1, boost_id, [], false, 0, [], false))
 	# Conspiracy Unearthed reveals the opponent's hand and lets Renea choose a
 	# card to add to the opponent's gauge.
+	assert_eq(player2.public_hand.size(), player2.hand.size())
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	assert_eq(game_logic.decision_info.player, player1.my_id)
-	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choose_to_discard(player1, [targeted_card_id]))
 
 	assert_eq(player2.gauge.size(), opp_gauge_before + 1)
 	assert_eq(player2.hand.size(), opp_hand_before - 1)

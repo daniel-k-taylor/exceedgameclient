@@ -1227,7 +1227,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Opponent discards entire hand."
 		StrikeEffects.OpponentPowerup:
 			effect_str += "Opponent's attack +" + str(effect['amount']) + " Power"
-		"opponent_wild_swings":
+		StrikeEffects.OpponentWildSwings:
 			effect_str += "Opponent wild swings."
 		StrikeEffects.Pass:
 			effect_str += "Pass"
@@ -1670,7 +1670,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Wild swing"
 			if 'card_name' in effect:
 				effect_str += " ([color=%s]%s[/color] on top of deck)" % [CardHighlightColor, effect['card_name']]
-		"strike_with_buddy_card":
+		StrikeEffects.StrikeWithBuddyCard:
 			effect_str += "%s ([color=%s]%s[/color])" % [effect["buddy_name"], CardHighlightColor, effect.get('card_name', "")]
 		StrikeEffects.StrikeFaceup:
 			effect_str += "Strike face-up"
@@ -1767,81 +1767,71 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Set this as a continuous boost and replace this attack with a Wild Swing"
 		StrikeEffects.PookySetZolsTarget:
 			effect_str += "Place this into play as a facedown continuous boost"
-		"renea_briefcase_hit":
+		StrikeEffects.ReneaBriefcaseHit:
 			effect_str += "Put the bottom card of the opponent's discard pile with a Boost into your Briefcase"
-		"renea_conspiracy_unearthed":
-			effect_str += "The opponent reveals their hand; choose a card to add to their gauge"
-		"renea_conspiracy_unearthed_do":
-			effect_str += "Add the chosen card to the opponent's gauge"
-		"renea_fd_order_first":
+		StrikeEffects.ReneaFdOrderFirst:
 			effect_str += "Resolve this facedown boost's effect first"
-		"renea_on_exceed":
+		StrikeEffects.ReneaOnExceed:
 			effect_str += "Put up to 3 cards with Boosts from the opponent's discard pile into your Briefcase"
-		"renea_pre_strike_done":
+		StrikeEffects.ReneaPreStrikeDone:
 			effect_str += ""
-		"renea_pre_strike_reveal":
+		StrikeEffects.ReneaPreStrikeReveal:
 			effect_str += "Reveal your facedown continuous boosts and resolve their immediate effects"
-		"renea_return_normals_from_discard":
-			effect_str += "Return up to 2 normal attacks from your discard pile to your hand"
-		"renea_called_shot":
-			effect_str += "Name a card; the opponent discards a copy or reveals their hand"
-		"renea_reveal_facedown_boosts":
+		StrikeEffects.ReneaRevealFacedownBoosts:
 			effect_str += "Reveal your facedown continuous boosts"
-		"renea_reveal_fd_do":
+		StrikeEffects.ReneaRevealFdDo:
 			effect_str += "Resolve this facedown boost first"
-		"umina_place_hand_to_dreamlands":
+		StrikeEffects.UminaPlaceHandToDreamlands:
 			effect_str += "Place a card from your hand into your Dreamlands"
-		"umina_place_hand_to_dreamlands_do":
-			effect_str += "Place a card into your Dreamlands"
-		"umina_begin_turn_dreamlands":
+		StrikeEffects.UminaBeginTurnDreamlands:
 			effect_str += "Look at the top card of your deck; put it into your Dreamlands or discard it"
-		"umina_begin_turn_dreamlands_put":
+		StrikeEffects.UminaBeginTurnDreamlandsPut:
 			effect_str += "Put the top card into your Dreamlands"
-		"umina_begin_turn_dreamlands_discard":
+		StrikeEffects.UminaBeginTurnDreamlandsDiscard:
 			effect_str += "Discard the top card"
-		"umina_flip_dreamlands":
+		StrikeEffects.UminaFlipDreamlands:
 			effect_str += "Flip Dreamlands to its exceeded side"
-		"umina_place_discard_to_dreamlands":
+		StrikeEffects.UminaPlaceDiscardToDreamlands:
 			effect_str += "Put a card from your discard pile into your Dreamlands"
-		"umina_out_of_mind_hit":
+		StrikeEffects.UminaOutOfMindHit:
 			effect_str += "If a card is in your Dreamlands, add it to gauge and gain its power (up to +5); otherwise add your hand to gauge and draw 3"
-		"umina_slipping_away":
+		StrikeEffects.UminaSlippingAway:
 			effect_str += "When you place a card into your Dreamlands, you may spend 1 force to move 1 space"
-		"umina_slipping_away_move":
+		StrikeEffects.UminaSlippingAwayMove:
 			effect_str += "Move 1 space"
-		"range_1_immunity":
+		StrikeEffects.UminaRange1Immunity:
 			effect_str += "Immune to attacks at range 1"
-		"umina_dark_reflections":
+		StrikeEffects.UminaDarkReflections:
 			effect_str += "Name a card; the opponent discards a copy or reveals their hand, then place it into your Dreamlands"
-		"umina_dark_reflections_place":
+		StrikeEffects.UminaDarkReflectionsPlace:
 			effect_str += "Place the discarded card into your Dreamlands"
-		"umina_dark_thoughts_hit":
+		StrikeEffects.UminaDarkThoughtsHit:
 			effect_str += "The opponent discards a card at random; you may put it into your Dreamlands"
-		"umina_dark_thoughts_place":
+		StrikeEffects.UminaDarkThoughtsPlace:
 			effect_str += "Put the discarded card into your Dreamlands"
-		"umina_spiraling_descent":
+		StrikeEffects.UminaSpiralingDescent:
 			effect_str += "While a card is in your Dreamlands, the opponent cannot boost or strike with a copy of it"
-		"umina_shadow_chorus_copy":
+		StrikeEffects.UminaShadowChorusCopy:
 			effect_str += "Copy a card from your Dreamlands"
-		"umina_whispers_in_the_dark":
+		StrikeEffects.UminaWhispersInTheDark:
 			effect_str += "Draw 1, then perform the immediate boost of a card in your Dreamlands, ignoring its force cost"
-		"umina_place_opponent_attack_to_dreamlands":
+		StrikeEffects.UminaPlaceOpponentAttackToDreamlands:
 			effect_str += "Place the opponent's attack into your Dreamlands"
-		"umina_dream_telling_power":
+		StrikeEffects.UminaDreamTellingPower:
 			effect_str += "Gain power equal to a card in your Dreamlands (up to +5)"
-		"umina_call_of_dreamlands_hit":
+		StrikeEffects.UminaCallOfDreamlandsHit:
 			effect_str += "Reveal both hands; +1 power for each special and ultra revealed"
-		"umina_sleeper_wakes":
+		StrikeEffects.UminaSleeperWakes:
 			effect_str += "Cards enter your Dreamlands face-down"
-		"umina_seal_dreamlands_for_triggers":
+		StrikeEffects.UminaSealDreamlandsForTriggers:
 			effect_str += "Seal a card from your Dreamlands to add its effects to this attack"
-		"umina_do_seal_dreamlands":
+		StrikeEffects.UminaDoSealDreamlands:
 			effect_str += "Seal the Dreamlands card and add its effects to this attack"
 		StrikeEffects.CanSealForForce:
 			effect_str += "You may seal cards from your discard pile to generate Force"
 		StrikeEffects.CanSealForGauge:
 			effect_str += "You may seal 3 cards from your discard pile to generate 1 Gauge"
-		"minato_outrun_the_past":
+		StrikeEffects.MinatoOutrunThePast:
 			effect_str += "Seal up to 4 cards from your discard or gauge; draw 1 for every 2 sealed"
 		_:
 			effect_str += "MISSING EFFECT"
