@@ -339,6 +339,57 @@ func test_session_restore_failed_clears_stored_identity():
 	assert_eq(NetworkManager._previous_server_session_token, "")
 
 
+func test_session_restore_failed_keeps_lobby_snapshot_while_connected():
+	# The queue list arrives before the restore reply, so a failed cold restore
+	# must not blank out the lobby while the socket is still open.
+	var socket = MockSocket.new()
+	NetworkManager._socket = socket
+	NetworkManager.network_state = NetworkManager.NetworkState.NetworkState_Connected
+	NetworkManager._handle_players_update({
+		"players": [],
+		"rooms": [],
+		"queues": [{
+			"id": "allseasons",
+			"name": "All Seasons",
+			"match_available": false,
+		}],
+	})
+	assert_eq(NetworkManager.get_queue_list().size(), 1)
+
+	NetworkManager._handle_session_restore_failed({
+		"type": "session_restore_failed",
+		"reason": "no_matching_session",
+	})
+
+	assert_eq(NetworkManager.get_queue_list().size(), 1, "queues survive a failed restore")
+	var requested_refresh = false
+	var parser = JSON.new()
+	for sent in socket.sent_messages:
+		if parser.parse(sent) == OK and parser.data.get("type", "") == "request_players_update":
+			requested_refresh = true
+	assert_true(requested_refresh, "a failed restore asks the server for a fresh lobby snapshot")
+
+
+func test_session_restore_failed_clears_lobby_snapshot_when_disconnected():
+	NetworkManager._socket = null
+	NetworkManager._handle_players_update({
+		"players": [],
+		"rooms": [],
+		"queues": [{
+			"id": "allseasons",
+			"name": "All Seasons",
+			"match_available": false,
+		}],
+	})
+
+	NetworkManager._handle_session_restore_failed({
+		"type": "session_restore_failed",
+		"reason": "socket_not_open",
+	})
+
+	assert_eq(NetworkManager.get_queue_list().size(), 0)
+
+
 func test_persisted_identity_round_trips_for_cold_restart():
 	NetworkManager._current_server_player_id = "cold-player"
 	NetworkManager._current_server_session_id = "cold-session"

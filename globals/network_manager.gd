@@ -497,7 +497,14 @@ func _handle_restore_failed(reason):
 	_previous_server_session_id = ""
 	_previous_server_session_token = ""
 	clear_restore_context()
-	_clear_lobby_cache()
+	# A failed restore does not mean we lost the connection - the lobby snapshot
+	# the server already sent is still valid. Wiping it here left the lobby with
+	# no queues until the next unrelated broadcast, so only clear when the socket
+	# is actually gone and otherwise ask for a fresh snapshot.
+	if _is_socket_open():
+		request_players_update()
+	else:
+		_clear_lobby_cache()
 	_waiting_for_restore_name_sync = false
 	session_restore_failed.emit(reason)
 	_end_reconnect_flow(false)
