@@ -12413,6 +12413,407 @@
 		},
 		"NOTEEND": "HAZAMA CARDS END"
 	},
+	
+	
+	
+	
+	{
+		"NOTE": "HERAAL CARDS START",
+		"id": "heraal_thewildsride",
+		"type": "ultra",
+		"display_name": "The Wilds Ride",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 5,
+		"speed": 2,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "move_to_any_space",
+				"move_min": 0,
+				"move_max": 5,
+				"advance_only": true
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Thrill of the Hunt",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "bonus_action"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "The Wilds Ride"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "heraal_chakramvortex",
+		"type": "ultra",
+		"display_name": "Chakram Vortex",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 4,
+		"range_max": 4,
+		"power": 7,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"condition": "is_infused",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				],
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Cervine Grace",
+			"passively_infuse": true,
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"condition": "is_infused",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "heraal_magicchakram",
+		"type": "special",
+		"display_name": "Magic Chakram",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"power": 4,
+		"speed": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"condition": "is_infused",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+				],
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "return_attack_to_hand",
+							"card_name": "Magic Chakram"
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Cornered Beast",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 2,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "moved_less_than",
+								"condition_amount": 2,
+								"effect_type": "draw",
+								"amount": 2
+							}
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 2,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "moved_less_than",
+								"condition_amount": 2,
+								"effect_type": "draw",
+								"amount": 2
+							}
+						}
+					]
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		}
+	},
+	{
+		"id": "heraal_hoarfrost",
+		"type": "special",
+		"display_name": "Hoarfrost",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 1,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1,
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Merrymaking",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "heraal_gore",
+		"type": "special",
+		"display_name": "Gore",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3,
+				"save_spaces_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x"
+				}
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Deadly",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"condition": "is_infused",
+						"effect_type": "bonus_action"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "heraal_moonfall",
+		"type": "special",
+		"display_name": "Moonfall",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 4,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Carefree",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					],
+					"and": {
+						"condition": "is_infused",
+						"effect_type": "bonus_action"
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "HERAAL CARDS END",
+		"id": "heraal_hornofthehunt",
+		"type": "special",
+		"display_name": "Horn Of The Hunt",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			},
+			{
+				"timing": "after",
+				"condition": "is_infused",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				],
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Raider",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Horn Of The Hunt"
+				}
+			]
+		},
+		"NOTEEND": "HERAAL CARDS END"
+	},
+	
 	{
 		"NOTE": "HILDA CARDS START",
 		"id": "hilda_inthedarkness",

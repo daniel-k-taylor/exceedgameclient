@@ -4,21 +4,21 @@
 	"display_name": "Heraal (playtest)",
 	"exceed_cost": 2,
 	"on_exceed": {
-		"effect_type": "zero_vector",
-		"and": {
-			"effect_type": "strike"
-		}
+		"effect_type": "strike"
 	},
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
+		"shortcut_effect_type": "choice",
 		"effect": {
-			"effect_type": "pull",
-			"amount": 1,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "close", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			],
 			"and": {
 				"condition": "is_infused",
-				"effect_type": "draw",
-				"amount": 2
+				"effect_type": "strike"
 			}
 		}
 	}, {
@@ -75,11 +75,14 @@
 		{
 			"character_effect": true,
 			"timing": "set_strike",
-			"effect_type": "add_attack_effect",
-			"added_effect": {
-				"timing": "hit",
-				"effect_type": "opponent_discard_choose",
-				"amount": 1
+			"effect_type": "speedup",
+			"amount": 1,
+			"and": {
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
 			}
 		},
 		{
@@ -111,72 +114,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "astryda_iceblock",
+			"definition_id": "heraal_thewildsride",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "astryda_iceblock",
+			"definition_id": "heraal_thewildsride",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "astryda_chillinggaze",
+			"definition_id": "heraal_chakramvortex",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "astryda_chillinggaze",
+			"definition_id": "heraal_chakramvortex",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "astryda_summonwave",
+			"definition_id": "heraal_magicchakram",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "astryda_summonwave",
+			"definition_id": "heraal_magicchakram",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "astryda_bewitchingsong",
+			"definition_id": "heraal_hoarfrost",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "astryda_bewitchingsong",
+			"definition_id": "heraal_hoarfrost",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "astryda_speakwiththespirits",
+			"definition_id": "heraal_gore",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "astryda_speakwiththespirits",
+			"definition_id": "heraal_gore",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "astryda_frigidblast",
+			"definition_id": "heraal_moonfall",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "astryda_frigidblast",
+			"definition_id": "heraal_moonfall",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "astryda_drown",
+			"definition_id": "heraal_hornofthehunt",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "astryda_drown",
+			"definition_id": "heraal_hornofthehunt",
 			"image_name": "specials",
 			"image_index": 4
 		},
