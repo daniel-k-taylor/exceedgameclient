@@ -83,7 +83,7 @@
 					"effect_type": "spend_life",
 					"amount": 2,
 					"and": {
-						"effect_type": "infused",
+						"effect_type": "infused"
 					}
 				},
 				{ "effect_type": "pass" }
@@ -119,7 +119,7 @@
 					"effect_type": "spend_life",
 					"amount": 2,
 					"and": {
-						"effect_type": "infused",
+						"effect_type": "infused"
 					}
 				},
 				{ "effect_type": "pass" }
@@ -151,7 +151,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/XHBv3Je.jpeg",
+			"url": "https://i.imgur.com/jaXKiy3.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

@@ -89,7 +89,11 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "strike"
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "strike" } },
+						{ "effect_type": "pass" }
+					]
 				}
 			]
 		}
@@ -206,7 +210,7 @@
 					"amount": 1,
 					"and": {
 						"effect_type": "guardup",
-						"amount": 4,
+						"amount": 4
 					}
 				}
 			]
