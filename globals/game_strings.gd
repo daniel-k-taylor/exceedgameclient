@@ -242,6 +242,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If %s is not in opponent's space, " % detail
 		"at_edge_of_arena":
 			text += "If at arena edge, "
+		"in_center_three_spaces":
+			text += "If in center 3 spaces, "
 		"attack_still_in_play":
 			text += "If your attack is still in play, "
 		"attacks_match_printed_speed":
