@@ -1024,7 +1024,7 @@ func pick_discard_opponent_gauge(choosing_own : bool) -> DiscardGaugeAction:
 	if choosing_own:
 		for card in game_player.gauge:
 			possible_actions.append(DiscardGaugeAction.new(card.id))
-		return ai_policy.pick_discard_own_gauge(possible_actions, game_state) #TODO: may need to be defined for new policies when merging
+		return ai_policy.pick_discard_own_gauge(possible_actions, game_state)
 	else:
 		for card in game_opponent.gauge:
 			possible_actions.append(DiscardGaugeAction.new(card.id))
