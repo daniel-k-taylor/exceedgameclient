@@ -2275,7 +2275,7 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "is_infused",
+				"condition": "is_infused",
 				"effect_type": "close",
 				"amount": 2
 			},
