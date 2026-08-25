@@ -286,18 +286,25 @@ func play_animation(named_animation : String):
 		play_animation("walk_backward")
 
 func play_hit():
-	current_position = position
-	target_position = position
-	remaining_animation_time = HitTime
-	animation_state = AnimationState.AnimationState_Moving
-	play_animation("hit")
+	_play_impact_animation("hit")
 
 func play_stunned():
+	_play_impact_animation("stunned")
+
+# A hit/stun reaction must never cancel a move that is still animating. Doing so
+# used to strand the character wherever the move happened to be interpolated to
+# (e.g. halfway between two spaces) because target_position was overwritten with
+# the current position. Keep the move's destination and timing and only swap the
+# sprite animation; _physics_process still lands the character on its square.
+func _play_impact_animation(anim_name : String):
+	if animation_state == AnimationState.AnimationState_Moving and remaining_animation_time > 0:
+		play_animation(anim_name)
+		return
 	current_position = position
 	target_position = position
 	remaining_animation_time = HitTime
 	animation_state = AnimationState.AnimationState_Moving
-	play_animation("stunned")
+	play_animation(anim_name)
 
 func move_to(pos : Vector2, move_type : CharacterAnim):
 	current_position = position

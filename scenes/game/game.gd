@@ -910,10 +910,10 @@ func spawn_deck(deck_list,
 
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
-		
+
 		if logic_card.reference_only:
 			continue
-		
+
 		var new_card = await create_card(card.id, logic_card.definition, logic_card.get_image_url_index_data(), card_back_url,
 			deck_card_zone, is_opponent, logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 		if observer_mode and not replay_mode:
@@ -2835,7 +2835,7 @@ func begin_choose_opponent_card_to_discard(card_ids):
 		copy_card.resting_scale = CardBase.ReferenceCardScale
 		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
 		copy_card.flip_card_to_front(true)
-		
+
 	var confirm_text = "Discard"
 	if decision_info.destination == 'gauge':
 		confirm_text = "Add to their Gauge"
@@ -3956,13 +3956,16 @@ func _on_move_event(event):
 			if is_far:
 				move_anim = Character.CharacterAnim.CharacterAnim_DashBack
 
-	#spawn_damage_popup("Move", player)
+	# Cache the destination this event animates to, not the player's current
+	# logical location: while events are queued the game state has often already
+	# moved on, and the cached value is what re-snaps the character after a
+	# layout change and what highlights the occupied arena squares.
 	if player == Enums.PlayerId.PlayerId_Player:
 		move_character_to_arena_square($PlayerCharacter, destination, false,  move_anim)
-		cached_player_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player)
+		cached_player_location = destination
 	else:
 		move_character_to_arena_square($OpponentCharacter, destination, false, move_anim)
-		cached_opponent_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent)
+		cached_opponent_location = destination
 
 	update_arena_squares()
 	return MoveDelay
@@ -4327,7 +4330,7 @@ func _on_force_for_effect(event):
 				prepared_character_action_data = {}
 				change_ui_state(UIState.UIState_WaitForGameServer)
 			return
-		
+
 		# Zsolt: auto-use free force up to force_max (no popup during ForceForEffect)
 		var p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
 		if p.zsolt_force_pool > 0:
@@ -4895,7 +4898,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 			var allow_change_cards = true
 			for card in selected_cards:
 				var not_hand_or_gauge = false
-				
+
 				if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_hand = false
 				else:
@@ -4905,7 +4908,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 					only_in_gauge = false
 				else:
 					not_hand_or_gauge = true
-					
+
 				if not_hand_or_gauge:
 					only_in_hand_or_gauge = false
 
@@ -5371,7 +5374,7 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	var non_exceed_overdrive_active = game_wrapper.non_exceed_overdrive_active(player_id)
 	if non_exceed_overdrive_active:
 		boost_summary += "[color=cyan]Overdrive Active![/color]\n"
-	
+
 	var once_per_game_mechanic = game_wrapper.get_once_per_game_mechanic_name(player_id)
 	if once_per_game_mechanic:
 		var once_per_game_mechanic_available = game_wrapper.get_once_per_game_mechanic_available(player_id)
@@ -5379,13 +5382,13 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 			boost_summary += "[color=gold](%s Available!)[/color]\n" % once_per_game_mechanic
 		else:
 			boost_summary += "[color=gray](%s Used)[/color]\n" % once_per_game_mechanic
-			
+
 	# Infusion
 	if game_wrapper.is_player_infused(player_id):
 		boost_summary += "[color=sky_blue]Infused![/color]\n"
-	
+
 	# normal effects / transforms
-	
+
 	for effect in normal_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
 			boost_summary += GameStrings.get_effect_text(effect) + "\n"
