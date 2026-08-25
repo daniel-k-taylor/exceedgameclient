@@ -374,6 +374,10 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 					assert_true(game_logic.do_relocate_card_from_hand(player, choice),
 							"%s failed to relocate cards %s from hand to somewhere else." % [
 									player, choice])
+				Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
+					assert_true(game_logic.do_boost_name_card_choice_effect(player, choice),
+							"%s failed to discard card %s from gauge." % [
+									player, choice])
 				var decision_type:  # Unknown decision type, just roll with it?
 					if typeof(choice) == Variant.Type.TYPE_ARRAY:
 						fail_test("Attempting to apply array choice %s to a decision of type %s" % [

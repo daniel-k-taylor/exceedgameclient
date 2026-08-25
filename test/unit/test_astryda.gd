@@ -76,6 +76,7 @@ func test_astryda_drown_discard():
 func test_astryda_drown_empty_hand():
 	position_players(player1, 4, player2, 5)
 	
+	var p1_handsize = player1.hand.size()
 	player2.discard_hand()
 	
 	var strike_cards = execute_strike(player1, player2, "astryda_drown", "standard_normal_spike",
@@ -84,9 +85,34 @@ func test_astryda_drown_empty_hand():
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 25)
 	
-	assert_eq(player2.hand.size(), 1) # TODO: this actually is bugged, since control never swaps over; maybe add some handling if discard amount is 0
-
+	assert_eq(player1.hand.size(), p1_handsize)
+	assert_eq(player2.hand.size(), 1)
+	
 	advance_turn(player2)
 
 ## Lust For Power (boost on Bewitching Song) - +2 Power, +2 Guard.
 ##     Infused, Hit: The opponent discards a card from their Gauge.
+
+func test_astryda_lust_for_power():
+	position_players(player1, 3, player2, 7)
+	
+	var p1_gauge = give_gauge(player1, 1)
+	var p2_gauge = give_gauge(player2, 3)
+	
+	var boost_card = give_player_specific_card(player1, "astryda_bewitchingsong")
+	assert_true(game_logic.do_boost(player1, boost_card, [player1.hand[0].id]))
+	advance_turn(player2)
+	
+	# infuse
+	assert_true(game_logic.do_character_action(player1, p1_gauge, 1))
+	var strike_cards = execute_strike(player1, player2, "standard_normal_dive", "standard_normal_sweep",
+		false, false, [], [[], p2_gauge[1]]) #p2 does not infuse, then chooses the middle card to discard from gauge
+	
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 23)
+	
+	assert_true(player2.is_card_in_gauge(p2_gauge[0]))
+	assert_true(player2.is_card_in_discards(p2_gauge[1]))
+	assert_true(player2.is_card_in_gauge(p2_gauge[2]))
+	
+	advance_turn(player2)
