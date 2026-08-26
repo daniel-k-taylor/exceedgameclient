@@ -370,8 +370,9 @@ func get_player_force_for_cards(player_id : Enums.PlayerId,
 	card_ids : Array,
 	reason : String,
 	treat_ultras_as_single_force : bool,
-	use_free_force : bool):
-	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force, use_free_force)
+	use_free_force : bool,
+	peek : bool = true):
+	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force, use_free_force, peek)
 
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)

@@ -6071,12 +6071,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		StrikeEffects.SealAttackOnCleanup:
 			performing_player.strike_stat_boosts.seal_attack_on_cleanup = true
 		StrikeEffects.SealCardInternal:
-			decision_info.amount = effect['seal_card_id']
 			var effects = performing_player.get_character_effects_at_timing("on_seal")
-			for sub_effect in effects:
-				do_effect_if_condition_met(performing_player, -1, sub_effect, null)
+			if effects:
+				# decision_info is shared with whatever decision is currently
+				# awaiting a player response. A seal can happen while such a
+				# decision is live (e.g. Minato seals a discard to generate the
+				# Force he is paying into Block's force-for-armor prompt), so only
+				# borrow 'amount' to hand the sealed card to "on_seal" effects and
+				# then put the decision's own value back.
+				var previous_decision_amount = decision_info.amount
+				decision_info.amount = effect['seal_card_id']
+				# note that this doesn't support effects causing decisions
+				for sub_effect in effects:
+					do_effect_if_condition_met(performing_player, -1, sub_effect, null)
+				decision_info.amount = previous_decision_amount
 
-			# note that this doesn't support effects causing decisions
 			var seal_effect = effect.duplicate()
 			seal_effect['effect_type'] = StrikeEffects.SealCardCompleteInternal
 			seal_effect['silent'] = false

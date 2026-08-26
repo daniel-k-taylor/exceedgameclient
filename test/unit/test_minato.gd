@@ -165,6 +165,105 @@ func test_cleared_minato_seal_payment_does_not_leak_to_next_remote_action():
 	assert_false(remote_game.last_action_message.has('minato_sealed_gauge'))
 	remote_game.free()
 
+func test_sealing_to_pay_for_armor_does_not_corrupt_the_armor_multiplier():
+	# Bug repro: Block grants armor per Force spent when its user is hit, and the
+	# multiplier (2) is carried on decision_info.amount. Minato pays that Force by
+	# sealing a discard, and sealing used to overwrite decision_info.amount with
+	# the sealed card's id. Card ids start at 100/200, so 1 Force bought ~125
+	# armor while only 1 card appeared in the sealed area.
+	position_players(player1, 5, player2, 6)
+	player1.discards.clear()
+	player1.sealed.clear()
+	var sealed_card_id = spawn_card_to_zone(player1, "standard_normal_grasp", "discard")
+	var block_id = give_player_specific_card(player1, "standard_normal_block")
+	var assault_id = give_player_specific_card(player2, "standard_normal_assault")
+
+	assert_true(game_logic.do_strike(player1, block_id, false, -1))
+	assert_true(game_logic.do_strike(player2, assault_id, false, -1))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForArmor)
+	assert_eq(game_logic.decision_info.amount, 2)
+
+	# What the client does to pay the prompt: seal one discard for one Force.
+	player1.seal_top_n_discards(1)
+	player1.seal_force_bonus_tmp = 1
+	assert_eq(player1.sealed.size(), 1)
+	assert_eq(player1.discards.size(), 0)
+	# The live decision must keep its own armor-per-force multiplier.
+	assert_eq(game_logic.decision_info.amount, 2)
+
+	assert_true(game_logic.do_force_for_armor(player1, []))
+
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_ArmorUp, player1, 2)
+	validate_not_has_event(events, Enums.EventType.EventType_Strike_ArmorUp, player1, sealed_card_id)
+
+func test_remote_force_for_armor_paid_by_sealing_grants_two_armor_per_force():
+	# Same bug over the real remote path: _process_game_message seals the discards
+	# and then runs do_force_for_armor, so the seal happens while the prompt is
+	# still open.
+	position_players(player1, 5, player2, 6)
+	player1.discards.clear()
+	player1.sealed.clear()
+	var sealed_card_id = spawn_card_to_zone(player1, "standard_normal_grasp", "discard")
+	var block_id = give_player_specific_card(player1, "standard_normal_block")
+	var assault_id = give_player_specific_card(player2, "standard_normal_assault")
+
+	assert_true(game_logic.do_strike(player1, block_id, false, -1))
+	assert_true(game_logic.do_strike(player2, assault_id, false, -1))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForArmor)
+
+	var remote_game = CaptureRemoteGame.new()
+	remote_game.local_game = game_logic
+	remote_game._player_info = {'id': 1}
+	remote_game._opponent_info = {'id': 2}
+	remote_game._process_game_message({
+		'action_type': 'action_force_for_armor',
+		'player_id': 1,
+		'card_ids': [],
+		'use_free_force': false,
+		'spent_life_for_force': 0,
+		'minato_sealed_force': 1,
+	})
+
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_ArmorUp, player1, 2)
+	validate_not_has_event(events, Enums.EventType.EventType_Strike_ArmorUp, player1, sealed_card_id)
+	assert_eq(player1.sealed.size(), 1)
+	assert_eq(player1.discards.size(), 0)
+	remote_game.free()
+
+func test_staged_minato_seal_payment_does_not_accumulate_across_presses():
+	# Each OK press stages the amount for that one press. If a press never results
+	# in a submitted message the staged amount must be replaced, not added to, or
+	# it grows without bound and pays for a later action for free.
+	var remote_game = CaptureRemoteGame.new()
+	remote_game.local_game = game_logic
+	remote_game._player_info = {'id': 1}
+	remote_game._opponent_info = {'id': 2}
+	remote_game.set_pending_minato_seal_payment(3, 0)
+	remote_game.set_pending_minato_seal_payment(3, 0)
+	remote_game.set_pending_minato_seal_payment(3, 0)
+
+	assert_true(remote_game.do_prepare(player1))
+	assert_eq(int(remote_game.last_action_message.get('minato_sealed_force', 0)), 3)
+	remote_game.free()
+
+func test_reading_available_force_does_not_consume_seal_bonus():
+	# The UI and the AI query force generation repeatedly while a payment prompt is
+	# open. Those reads must not eat the one-shot seal bonus.
+	player1.seal_force_bonus_tmp = 3
+	var wrapper = GameWrapper.new()
+	wrapper.current_game = game_logic
+	assert_eq(wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, [], "FORCE_FOR_ARMOR", false, false), 3)
+	assert_eq(wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, [], "FORCE_FOR_ARMOR", false, false), 3)
+	assert_eq(player1.seal_force_bonus_tmp, 3)
+	wrapper.free()
+
+	# The actual payment still consumes it exactly once.
+	assert_eq(player1.get_force_with_cards([], "FORCE_FOR_ARMOR", false, false), 3)
+	assert_eq(player1.seal_force_bonus_tmp, 0)
+	assert_eq(player1.get_force_with_cards([], "FORCE_FOR_ARMOR", false, false), 0)
+
 func test_set_strike_payment_permissions_do_not_emit_character_bonus():
 	position_players(player1, 3, player2, 7)
 

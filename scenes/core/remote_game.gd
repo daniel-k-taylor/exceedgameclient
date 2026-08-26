@@ -216,8 +216,12 @@ func _add_pending_minato_seal_payment(action_message : Dictionary) -> void:
 	clear_pending_minato_seal_payment()
 
 func set_pending_minato_seal_payment(force_amount : int, gauge_amount : int) -> void:
-	_pending_minato_sealed_force += force_amount
-	_pending_minato_sealed_gauge += gauge_amount
+	# Assign rather than accumulate. This is staged when the OK button is pressed
+	# and consumed by the next submitted message; if a press never results in a
+	# message (e.g. the submit is rejected), accumulating here would let the
+	# staged amount grow without bound and pay for a later action for free.
+	_pending_minato_sealed_force = force_amount
+	_pending_minato_sealed_gauge = gauge_amount
 
 func clear_pending_minato_seal_payment() -> void:
 	_pending_minato_sealed_force = 0

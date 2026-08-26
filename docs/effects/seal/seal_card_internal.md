@@ -54,7 +54,7 @@
 
 - This is an internal effect primarily used by the game engine
 - Triggers any "on_seal" character effects before the actual sealing
-- Sets up the decision_info.amount with the card ID for processing
+- Temporarily sets `decision_info.amount` to the card ID so "on_seal" effects can identify the sealed card, then restores the previous value (a seal can happen while another decision is awaiting a player response)
 - Automatically chains to [`SealCardCompleteInternal`](seal_card_complete_internal.md) to complete the sealing
 - The `silent` parameter is passed through to the completion effect
 - Character effects that trigger "on_seal" may create additional decisions or effects

@@ -1008,6 +1008,10 @@ func move_card_from_hand_to_deck(id : int, destination_index : int = 0, on_botto
 	for i in range(len(hand)):
 		var card = hand[i]
 		if card.id == id:
+			hand.remove_at(i)
+			on_hand_remove_secret_card()
+			if _discard_card_that_cannot_be_owned(card):
+				break
 			var to_top_deck = false
 			if on_bottom:
 				deck.append(card)
@@ -1017,8 +1021,6 @@ func move_card_from_hand_to_deck(id : int, destination_index : int = 0, on_botto
 
 			if len(deck) == 1:
 				to_top_deck = true
-			hand.remove_at(i)
-			on_hand_remove_secret_card()
 			if to_top_deck:
 				on_hand_track_topdeck(id)
 				public_topdeck_id = -1
@@ -1131,8 +1133,10 @@ func move_card_from_discard_to_deck(id : int, shuffle : bool = true):
 	for i in range(len(discards)):
 		var card = discards[i]
 		if card.id == id:
-			deck.insert(0, card)
 			discards.remove_at(i)
+			if _discard_card_that_cannot_be_owned(card):
+				break
+			deck.insert(0, card)
 			if shuffle:
 				random_shuffle_deck()
 			else:
@@ -1155,6 +1159,8 @@ func shuffle_sealed_to_deck():
 	else:
 		parent._append_log_full(Enums.LogType.LogType_Effect, self, "has no sealed cards to shuffle into their deck.")
 	for card in sealed:
+		if _discard_card_that_cannot_be_owned(card):
+			continue
 		deck.insert(0, card)
 		parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)
 	random_shuffle_deck()
@@ -1166,6 +1172,8 @@ func shuffle_hand_to_deck():
 	else:
 		parent._append_log_full(Enums.LogType.LogType_Effect, self, "has no cards in hand to shuffle into their deck.")
 	for card in hand:
+		if _discard_card_that_cannot_be_owned(card):
+			continue
 		deck.insert(0, card)
 		parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)
 	hand = []
@@ -1176,9 +1184,11 @@ func shuffle_card_from_hand_to_deck(id : int):
 	for i in range(len(hand)):
 		var card = hand[i]
 		if card.id == id:
-			deck.insert(0, card)
 			hand.remove_at(i)
 			on_hand_remove_secret_card()
+			if _discard_card_that_cannot_be_owned(card):
+				break
+			deck.insert(0, card)
 			parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)
 			break
 	random_shuffle_deck()
@@ -1211,12 +1221,10 @@ func move_card_from_sealed_to_top_deck(id : int):
 	for i in range(len(sealed)):
 		var card = sealed[i]
 		if card.id == id:
+			# add_to_top_of_deck() updates public_topdeck_id, including the case
+			# where the card is an opponent's and gets discarded instead.
 			add_to_top_of_deck(card, not sealed_area_is_secret)
 			sealed.remove_at(i)
-			if sealed_area_is_secret:
-				public_topdeck_id = -1
-			else:
-				public_topdeck_id = id
 			break
 
 func remove_top_card_from_deck():
@@ -1724,7 +1732,10 @@ func play_replacement_boosts(card_ids : Array, replacement_boost):
 		parent.do_boost(self, card.id, [])
 	parent.active_overdrive = false
 
-func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool, use_free_force : bool):
+func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool, use_free_force : bool, peek : bool = false):
+	# peek == true means this is a read-only query (UI display, AI evaluation).
+	# The one-shot seal bonus must not be consumed by such queries, or the real
+	# payment that follows silently loses the force the player paid for.
 	var force_generated = force_cost_reduction
 	if use_free_force:
 		force_generated += get_free_force_for_payment()
@@ -1732,7 +1743,8 @@ func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_sin
 			force_generated += free_force_cc_only
 	if seal_force_bonus_tmp > 0:
 		force_generated += seal_force_bonus_tmp
-		seal_force_bonus_tmp = 0
+		if not peek:
+			seal_force_bonus_tmp = 0
 
 	var has_card_in_gauge = false
 	for card_id in card_ids:
@@ -2127,6 +2139,8 @@ func draw(num_to_draw : int, is_fake_draw : bool = false, from_bottom: bool = fa
 func add_set_aside_card_to_deck(card_str_id : String):
 	var card = get_set_aside_card(card_str_id, true)
 	if card:
+		if _discard_card_that_cannot_be_owned(card):
+			return
 		deck.insert(0, card)
 		public_topdeck_id = card.id
 
@@ -2681,7 +2695,23 @@ func add_to_discards(card : GameCard, from_top : int = 0):
 			return
 		other_player.add_to_discards(card, from_top)
 
+# Rulings: a card owned by the opponent can never enter your hand or your deck.
+# Any effect that would send it there discards it instead. add_to_discards()
+# routes a foreign card to its owner's discard pile. Other zones - gauge, sealed,
+# and character-specific zones such as Umina's Dreamlands - may legally hold an
+# opponent's card, so they are unaffected.
+func _discard_card_that_cannot_be_owned(card : GameCard) -> bool:
+	if card == null or card.owner_id == my_id:
+		return false
+	var card_name = card_database.get_card_name(card.id)
+	parent._append_log_full(Enums.LogType.LogType_CardInfo, self,
+		"cannot take the opponent's %s, so it is discarded." % parent._log_card_name(card_name))
+	add_to_discards(card)
+	return true
+
 func add_to_hand(card : GameCard, public : bool):
+	if _discard_card_that_cannot_be_owned(card):
+		return []
 	hand.append(card)
 	if public:
 		on_hand_add_public_card(card.id)
@@ -2692,6 +2722,8 @@ func add_to_sealed(card : GameCard, silent=false):
 	return [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
 
 func add_to_top_of_deck(card : GameCard, public : bool):
+	if _discard_card_that_cannot_be_owned(card):
+		return []
 	deck.insert(0, card)
 	if public:
 		public_topdeck_id = card.id

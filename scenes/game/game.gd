@@ -6362,7 +6362,20 @@ func _on_instructions_ok_button_pressed(index : int):
 				seal_gauge_player.free_gauge = max(0, seal_gauge_player.free_gauge - seal_gauge_granted)
 			popout_instruction_info = null
 			change_ui_state(UIState.UIState_WaitForGameServer)
+		else:
+			# The action was rejected, so nothing consumed the seal-to-pay amount
+			# staged above. Discard it, otherwise it leaks into a later payment as
+			# an unearned "passive bonus" of Force / Gauge.
+			_discard_staged_minato_seal_payment(seal_gauge_granted)
 		_update_buttons()
+
+func _discard_staged_minato_seal_payment(seal_gauge_granted : int) -> void:
+	if game_wrapper.current_game is RemoteGame:
+		game_wrapper.current_game.clear_pending_minato_seal_payment()
+	var seal_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	seal_player.seal_force_bonus_tmp = 0
+	if seal_gauge_granted > 0:
+		seal_player.free_gauge = max(0, seal_player.free_gauge - seal_gauge_granted)
 
 func _on_instructions_cancel_button_pressed():
 	if observer_mode:

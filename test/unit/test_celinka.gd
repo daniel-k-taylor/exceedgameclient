@@ -322,17 +322,14 @@ func test_celinka_dispellinghorn_vs_snipsnipsnip():
 	assert_eq(player2.sealed.size(), 1) # Snip
 	assert_eq(snip_id, player2.sealed[0].id)
 	
-	# P1's turn again
+	# P1's turn again. Moon Ritual Dance tries to return the sealed Snip Snip Snip
+	# to hand, but it is owned by the opponent, so it is discarded to their
+	# discard pile instead.
 	var p2gauge = give_gauge(player2, 2)
 	execute_strike(player1, player2, "standard_normal_assault", "celinka_moonritualdance", false, false,
 		[], [p2gauge, snip_id])
 	validate_life(player1, 25, player2, 23)
-	assert_eq(player2.hand[-1].id, snip_id)
-	
-	# P2's turn
-	execute_strike(player2, player1, snip_id, "standard_normal_focus", false, false,
-		[], [])
-	validate_life(player1, 24, player2, 23)
-	assert_eq(player1.continuous_boosts[0].id, snip_id)
-	
-	
+	assert_false(player2.is_card_in_hand(snip_id))
+	assert_false(player2.is_card_in_discards(snip_id))
+	assert_eq(player2.sealed.size(), 0)
+	assert_true(player1.is_card_in_discards(snip_id))
