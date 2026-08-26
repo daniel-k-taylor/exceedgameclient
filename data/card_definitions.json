@@ -40888,6 +40888,392 @@
 		},
 		"NOTEEND": "YUZURIHA CARDS END"
 	},
+	
+	{
+		"NOTE": "ZACOAL CARDS START",
+		"id": "zacoal_titanicslam",
+		"type": "ultra",
+		"display_name": "Titanic Slam",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 7,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 4,
+				"and": {
+					"effect_type": "draw",
+					"amount": 4
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "War Cry",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "push",
+					"amount": 2,
+					"and": {
+						"condition": "is_infused",
+						"effect_type": "strike"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_kradoom",
+		"type": "ultra",
+		"display_name": "Kradoom!",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 0,
+		"speed": 1,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 10,
+				"save_unpushed_spaces_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Royal Blood",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2,
+						"and": {
+							"effect_type": "guardup",
+							"amount": 2
+						}
+					}
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike_from_sealed" },
+						{ "effect_type": "strike_wild" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_leap",
+		"type": "special",
+		"display_name": "Leap",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 7,
+		"speed": 3,
+		"armor": 1,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Juggernaut",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "advance",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_clonk",
+		"type": "special",
+		"display_name": "Clonk!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Accursed",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "seal_topdeck"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_hurl",
+		"type": "special",
+		"display_name": "Hurl",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 1,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "push",
+						"amount": 3,
+						"use_semicolon_for_and": true,
+						"and": {
+							"condition": "not_full_push",
+							"effect_type": "powerup",
+							"amount": 3
+						}
+					},
+					{
+						"effect_type": "pull",
+						"amount": 3,
+						"use_semicolon_for_and": true,
+						"and": {
+							"condition": "not_full_pull",
+							"effect_type": "powerup",
+							"amount": 3
+						}
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Big",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_crush",
+		"type": "special",
+		"display_name": "Crush",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 2,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Massive Blow",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "push",
+							"amount": 3,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "not_full_push",
+								"effect_type": "powerup",
+								"amount": 3
+							}
+						},
+						{
+							"effect_type": "pull",
+							"amount": 3,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "not_full_pull",
+								"effect_type": "powerup",
+								"amount": 3
+							}
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "ZACOAL CARDS END",
+		"id": "zacoal_boulder",
+		"type": "special",
+		"display_name": "Boulder",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 5,
+		"speed": 3,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				},
+				"gauge_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Redeemed",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"source": "sealed",
+					"limitation": "",
+					"destination": "gauge"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 2
+				}
+			]
+		},
+		"NOTEEND": "ZACOAL CARDS END"
+	},
+	
 	{
 		"NOTE": "ZANGIEF CARDS START",
 		"id": "zangief_ultimateatomicbuster",

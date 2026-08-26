@@ -1227,6 +1227,14 @@ func move_card_from_sealed_to_top_deck(id : int):
 			sealed.remove_at(i)
 			break
 
+func move_card_from_sealed_to_gauge(id : int):
+	for i in range(len(sealed)):
+		var card = sealed[i]
+		if card.id == id:
+			add_to_gauge(card)
+			sealed.remove_at(i)
+			break
+
 func remove_top_card_from_deck():
 	deck.remove_at(0)
 	update_public_hand_if_deck_empty()
