@@ -12502,7 +12502,6 @@
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Cervine Grace",
-			"passively_infuse": true,
 			"effects": [
 				{
 					"timing": "immediate",
