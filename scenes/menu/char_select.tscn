@@ -217,7 +217,7 @@ layout_mode = 2
 char_id = "astryda"
 portrait_texture = ExtResource("5_0vbe6")
 
-[node name="Miyuki2" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Miyuki" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "miyuki"
 portrait_texture = ExtResource("4_u8hvs")
@@ -1105,8 +1105,8 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Akimo" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Astryda" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Astryda" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki2" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki2" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Random" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Random" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Testament" to="." method="_on_char_hover"]

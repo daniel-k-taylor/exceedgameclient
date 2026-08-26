@@ -1662,8 +1662,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "at_edge_of_arena":
 			return performing_player.is_at_edge_of_arena()
 		elif condition == "in_center_three_spaces":
-			for space in [4, 5, 6]:
-				if performing_player.is_in_location(space):
+			for space_offset in [-1, 0, 1]:
+				if performing_player.is_in_location(Enums.CenterArenaLocation + space_offset):
 					return true
 			return false
 		elif condition == "attack_still_in_play":
@@ -2214,7 +2214,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 	var opposing_player : Player = _get_player(get_other_player(performing_player.my_id))
 	var other_start = opposing_player.arena_location
 	var buddy_start = performing_player.get_buddy_location()
-	var and_swap_perspective = false
 	var and_handled_elsewhere = false
 	match effect['effect_type']:
 		StrikeEffects.ActivateNonExceedOverdrive:
@@ -3251,20 +3250,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var amount_to_draw = target_hand_size - hand_size
 				_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s) to reach a hand size of %s." % [amount_to_draw, target_hand_size])
 				opposing_player.draw(amount_to_draw)
-		StrikeEffects.OpponentDiscardTo:
-			var target_hand_size = effect['amount']
-			var hand_size = opposing_player.hand.size()
-			if hand_size > target_hand_size:
-				var amount_to_discard = hand_size - target_hand_size
-				var discard_effect = {
-					"effect_type": StrikeEffects.SelfDiscardChoose,
-					"amount": amount_to_discard
-				}
-				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "must discard %s card(s) to reach a hand size of %s." % [amount_to_discard, target_hand_size])
-				handle_strike_effect(card_id, discard_effect, opposing_player)
-			else:
-				# If there's an and effect, it'll expect control to have been passed to the opponent
-				and_swap_perspective = true
 		StrikeEffects.DodgeAtRange:
 			if 'special_range' in effect and effect['special_range'] == "OVERDRIVE_COUNT":
 				var current_range = performing_player.overdrive.size()
@@ -7354,8 +7339,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			add_queued_effect(and_effect, local_conditions)
 		else:
 			var saved_source = _last_effect_source_player_id
-			var and_player = opposing_player if and_swap_perspective else performing_player
-			do_effect_if_condition_met(and_player, card_id, and_effect, local_conditions)
+			do_effect_if_condition_met(performing_player, card_id, and_effect, local_conditions)
 			_last_effect_source_player_id = saved_source
 
 func change_stats_when_attack_leaves_play(performing_player : Player):

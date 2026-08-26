@@ -2541,41 +2541,32 @@ func _on_discard_opponent_gauge(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		var opponent_chooses = game_wrapper.get_decision_info().extra_info
+		var popout_type = CardPopoutType.CardPopoutType_GaugeOpponent
+		var instruction_text = "Discard a card from opponent's gauge."
 		if opponent_chooses:
-			# This is the opponent who must discard from their own gauge.
+			# This is instead the opponent who must discard from their own gauge.
 			# Show the gauge window.
 			_on_player_gauge_gauge_clicked()
-			selected_cards = []
-			select_card_require_min = 1
-			select_card_require_max = 1
-			var cancel_allowed = false
-			popout_instruction_info = {
-				"popout_type": CardPopoutType.CardPopoutType_GaugePlayer,
-				"instruction_text": "Discard a card from your gauge.",
-				"ok_text": "OK",
-				"cancel_text": "",
-				"ok_enabled": true,
-				"cancel_visible": false,
-			}
-			enable_instructions_ui("Select a gauge card to discard.", true, cancel_allowed, {})
-			
+			popout_type = CardPopoutType.CardPopoutType_GaugePlayer
+			instruction_text = "Discard a card from your gauge."
 		else:
 			# This is the player who may discard from the opponent's gauge.
 			# Show the gauge window.
 			_on_opponent_gauge_gauge_clicked()
-			selected_cards = []
-			select_card_require_min = 1
-			select_card_require_max = 1
-			var cancel_allowed = false
-			popout_instruction_info = {
-				"popout_type": CardPopoutType.CardPopoutType_GaugeOpponent,
-				"instruction_text": "Discard a card from opponent's gauge.",
-				"ok_text": "OK",
-				"cancel_text": "",
-				"ok_enabled": true,
-				"cancel_visible": false,
-			}
-			enable_instructions_ui("Select a gauge card to discard.", true, cancel_allowed, {})
+			
+		selected_cards = []
+		select_card_require_min = 1
+		select_card_require_max = 1
+		var cancel_allowed = false
+		popout_instruction_info = {
+			"popout_type": popout_type,
+			"instruction_text": instruction_text,
+			"ok_text": "OK",
+			"cancel_text": "",
+			"ok_enabled": true,
+			"cancel_visible": false,
+		}
+		enable_instructions_ui("Select a gauge card to discard.", true, cancel_allowed, {})
 
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardOpponentGauge)
 	else:

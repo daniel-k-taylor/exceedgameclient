@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 const CardHighlightColor = "#7DF9FF" # Light blue
 
@@ -1023,8 +1023,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Opponent draws or discards until they have %s" % amount_str
 			if 'per_draw_effect' in effect:
 				effect_str += "\nIf they draw: per card drawn, " + get_effect_text(effect['per_draw_effect'], false, false, false)
-		StrikeEffects.OpponentDiscardTo:
-			effect_str += "Opponent discards until they have %s cards in hand" % str(effect['amount'])
 		StrikeEffects.EffectPerCardInZone:
 			var per_effect = get_effect_text(effect["per_card_effect"], false, false, false)
 			var limitation_str = ""
