@@ -1768,7 +1768,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "powerup_opponent",
-				"amount": -2,
+				"amount": -2
 			}
 		],
 		"boost": {
@@ -1783,7 +1783,7 @@
 					"amount": 2,
 					"and": {
 						"effect_type": "guardup",
-						"amount": 2,
+						"amount": 2
 					}
 				},
 				{
