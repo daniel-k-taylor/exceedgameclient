@@ -772,3 +772,6 @@ func test_astryda_100():
 
 func test_heraal_100():
 	run_iterations_with_deck("heraal")
+
+func test_zacoal_100():
+	run_iterations_with_deck("zacoal")

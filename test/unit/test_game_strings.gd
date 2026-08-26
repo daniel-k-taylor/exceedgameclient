@@ -103,7 +103,6 @@ const KNOWN_UNWRITTEN_EFFECTS = [
 	"strike_effect_after_opponent_sets",
 	"strike_effect_after_setting",
 	"strike_from_gauge",
-	"strike_from_sealed",
 	"strike_with_deus_ex_machina",
 	"switch_spaces_with_buddy",
 	"zero_vector",
