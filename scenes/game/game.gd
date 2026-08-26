@@ -2031,7 +2031,14 @@ func can_select_card(card):
 				return true
 			return false
 		UISubState.UISubState_SelectCards_DiscardOpponentGauge:
-			return in_opponent_gauge and len(selected_cards) < select_card_require_max
+			var in_correct_gauge = false
+			if game_wrapper.get_decision_info().extra_info:
+				# discarding from own gauge
+				in_correct_gauge = in_gauge
+			else:
+				# discarding from opponent's gauge
+				in_correct_gauge = in_opponent_gauge
+			return in_correct_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardFromReference:
 			var in_appropriate_reference = in_opponent_reference
 			if select_card_name_card_both_players:
@@ -2533,15 +2540,27 @@ func _on_discard_continuous_boost_begin(event):
 func _on_discard_opponent_gauge(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		# Show the gauge window.
-		_on_opponent_gauge_gauge_clicked()
+		var opponent_chooses = game_wrapper.get_decision_info().extra_info
+		var popout_type = CardPopoutType.CardPopoutType_GaugeOpponent
+		var instruction_text = "Discard a card from opponent's gauge."
+		if opponent_chooses:
+			# This is instead the opponent who must discard from their own gauge.
+			# Show the gauge window.
+			_on_player_gauge_gauge_clicked()
+			popout_type = CardPopoutType.CardPopoutType_GaugePlayer
+			instruction_text = "Discard a card from your gauge."
+		else:
+			# This is the player who may discard from the opponent's gauge.
+			# Show the gauge window.
+			_on_opponent_gauge_gauge_clicked()
+			
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
 		var cancel_allowed = false
 		popout_instruction_info = {
-			"popout_type": CardPopoutType.CardPopoutType_GaugeOpponent,
-			"instruction_text": "Discard a card from opponent's gauge.",
+			"popout_type": popout_type,
+			"instruction_text": instruction_text,
 			"ok_text": "OK",
 			"cancel_text": "",
 			"ok_enabled": true,
@@ -6994,7 +7013,8 @@ func ai_discard_continuous_boost(limitation, can_pass, boost_name_restriction):
 func ai_discard_opponent_gauge():
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var pick_action = ai_player.pick_discard_opponent_gauge()
+	var opponent_chooses = game_wrapper.get_decision_info().extra_info
+	var pick_action = ai_player.pick_discard_opponent_gauge(opponent_chooses)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

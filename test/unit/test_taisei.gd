@@ -643,6 +643,7 @@ func test_demonblood_transform_from_hand():
 
 func test_demonblood_transform_from_deck():
 	position_players(player1, 4, player2, 5)
+	player1.shuffle_hand_to_deck()
 	# Ensure a transform card is in the deck (Dust to Dust transforms to Demonheart).
 	# Put one on top of the deck explicitly: both copies can otherwise be dealt
 	# into the opening hand on some RNG seeds, which left this test flaky.

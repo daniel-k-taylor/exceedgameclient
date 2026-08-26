@@ -338,6 +338,9 @@ func pick_discard_continuous(possible_actions : Array, _ai_game_state : AIPlayer
 func pick_discard_opponent_gauge(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
+func pick_discard_own_gauge(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
 func pick_name_opponent_card(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 

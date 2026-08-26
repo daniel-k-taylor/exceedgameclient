@@ -246,7 +246,7 @@ func handle_decisions(game: LocalGame):
 					chooseaction = decision_ai.pick_choose_to_discard(amount, limitation, can_pass, allow_fewer)
 				assert_true(game.do_choose_to_discard(decision_ai.game_player, chooseaction.card_ids), "do choose to discard failed")
 			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
-				var decision_action = decision_ai.pick_discard_opponent_gauge()
+				var decision_action = decision_ai.pick_discard_opponent_gauge(game.decision_info.extra_info)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, decision_action.card_id), "do discard opponent gauge failed")
 			Enums.DecisionType.DecisionType_BoostNow:
 				var boostnow_action = decision_ai.take_boost(game.decision_info.valid_zones, game.decision_info.limitation, game.decision_info.ignore_costs, game.decision_info.amount)
@@ -763,3 +763,9 @@ func test_zsolt_100():
 
 func test_miyuki_100():
 	run_iterations_with_deck("miyuki")
+
+func test_akimo_100():
+	run_iterations_with_deck("akimo")
+
+func test_astryda_100():
+	run_iterations_with_deck("astryda")

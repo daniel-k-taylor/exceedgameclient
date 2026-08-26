@@ -1,0 +1,264 @@
+{
+	"id": "astryda",
+	"season": 8,
+	"display_name": "Astryda (playtest)",
+	"exceed_cost": 2,
+	"on_exceed": {
+		"effect_type": "zero_vector",
+		"and": {
+			"effect_type": "strike"
+		}
+	},
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "pull",
+			"amount": 1,
+			"and": {
+				"condition": "is_infused",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		}
+	}, {
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"action_name": "Infuse",
+		"requires_not_infused": true,
+		"effect": {
+			"effect_type": "infused",
+			"and": {
+				"effect_type": "take_bonus_actions",
+				"amount": 1,
+				"silent": true
+			}
+		}
+	}],
+	"character_action_exceeded": [{
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"action_name": "Infuse",
+		"requires_not_infused": true,
+		"effect": {
+			"effect_type": "infused",
+			"and": {
+				"effect_type": "take_bonus_actions",
+				"amount": 1,
+				"silent": true
+			}
+		}
+	}],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "is_not_infused",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "infused"
+			},
+			"gauge_max": 1
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "is_not_infused",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "infused"
+			},
+			"gauge_max": 1
+		},
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "hit",
+				"effect_type": "opponent_discard_choose",
+				"amount": 1
+			}
+		},
+		{
+			"timing": "cleanup",
+			"effect_type": "revert"
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/Kc9KCip.png",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/BX6xcVP.png",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/uLntpXp.png",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/kuiRSX6.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "astryda_iceblock",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "astryda_iceblock",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "astryda_chillinggaze",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "astryda_chillinggaze",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "astryda_summonwave",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "astryda_summonwave",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "astryda_bewitchingsong",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "astryda_bewitchingsong",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "astryda_speakwiththespirits",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "astryda_speakwiththespirits",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "astryda_frigidblast",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "astryda_frigidblast",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "astryda_drown",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "astryda_drown",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

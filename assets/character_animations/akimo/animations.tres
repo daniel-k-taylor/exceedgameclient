@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://70euo6eocehq"]
+
+[ext_resource type="Texture2D" uid="uid://b6syghq73v1nv" path="res://assets/character_animations/akimo/idle/idle.png" id="1_ov5oh"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ov5oh")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = false
+metadata/scaling = 0.4

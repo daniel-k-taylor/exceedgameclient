@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://400xp03ckm2l"]
+
+[ext_resource type="Texture2D" uid="uid://dppsib1w6fta1" path="res://assets/character_animations/astryda/idle/astryda_model.png" id="1_agyg7"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_agyg7")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = false
+metadata/scaling = 0.4

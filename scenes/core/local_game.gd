@@ -1661,6 +1661,11 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.will_be_ex(performing_player)
 		elif condition == "at_edge_of_arena":
 			return performing_player.is_at_edge_of_arena()
+		elif condition == "in_center_three_spaces":
+			for space_offset in [-1, 0, 1]:
+				if performing_player.is_in_location(Enums.CenterArenaLocation + space_offset):
+					return true
+			return false
 		elif condition == "attack_still_in_play":
 			var card = active_strike.get_player_card(performing_player)
 			return card in active_strike.cards_in_play
@@ -3404,20 +3409,35 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.discard_hand()
 		StrikeEffects.DiscardOpponentGauge:
 			if opposing_player.gauge.size() > 0:
-				# Player gets to pick which gauge to discard.
+				var opponent_chooses = false
+				if 'opponent_chooses' in effect:
+					opponent_chooses = effect['opponent_chooses']
+					
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge
 				decision_info.effect_type = StrikeEffects.DiscardOpponentGaugeInternal
 				decision_info.choice_card_id = card_id
-				decision_info.player = performing_player.my_id
 				decision_info.amount = effect['amount2']
-				create_event(Enums.EventType.EventType_Boost_DiscardOpponentGauge, performing_player.my_id, 0)
+				decision_info.extra_info = opponent_chooses
+				
+				if opponent_chooses:
+					# Opponent must pick which gauge to discard.
+					decision_info.player = opposing_player.my_id
+					create_event(Enums.EventType.EventType_Boost_DiscardOpponentGauge, opposing_player.my_id, 0)
+				else:
+					# Player gets to pick which gauge to discard.
+					decision_info.player = performing_player.my_id
+					create_event(Enums.EventType.EventType_Boost_DiscardOpponentGauge, performing_player.my_id, 0)
 		StrikeEffects.DiscardOpponentGaugeInternal:
 			var chosen_card_id = effect['card_id']
 			var card_name = card_db.get_card_name(chosen_card_id)
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards %s from %s's gauge." % [_log_card_name(card_name), opposing_player.name])
-			opposing_player.discard([chosen_card_id])
+			if decision_info.extra_info:
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards %s from their gauge." % [_log_card_name(card_name)])
+				performing_player.discard([chosen_card_id])
+			else:
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards %s from %s's gauge." % [_log_card_name(card_name), opposing_player.name])
+				opposing_player.discard([chosen_card_id])
 		StrikeEffects.DiscardRandom:
 			var discard_ids = performing_player.pick_random_cards_from_hand(effect['amount'])
 			if discard_ids.size() > 0:

@@ -1,4 +1,369 @@
-﻿[
+[
+	{
+		"NOTE": "AKIMO CARDS START",
+		"id": "akimo_scourgeofpuido",
+		"type": "ultra",
+		"display_name": "Scourge of Puido",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 9,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "after",
+				"effect_type": "take_damage",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Duel for the Dome",
+			"passively_infuse": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"condition": "in_center_three_spaces",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "akimo_ishirounleashed",
+		"type": "ultra",
+		"display_name": "Ishiro Unleashed",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 4,
+		"speed": 2,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Kurumo's Ire",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "strike" } },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "akimo_bloodthirst",
+		"type": "special",
+		"display_name": "Bloodthirst",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 3,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Leaping Sakura",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
+				},
+				{
+					"timing": "immediate",
+					"condition": "is_infused",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "akimo_blazingfury",
+		"type": "special",
+		"display_name": "Blazing Fury",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"condition": "is_infused",
+						"effect_type": "gain_advantage"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Raged Orchid",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "close",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 4
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "akimo_oathofthesword",
+		"type": "special",
+		"display_name": "Oath of the Sword",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 4,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"condition": "is_infused",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Dies the Peony",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "akimo_demonblade",
+		"type": "special",
+		"display_name": "Demon Blade",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 7,
+		"speed": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1,
+				"and": {
+					"effect_type": "take_damage",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Charm of Ayame",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "advance",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "AKIMO CARDS END",
+		"id": "akimo_scorchingrush",
+		"type": "special",
+		"display_name": "Scorching Rush",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "is_infused",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Exalting the Rose",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		},
+		"NOTEEND": "AKIMO CARDS END"
+	},
+	
 	{
 		"NOTE": "AKUMA CARDS START",
 		"id": "akuma_demonarmageddon",
@@ -1219,6 +1584,380 @@
 		},
 		"NOTEEND": "ARAKUNE CARDS END"
 	},
+	
+	
+	{
+		"NOTE": "ASTRYDA CARDS START",
+		"id": "astryda_iceblock",
+		"type": "ultra",
+		"display_name": "Ice Block",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 7,
+		"speed": 2,
+		"armor": 4,
+		"guard": 2,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "powerup_per_card_in_opponent_hand",
+				"amount": -1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Enthrall",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "reveal_hand",
+					"opponent": true
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "immediate",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "astryda_chillinggaze",
+		"type": "ultra",
+		"display_name": "Chilling Gaze",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Rule the Dome",
+			"passively_infuse": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"condition": "in_center_three_spaces",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "astryda_summonwave",
+		"type": "special",
+		"display_name": "Summon Wave",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 2,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "pass",
+				"and": {
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"combine_multiple_into_one": true,
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 6
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Enchanting Song",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "is_infused",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "pull",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Summon Wave"
+				}
+			]
+		}
+	},
+	{
+		"id": "astryda_bewitchingsong",
+		"type": "special",
+		"display_name": "Bewitching Song",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 2,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "powerup_opponent",
+				"amount": -2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Lust for Power",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "hit",
+					"condition": "is_infused",
+					"effect_type": "discard_opponent_gauge",
+					"opponent_chooses": true,
+					"amount": 1,
+					"amount2": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "astryda_speakwiththespirits",
+		"type": "special",
+		"display_name": "Speak With The Spirits",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 4,
+		"speed": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "rangeup",
+				"amount": 0,
+				"amount2": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "gauge_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Tempt",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "astryda_frigidblast",
+		"type": "special",
+		"display_name": "Frigid Blast",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 3,
+		"speed": 2,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Deep Dive",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 5,
+					"advance_only": true
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "ASTRYDA CARDS END",
+		"id": "astryda_drown",
+		"type": "special",
+		"display_name": "Drown",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 5,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "is_infused",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "discard_to",
+				"for_other_player": true,
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1,
+					"NOTE": "perspective should be reversed from opponent discard already"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Forbidden Research",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 0,
+					"max_amount": 2
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				}
+			]
+		},
+		"NOTEEND": "ASTRYDA CARDS END"
+	},
+
 	{
 		"NOTE": "AXL CARDS START",
 		"id": "axl_onevision",
@@ -38369,7 +39108,7 @@
 			"boost_type": "immediate",
 			"force_cost": 2,
 			"cancel_cost": -1,
-			"display_name": "Natioanl Scar",
+			"display_name": "National Scar",
 			"effects": [
 				{
 					"timing": "immediate",

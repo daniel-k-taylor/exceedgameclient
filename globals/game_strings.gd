@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 const CardHighlightColor = "#7DF9FF" # Light blue
 
@@ -242,6 +242,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If %s is not in opponent's space, " % detail
 		"at_edge_of_arena":
 			text += "If at arena edge, "
+		"in_center_three_spaces":
+			text += "If in center 3 spaces, "
 		"attack_still_in_play":
 			text += "If your attack is still in play, "
 		"attacks_match_printed_speed":
@@ -901,7 +903,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				else:
 					effect_str += "Discard a continuous boost"
 		StrikeEffects.DiscardOpponentGauge:
-			effect_str += "Discard a card from opponent's gauge."
+			if 'opponent_chooses' in effect and effect['opponent_chooses']:
+				effect_str += "Opponent discards a card from their gauge."
+			else:
+				effect_str += "Discard a card from opponent's gauge."
 		StrikeEffects.DiscardOpponentTopdeck:
 			if 'amount' in effect and str(effect['amount']) != "1":
 				effect_str += "Discard the top %s cards of the opponent's deck" % effect['amount']

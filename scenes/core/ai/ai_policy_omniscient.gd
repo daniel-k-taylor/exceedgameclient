@@ -2043,6 +2043,19 @@ func _score_opponent_boost_danger(boost_card_id: int, state: AIPlayer.AIGameStat
 		score *= 1.5  # Active range bonus
 	return score
 
+func pick_discard_own_gauge(possible_actions: Array, ai_game_state: AIPlayer.AIGameState):
+	if possible_actions.size() == 0: return null
+	var state: AIPlayer.AIGameState = ai_game_state
+	var scored := []
+	for action in possible_actions:
+		if action is AIPlayer.DiscardGaugeAction:
+			var _dtype_def = _get_def(action.card_id, state)
+			var ctype = _dtype_def.get('type', '') if _dtype_def else ''
+			scored.append({"action": action, "score": 1 if ctype == 'ultra' else (2 if ctype == 'special' else 3)})
+	if scored.size() > 0:
+		scored.sort_custom(_sort_by_score_desc)
+		return scored[0]['action']
+	return possible_actions[randi() % possible_actions.size()]
 
 func pick_discard_opponent_gauge(possible_actions: Array, ai_game_state: AIPlayer.AIGameState):
 	if possible_actions.size() == 0: return null
@@ -2053,7 +2066,9 @@ func pick_discard_opponent_gauge(possible_actions: Array, ai_game_state: AIPlaye
 			var _dtype_def = _get_def(action.card_id, state)
 			var ctype = _dtype_def.get('type', '') if _dtype_def else ''
 			scored.append({"action": action, "score": 3 if ctype == 'ultra' else (2 if ctype == 'special' else 1)})
-	if scored.size() > 0: scored.sort_custom(_sort_by_score_desc); return scored[0]['action']
+	if scored.size() > 0:
+		scored.sort_custom(_sort_by_score_desc)
+		return scored[0]['action']
 	return possible_actions[randi() % possible_actions.size()]
 
 
