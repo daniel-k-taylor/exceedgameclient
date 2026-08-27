@@ -1,4 +1,4 @@
-[gd_scene load_steps=126 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=127 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://dj3a6fhyrmcfp" path="res://assets/portraits/vorhild.png" id="4_rjnbv"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://dgg7btfurvxyc" path="res://assets/portraits/astryda.png" id="5_0vbe6"]
 [ext_resource type="Texture2D" uid="uid://s601iytooa7o" path="res://assets/portraits/stlogo.png" id="5_vts57"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
+[ext_resource type="Texture2D" uid="uid://bwqtkhnx40w03" path="res://assets/portraits/yami.png" id="6_4jncw"]
 [ext_resource type="Texture2D" uid="uid://dckqq8p1ihy7o" path="res://assets/portraits/anji.png" id="6_h5jn6"]
 [ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="7_3jr2w"]
 [ext_resource type="Texture2D" uid="uid://b3mbau05vu0ua" path="res://assets/portraits/nu13.png" id="8_f1r6m"]
@@ -219,6 +220,11 @@ portrait_texture = ExtResource("4_wikt2")
 layout_mode = 2
 char_id = "miyuki"
 portrait_texture = ExtResource("4_u8hvs")
+
+[node name="Yami" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "yami"
+portrait_texture = ExtResource("6_4jncw")
 
 [node name="Row4" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
 layout_mode = 2
@@ -1138,6 +1144,8 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Akimo" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Yami" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Yami" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Astryda" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Astryda" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Heraal" to="." method="_on_char_hover"]

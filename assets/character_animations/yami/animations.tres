@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://bw6phhf0lip0u"]
+
+[ext_resource type="Texture2D" uid="uid://cwcyg56jc48sg" path="res://assets/character_animations/yami/idle/yami_model.png" id="1_e77yq"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_e77yq")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = false
+metadata/scaling = 0.45
