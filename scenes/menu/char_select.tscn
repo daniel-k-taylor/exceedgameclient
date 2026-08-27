@@ -210,35 +210,35 @@ layout_mode = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="Vorhild" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Akimo" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
-char_id = "vorhild"
-portrait_texture = ExtResource("4_rjnbv")
+char_id = "akimo"
+portrait_texture = ExtResource("4_wikt2")
 
 [node name="Miyuki" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "miyuki"
 portrait_texture = ExtResource("4_u8hvs")
 
-[node name="Akimo" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Row4" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
 layout_mode = 2
-char_id = "akimo"
-portrait_texture = ExtResource("4_wikt2")
+size_flags_horizontal = 4
+alignment = 1
 
-[node name="Random" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "random_s8"
-portrait_texture = ExtResource("5_vts57")
-
-[node name="Astryda" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Astryda" parent="CenterContainer/STCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "astryda"
 portrait_texture = ExtResource("5_0vbe6")
 
-[node name="Heraal" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Heraal" parent="CenterContainer/STCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "heraal"
 portrait_texture = ExtResource("8_gdj4d")
+
+[node name="Vorhild" parent="CenterContainer/STCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "vorhild"
+portrait_texture = ExtResource("4_rjnbv")
 
 [node name="Row2" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
 layout_mode = 2
@@ -249,6 +249,16 @@ alignment = 1
 layout_mode = 2
 char_id = "zacoal"
 portrait_texture = ExtResource("9_eet6p")
+
+[node name="Row3" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Random" parent="CenterContainer/STCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s8"
+portrait_texture = ExtResource("5_vts57")
 
 [node name="GGCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -1124,20 +1134,20 @@ char_id = "custom"
 portrait_texture = ExtResource("100_dtwln")
 
 [connection signal="pressed" from="CenterContainer/BackgroundButton" to="." method="_on_background_button_pressed"]
-[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Vorhild" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Vorhild" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Akimo" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Akimo" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Random" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Random" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Astryda" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Astryda" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Heraal" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Heraal" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Astryda" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Astryda" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Heraal" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Heraal" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Vorhild" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Vorhild" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row2/Zacoal" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row2/Zacoal" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row3/Random" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row3/Random" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Testament" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row1/Testament" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Nago" to="." method="_on_char_hover"]

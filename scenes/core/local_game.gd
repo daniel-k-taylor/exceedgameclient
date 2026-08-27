@@ -2627,6 +2627,17 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.cancel_blocked_this_turn = true
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
+		StrikeEffects.BoostCharacterAction:
+			# This effect is expected to be a character action.
+			# Similar to BoostOrRevealHand, but does not force a reveal; ensure this doesn't let the player skip something mandatory
+			if performing_player.can_boost_something(['hand'], effect['limitation']):
+				create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", ['hand'], effect['limitation'])
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.player = performing_player.my_id
+				decision_info.valid_zones = ['hand']
+				decision_info.limitation = effect['limitation']
 		StrikeEffects.BoostOrRevealHand:
 			# This effect is expected to be a character action.
 			if performing_player.can_boost_something(['hand'], effect['limitation']):

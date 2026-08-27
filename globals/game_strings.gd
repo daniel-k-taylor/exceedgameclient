@@ -759,6 +759,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Play %s %s from %s%s." % [amount_str, limitation_str, zone_string, ignore_costs_str]
 			else:
 				effect_str += "Play %s %s from hand%s." % [amount_str, limitation_str, ignore_costs_str]
+		StrikeEffects.BoostCharacterAction:
+			effect_str += "Play a boost from hand"
 		StrikeEffects.BoostOrRevealHand:
 			var alternative = "Reveal hand"
 			if 'strike_instead_of_reveal' in effect and effect['strike_instead_of_reveal']:

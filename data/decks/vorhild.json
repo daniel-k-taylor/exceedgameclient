@@ -9,16 +9,16 @@
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
-		"shortcut_effect_type": "choice",
 		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "close", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			],
+			"effect_type": "retreat",
+			"amount": 1,
 			"and": {
 				"condition": "is_infused",
-				"effect_type": "strike"
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "boost_character_action", "limitation": "" },
+					{ "effect_type": "pass" }
+				]
 			}
 		}
 	}, {
@@ -75,13 +75,15 @@
 		{
 			"character_effect": true,
 			"timing": "set_strike",
-			"effect_type": "speedup",
-			"amount": 1,
-			"and": {
-				"effect_type": "add_attack_effect",
-				"added_effect": {
-					"timing": "hit",
-					"effect_type": "gain_advantage"
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"condition": "is_special_or_ultra_attack",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "speedup",
+					"amount": 2
 				}
 			}
 		},
@@ -92,11 +94,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/sb8HB1Z.png",
+			"url": "https://i.imgur.com/k9Psh1A.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/gxJ15xP.png",
+			"url": "https://i.imgur.com/WeM3M5P.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -104,7 +106,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/iiungqO.jpeg",
+			"url": "https://i.imgur.com/a2xY8ua.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
@@ -114,72 +116,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "heraal_thewildsride",
+			"definition_id": "vorhild_thousandfangs",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "heraal_thewildsride",
+			"definition_id": "vorhild_thousandfangs",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "heraal_chakramvortex",
+			"definition_id": "vorhild_theermineseye",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "heraal_chakramvortex",
+			"definition_id": "vorhild_theermineseye",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "heraal_magicchakram",
+			"definition_id": "vorhild_kickoff",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "heraal_magicchakram",
+			"definition_id": "vorhild_kickoff",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "heraal_hoarfrost",
+			"definition_id": "vorhild_flurry",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "heraal_hoarfrost",
+			"definition_id": "vorhild_flurry",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "heraal_gore",
+			"definition_id": "vorhild_snipe",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "heraal_gore",
+			"definition_id": "vorhild_snipe",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "heraal_moonfall",
+			"definition_id": "vorhild_frozenarrow",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "heraal_moonfall",
+			"definition_id": "vorhild_frozenarrow",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "heraal_hornofthehunt",
+			"definition_id": "vorhild_snowblind",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "heraal_hornofthehunt",
+			"definition_id": "vorhild_snowblind",
 			"image_name": "specials",
 			"image_index": 4
 		},

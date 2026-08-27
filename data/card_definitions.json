@@ -12415,8 +12415,6 @@
 	},
 	
 	
-	
-	
 	{
 		"NOTE": "HERAAL CARDS START",
 		"id": "heraal_thewildsride",
@@ -39752,6 +39750,381 @@
 		},
 		"NOTEND": "VINCENT CARDS END"
 	},
+	
+	
+	{
+		"NOTE": "VORHILD CARDS START",
+		"id": "vorhild_thousandfangs",
+		"type": "ultra",
+		"display_name": "Thousand Fangs",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": 5,
+		"power": 7,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Frigid Wind",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Thousand Fangs"
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_theermineseye",
+		"type": "ultra",
+		"display_name": "The Ermine's Eye",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 4,
+		"range_max": 4,
+		"power": 4,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "exceeded",
+				"effect_type": "powerup",
+				"amount": 4,
+				"negative_condition_effect": {
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "move_to_any_space",
+						"move_min": 0,
+						"move_max": 3
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "White Shade",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_kickoff",
+		"type": "special",
+		"display_name": "Kick Off",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				],
+				"and": {
+					"condition": "is_infused",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Covert",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "pass" },
+					]
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Kick Off"
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_flurry",
+		"type": "special",
+		"display_name": "Flurry",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 4,
+		"power": 2,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "is_infused",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "draw",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Somersault",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_snipe",
+		"type": "special",
+		"display_name": "Snipe",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 8,
+		"power": 5,
+		"speed": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			},
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "draw",
+						"amount": 1,
+						"and": {
+							"effect_type": "return_attack_to_top_of_deck"
+						}
+					},
+					{
+						"effect_type": "pass"
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Nimble",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_frozenarrow",
+		"type": "special",
+		"display_name": "Frozen Arrow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 3,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tripwire",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "opponent_discard_choose",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "VORHILD CARDS END",
+		"id": "vorhild_snowblind",
+		"type": "special",
+		"display_name": "Snowblind",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "add_top_deck_to_gauge"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Recon",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 3,
+					"and": {
+						"effect_type": "gauge_from_hand",
+						"min_amount": 1,
+						"max_amount": 1
+					}
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "push",
+							"amount": 1
+						},
+						{
+							"effect_type": "push",
+							"amount": 2
+						}
+					]
+				}
+			]
+		},
+		"NOTEEND": "VORHILD CARDS END"
+	},
+	
+	
 	{
 		"NOTE": "WAGNER CARDS START",
 		"id": "wagner_megiddo",
