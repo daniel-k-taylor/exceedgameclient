@@ -1917,10 +1917,19 @@ func can_select_card(card):
 			if is_tournelouse_ouroboros_hand_choice():
 				return in_hand and not is_tournelouse_ouroboros_paid_card(card.card_id) and is_tournelouse_ouroboros_legal_hand_transform(card.card_id) and len(selected_cards) < select_card_require_max
 			var limitation = game_wrapper.get_decision_info().limitation
+			var source = game_wrapper.get_decision_info().source
+			var correct_source = true
 			var meets_limitation = true
 			var game_card = game_wrapper.get_card_database().get_card(card.card_id)
 			var card_type = game_card.definition['type']
 			var card_name = game_card.definition['display_name']
+			match source:
+				"hand":
+					correct_source = in_hand
+				"boosts":
+					correct_source = in_player_boosts
+				_:
+					assert(false, "unhandled discard source")
 			match limitation:
 				"can_pay_cost":
 					var card_options = game_wrapper.get_player_extra_attack_card_options(Enums.PlayerId.PlayerId_Player)
@@ -1949,7 +1958,7 @@ func can_select_card(card):
 					meets_limitation = game_wrapper.does_card_contain_range_to_opponent(Enums.PlayerId.PlayerId_Player, card.card_id)
 				_:
 					meets_limitation = true
-			return in_hand and meets_limitation and len(selected_cards) < select_card_require_max
+			return correct_source and meets_limitation and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeGauge:
 			# Tournelouse's Netherstorm/Bargeist Fang let him seal transforms to
 			# generate gauge, so the transform zone counts as a payment source.
@@ -3342,6 +3351,7 @@ func _on_choose_to_discard(event, informative_only : bool):
 	var allow_fewer = false or event['extra_info']
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
+	var source = decision_info.source
 	if informative_only or not can_pass:
 		if not decision_info.destination in ["reveal", "sealed", "opponent_overdrive", "lightningrod_any_space"]:
 			var amount_string = "Forced Discard %s" % str(amount)
@@ -3362,13 +3372,16 @@ func _on_choose_to_discard(event, informative_only : bool):
 				var max_amount = amount
 				if amount == -1:
 					min_amount = 0
-					max_amount = game_wrapper.get_player_hand_size(player)
+					if source == "hand":
+						max_amount = game_wrapper.get_player_hand_size(player)
+					elif source == "boosts":
+						max_amount = game_wrapper.get_player_discardable_boost_count(player)
 				elif allow_fewer:
 					min_amount = 0
 				begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
 		else:
 			# AI or other player wait
-			ai_choose_to_discard(amount, limitation, can_pass, allow_fewer)
+			ai_choose_to_discard(amount, limitation, can_pass, allow_fewer, source)
 	return SmallNoticeDelay
 
 
@@ -3421,8 +3434,9 @@ func update_discard_selection_message_choose():
 		bonus = "\nfor %s" % effect_text
 		if 'per_discard' in decision_info.bonus_effect and decision_info.bonus_effect['per_discard']:
 			bonus += " for each"
+	var source = decision_info.source
 	if destination == "play_attack":
-		set_instructions("Select a card from your hand to move to play as an extra attack.")
+		set_instructions("Select a card from your %s to move to play as an extra attack." % source)
 	else:
 		var destination_str = destination
 		if destination == "replacement_boost":
@@ -3447,16 +3461,16 @@ func update_discard_selection_message_choose():
 								card_names_str += "/"
 							else:
 								card_names_str += "\n"
-					set_instructions("Select %s%s more card(s) from your hand to move to %s.\nOptions: %s" % [optional_string, num_remaining, destination_str, card_names_str])
+					set_instructions("Select %s%s more card(s) from your %s to move to %s.\nOptions: %s" % [optional_string, num_remaining, source, destination_str, card_names_str])
 				else:
-					set_instructions("Select %s%s more card(s) that %s from your hand to move to %s." % [optional_string, num_remaining, decision_info.extra_info, destination_str])
+					set_instructions("Select %s%s more card(s) that %s from your %s to move to %s." % [optional_string, num_remaining, decision_info.extra_info, source, destination_str])
 			else:
 				var limitation_str = decision_info.limitation
 				if decision_info.limitation == "range_to_opponent":
 					limitation_str = "matching opponent range"
-				set_instructions("Select %s%s more %s card(s) from your hand to move to %s%s." % [optional_string, num_remaining, limitation_str, destination_str, bonus])
+				set_instructions("Select %s%s more %s card(s) from your %s to move to %s%s." % [optional_string, num_remaining, source, limitation_str, destination_str, bonus])
 		else:
-			set_instructions("Select %s%s more card(s) from your hand to move to %s%s." % [optional_string, num_remaining, destination_str, bonus])
+			set_instructions("Select %s%s more card(s) from your %s to move to %s%s." % [optional_string, num_remaining, source, destination_str, bonus])
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
@@ -3728,6 +3742,10 @@ func begin_discard_cards_selection(
 	restricted_to_card_ids = [],
 	show_restriction_list_ui = false
 ):
+	# show boost zone if needed
+	if game_wrapper.get_decision_info().source == "boosts":
+		_on_player_boost_zone_clicked_zone()
+		
 	selected_cards = []
 	select_card_require_min = number_to_discard_min
 	select_card_require_max = number_to_discard_max
@@ -7164,10 +7182,10 @@ func ai_mulligan_decision():
 		print("FAILED AI MULLIGAN")
 	test_init()
 
-func ai_choose_to_discard(amount, limitation, can_pass, allow_fewer):
+func ai_choose_to_discard(amount, limitation, can_pass, allow_fewer, source):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var discard_action = ai_player.pick_choose_to_discard(amount, limitation, can_pass, allow_fewer)
+	var discard_action = ai_player.pick_choose_to_discard(amount, limitation, can_pass, allow_fewer, source)
 	var success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Opponent, discard_action.card_ids)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

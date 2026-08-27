@@ -14,5 +14,5 @@ animations = [{
 }]
 metadata/flip = false
 metadata/scaling = 2.0
-metadata/vertical_offset = 100.0
-metadata/horizontal_offset_buddy = -20.0
+metadata/vertical_offset = 40.0
+metadata/horizontal_offset_buddy = -10.0

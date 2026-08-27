@@ -1382,8 +1382,14 @@ func get_cards_in_hand_matching_types(types : Array):
 	return cards
 
 func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0):
+	return get_cards_in_zone_of_type(hand, limitation)
+
+func get_cards_in_boosts_of_type(limitation : String):
+	return get_cards_in_zone_of_type(continuous_boosts, limitation)
+	
+func get_cards_in_zone_of_type(zone: Array, limitation : String, limitation_amount : int = 0):
 	var cards = []
-	for card in hand:
+	for card in zone:
 		match limitation:
 			"":
 				cards.append(card)
@@ -1420,11 +1426,11 @@ func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0)
 				if can_pay_cost(force_cost, gauge_cost):
 					cards.append(card)
 			"last_drawn_cards":
-				cards = hand.slice(-limitation_amount, hand.size())
+				cards = zone.slice(-limitation_amount, zone.size())
 			_:
 				cards.append(card)
 	return cards
-
+	
 func get_top_continuous_boost_in_discard():
 	for i in range(len(discards)-1, -1, -1):
 		var card = discards[i]

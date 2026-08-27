@@ -905,20 +905,24 @@ func determine_gauge_for_effect_actions(options : Array, specific_card_id : Stri
 			possible_actions.append(GaugeForEffectAction.new(combo))
 	return possible_actions
 
-func determine_choose_to_discard_options(to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool, given_array = null):
+func determine_choose_to_discard_options(to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool, source : String, given_array = null):
 	var possible_actions = []
 	var all_card_ids = []
 	var min_count = to_discard_count
 	var max_count = to_discard_count
+	var source_zone = game_player.hand
+	if source == "boosts":
+		source_zone = game_player.continuous_boosts
+		
 	if to_discard_count == -1:
 		min_count = 0
-		max_count = len(game_player.hand)
+		max_count = len(source_zone)
 	elif allow_fewer:
 		min_count = 0
 
 	if limitation and limitation == "same-named":
 		var card_name_map = {}
-		for card in game_player.hand:
+		for card in source_zone:
 			var card_name = card.definition['display_name']
 			if card_name in card_name_map:
 				card_name_map[card_name].append(card.id)
@@ -927,12 +931,12 @@ func determine_choose_to_discard_options(to_discard_count : int, limitation : St
 
 		for card_name in card_name_map:
 			possible_actions += determine_choose_to_discard_options(to_discard_count,
-				"from_array", can_pass, allow_fewer, card_name_map[card_name])
+				"from_array", can_pass, allow_fewer, source, card_name_map[card_name])
 
 	if limitation and limitation == "from_array":
 		if given_array == null:
 			given_array = game_logic.decision_info.choice
-	for card in game_player.hand:
+	for card in source_zone:
 		if limitation:
 			if limitation == "from_array":
 				if card.id not in given_array:
@@ -1144,9 +1148,9 @@ func pick_gauge_for_effect(options : Array, specific_card_id : String = "", vali
 	var possible_actions = determine_gauge_for_effect_actions(options, specific_card_id, valid_card_types)
 	return ai_policy.pick_gauge_for_effect(possible_actions, game_state)
 
-func pick_choose_to_discard(to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool = false) -> ChooseToDiscardAction:
+func pick_choose_to_discard(to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool = false, source : String = "hand") -> ChooseToDiscardAction:
 	game_state.update()
-	var possible_actions = determine_choose_to_discard_options(to_discard_count, limitation, can_pass, allow_fewer)
+	var possible_actions = determine_choose_to_discard_options(to_discard_count, limitation, can_pass, allow_fewer, source)
 	return ai_policy.pick_choose_to_discard(possible_actions, game_state)
 
 func pick_choose_opponent_card_to_discard(discard_option_ids : Array) -> ChooseToDiscardAction:

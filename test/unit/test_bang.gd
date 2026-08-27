@@ -386,4 +386,3 @@ func test_bang_shuriken_boost_return_other():
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(player1.hand.size(), hand_size + 2) #end of turn draw and bonus card
 	assert_true(player2.is_card_in_hand(TestCardId2))
-
