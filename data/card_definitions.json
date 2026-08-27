@@ -32912,16 +32912,20 @@
 				},
 				{
 					"timing": "after",
-					"condition": "boost_space_unoccupied",
-					"condition_detail": "Shadow Over Space",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "move_to_boost_space" },
-						{
-							"effect_type": "return_this_boost_to_hand_strike_effect",
-							"card_name": "Flashback"
-						}
-					]
+					"condition": "is_infused",
+					"effect_type": "pass",
+					"and": {
+						"condition": "boost_space_unoccupied",
+						"condition_detail": "Shadow Over Space",
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "move_to_boost_space" },
+							{
+								"effect_type": "return_this_boost_to_hand_strike_effect",
+								"card_name": "Flashback"
+							}
+						]
+					}
 				}
 			]
 		}

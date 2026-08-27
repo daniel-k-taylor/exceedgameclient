@@ -1625,7 +1625,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				optional_text = "You may: "
 				
 			var source_str = "card(s) from hand"
-			if effect['source'] == "boosts":
+			if effect.get('source', "hand") == "boosts":
 				source_str = "boosts"
 
 			var amount_str = str(effect['amount'])

@@ -781,3 +781,6 @@ func test_vorhild_100():
 
 func test_yami_100():
 	run_iterations_with_deck("yami")
+
+func test_shafathi_100():
+	run_iterations_with_deck("shafathi")
