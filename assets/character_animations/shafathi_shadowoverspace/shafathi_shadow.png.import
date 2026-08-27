@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bdbxwqmqwcwn3"
-path="res://.godot/imported/lightningrod.png-b3b9c61e22c680d9ad7d0ac711e5f4fa.ctex"
+uid="uid://b6mbp6fp5asv0"
+path="res://.godot/imported/shafathi_shadow.png-792ef75997d4e9d7fed2b5ee98aaf388.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/shafathi_shiftingsands/lightningrod.png"
-dest_files=["res://.godot/imported/lightningrod.png-b3b9c61e22c680d9ad7d0ac711e5f4fa.ctex"]
+source_file="res://assets/character_animations/shafathi_shadowoverspace/shafathi_shadow.png"
+dest_files=["res://.godot/imported/shafathi_shadow.png-792ef75997d4e9d7fed2b5ee98aaf388.ctex"]
 
 [params]
 

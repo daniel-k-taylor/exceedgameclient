@@ -1,43 +1,18 @@
-[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://bmoljbp0wkrru"]
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://bmoljbp0wkrru"]
 
-[ext_resource type="Texture2D" uid="uid://bawb7qqmlxos2" path="res://assets/character_animations/rachel_impishgypsophila/pumkin.png" id="1_po7hh"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_e674l"]
-atlas = ExtResource("1_po7hh")
-region = Rect2(0, 0, 68, 61)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_nylgl"]
-atlas = ExtResource("1_po7hh")
-region = Rect2(68, 0, 68, 61)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_vernc"]
-atlas = ExtResource("1_po7hh")
-region = Rect2(0, 61, 68, 61)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_aappg"]
-atlas = ExtResource("1_po7hh")
-region = Rect2(68, 61, 68, 61)
+[ext_resource type="Texture2D" uid="uid://b6mbp6fp5asv0" path="res://assets/character_animations/shafathi_shadowoverspace/shafathi_shadow.png" id="1_po7hh"]
 
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_e674l")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_nylgl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_vernc")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_aappg")
+"texture": ExtResource("1_po7hh")
 }],
 "loop": true,
 "name": &"idle",
 "speed": 8.0
 }]
 metadata/flip = false
-metadata/scaling = 3.0
+metadata/scaling = 2.0
 metadata/vertical_offset = 100.0
 metadata/horizontal_offset_buddy = -20.0

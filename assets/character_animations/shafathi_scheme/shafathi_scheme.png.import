@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8k8qu0vi62m4"
-path="res://.godot/imported/ivyblossom.png-30067d9e83f15dd4bf099be4e4d1e50e.ctex"
+uid="uid://bb8jxukor7o27"
+path="res://.godot/imported/shafathi_scheme.png-c47a798f48fc7449a1b05e393a40e243.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/shafathi_scheme/ivyblossom.png"
-dest_files=["res://.godot/imported/ivyblossom.png-30067d9e83f15dd4bf099be4e4d1e50e.ctex"]
+source_file="res://assets/character_animations/shafathi_scheme/shafathi_scheme.png"
+dest_files=["res://.godot/imported/shafathi_scheme.png-c47a798f48fc7449a1b05e393a40e243.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cmb5tmbwxa4hk"
-path="res://.godot/imported/pumkin.png-c332a490e2acf59ea330d5b6024ec1b4.ctex"
+uid="uid://bensa8gbopsch"
+path="res://.godot/imported/shafathi_sands.png-1964ae7488d16b742f411d31d2a004ae.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/shafathi_shadowoverspace/pumkin.png"
-dest_files=["res://.godot/imported/pumkin.png-c332a490e2acf59ea330d5b6024ec1b4.ctex"]
+source_file="res://assets/character_animations/shafathi_shiftingsands/shafathi_sands.png"
+dest_files=["res://.godot/imported/shafathi_sands.png-1964ae7488d16b742f411d31d2a004ae.ctex"]
 
 [params]
 
