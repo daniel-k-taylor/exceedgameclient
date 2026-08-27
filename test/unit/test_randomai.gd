@@ -778,3 +778,6 @@ func test_zacoal_100():
 
 func test_vorhild_100():
 	run_iterations_with_deck("vorhild")
+
+func test_yami_100():
+	run_iterations_with_deck("yami")
