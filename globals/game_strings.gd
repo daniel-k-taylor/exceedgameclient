@@ -434,6 +434,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you can hit %s, " % detail
 		"opponent_in_boost_space":
 			text += "If opponent on %s, " % detail
+		"boost_is_at_specific_range":
+			text += "If %s is at range %s from you, " % [detail, effect['condition_amount']]
 		"boost_space_in_range_towards_opponent":
 			text += "If %s in range towards opponent, " % detail
 		"opponent_moved_or_was_moved":
@@ -1329,6 +1331,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + " Power per sealed normal%s." % max_text
 		StrikeEffects.PowerupDamageTaken:
 			effect_str += "+" + str(effect['amount']) + " Power per damage taken this strike."
+		StrikeEffects.PowerupDiscardedCardPrintedPower:
+			effect_str += "+ Power equal to card's printed power."
 		StrikeEffects.PowerupOpponent:
 			if effect['amount'] > 0:
 				effect_str += "+"
@@ -1431,6 +1435,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per force spent this turn."
 		StrikeEffects.RangeupPerSealedNormal:
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
+		StrikeEffects.RangeupDiscardedCardPrintedRange:
+			effect_str += "+ Range equal to card's printed range."
 		StrikeEffects.RemoveBuddyNearOpponent:
 			var offset_allowed = effect['offset_allowed']
 			var same_space_allowed = effect['same_space_allowed']

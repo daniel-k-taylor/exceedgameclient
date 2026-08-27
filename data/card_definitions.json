@@ -32861,6 +32861,434 @@
 		},
 		"NOTEEND": "SETH CARDS END"
 	},
+	
+	{
+		"NOTE": "SHAFATHI CARDS START",
+		"id": "shafathi_flashback",
+		"type": "ultra",
+		"display_name": "Harbinger",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 1,
+		"armor": 3,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "move_to_any_space",
+				"move_min": 0,
+				"move_max": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Endless Hatred",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Harbinger"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "shafathi_timetwist",
+		"type": "ultra",
+		"display_name": "Vengeance",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 7,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity",
+				"and": {
+					"effect_type": "ignore_armor"
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				"overall_effect": null,
+				"gauge_max": -1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Death Looms",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "strike",
+						"opponent_forced_wild": true
+					},
+					"force_max": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike",
+					"NOTE": "This boost always strikes, so this is for when the above is not paid for"
+				}
+			]
+		}
+	},
+	{
+		"id": "shafathi_dematerialize",
+		"type": "special",
+		"display_name": "Dematerialize",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "copy_other_after_effect"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Walk The Worlds",
+			"effects": [
+				{
+					"timing": "after_non_strike_action",
+					"effect_type": "minato_one_more_ride",
+					"source": "discard",
+					"limitation": "ultra",
+					"override_description": "At the end of your turn, instead of drawing you may return an Ultra from discard to hand."
+				},
+				{
+					"timing": "after",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "shafathi_sandform",
+		"type": "special",
+		"display_name": "Sand Form",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"power": 4,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"linked_buddy_id": "shiftingsands",
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "gauge_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Shifting Sands",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "before",
+					"condition": "opponent_in_boost_space",
+					"condition_detail": "Sand Form",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{
+								"effect_type": "push",
+								"amount": 1
+							},
+							{
+								"effect_type": "pull",
+								"amount": 1
+							}
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "shafathi_penumbra",
+		"type": "special",
+		"display_name": "Penumbra",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"linked_buddy_id": "scheme",
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "draw", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "hit",
+				"condition": "is_infused",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "draw", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Scheme",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "after",
+					"condition": "boost_is_at_specific_range",
+					"condition_detail": "Scheme",
+					"condition_amount": 3,
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "advance", "amount": 1 },
+							{ "effect_type": "retreat", "amount": 1 },
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "shafathi_stasis",
+		"type": "special",
+		"display_name": "Stasis",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"power": 0,
+		"speed": 1,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "self_discard_choose",
+				"optional": true,
+				"amount": 1,
+				"limitation": "",
+				"destination": "reveal",
+				"discard_effect": {
+					"override_description": "You may reveal a card from hand; gain its printed Range, Power, and effects.",
+					"suppress_and_description": true,
+					"effect_type": "rangeup_discarded_card_printed_range",
+					"pass_discards_to_and": true,
+					"and": {
+						"effect_type": "powerup_discarded_card_printed_power",
+						"pass_discards_to_and": true,
+						"and": {
+							"effect_type": "add_attack_triggers",
+							"include_passive": true,
+						}
+					}
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				"gauge_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Strategic",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "SHAFATHI CARDS END",
+		"id": "shafathi_splitsecond",
+		"type": "special",
+		"display_name": "Split Second",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 4,
+		"power": 3,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "dodge_at_range",
+				"range_min": 1,
+				"range_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Monologue",
+			"effects": [
+				{
+					"timing": "immediate",
+					"override_description": "Search deck for up to 2 cards to add to hand.",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 30,
+					"action_choices": [
+						"add_to_hand"
+					],
+					"can_pass": true,
+					"destination_unchosen": "topdeck",
+					"shuffle_after": true,
+					"and_not_passed": {
+						"effect_type": "choose_cards_from_top_deck",
+						"look_amount": 30,
+						"action_choices": [
+							"add_to_hand"
+						],
+						"can_pass": true,
+						"destination_unchosen": "topdeck",
+						"shuffle_after": true
+					}
+				}
+			]
+		},
+		"NOTEEND": "SHAFATHI CARDS END"
+	},
+	
 	{
 		"NOTE": "SHOVEL KNIGHT SOLO CARDS START",
 		"id": "shovelknight_propellerdagger",

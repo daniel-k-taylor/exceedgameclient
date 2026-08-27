@@ -159,72 +159,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "yami_harbinger",
+			"definition_id": "shafathi_flashback",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "yami_harbinger",
+			"definition_id": "shafathi_flashback",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "yami_vengeance",
+			"definition_id": "shafathi_timetwist",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "yami_vengeance",
+			"definition_id": "shafathi_timetwist",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "yami_spiritchains",
+			"definition_id": "shafathi_dematerialize",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "yami_spiritchains",
+			"definition_id": "shafathi_dematerialize",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "yami_haunting",
+			"definition_id": "shafathi_sandform",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "yami_haunting",
+			"definition_id": "shafathi_sandform",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "yami_flameswipe",
+			"definition_id": "shafathi_penumbra",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "yami_flameswipe",
+			"definition_id": "shafathi_penumbra",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "yami_screamingscythe",
+			"definition_id": "shafathi_stasis",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "yami_screamingscythe",
+			"definition_id": "shafathi_stasis",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "yami_seize",
+			"definition_id": "shafathi_splitsecond",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "yami_seize",
+			"definition_id": "shafathi_splitsecond",
 			"image_name": "specials",
 			"image_index": 4
 		},
