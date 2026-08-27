@@ -16,7 +16,11 @@
 				"condition": "is_infused",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "boost_character_action", "limitation": "" },
+					{
+						"effect_type": "boost_multiple",
+						"amount": 1,
+						"limitation": ""
+					},
 					{ "effect_type": "pass" }
 				]
 			}
