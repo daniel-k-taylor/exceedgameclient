@@ -12415,8 +12415,6 @@
 	},
 	
 	
-	
-	
 	{
 		"NOTE": "HERAAL CARDS START",
 		"id": "heraal_thewildsride",
@@ -39752,6 +39750,381 @@
 		},
 		"NOTEND": "VINCENT CARDS END"
 	},
+	
+	
+	{
+		"NOTE": "VORHILD CARDS START",
+		"id": "vorhild_thousandfangs",
+		"type": "ultra",
+		"display_name": "Thousand Fangs",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": 5,
+		"power": 7,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Frigid Wind",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Thousand Fangs"
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_theermineseye",
+		"type": "ultra",
+		"display_name": "The Ermine's Eye",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 4,
+		"range_max": 4,
+		"power": 4,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "exceeded",
+				"effect_type": "powerup",
+				"amount": 4,
+				"negative_condition_effect": {
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "move_to_any_space",
+						"move_min": 0,
+						"move_max": 3
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "White Shade",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_kickoff",
+		"type": "special",
+		"display_name": "Kick Off",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				],
+				"and": {
+					"condition": "is_infused",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Covert",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "pass" },
+					]
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Kick Off"
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_flurry",
+		"type": "special",
+		"display_name": "Flurry",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 4,
+		"power": 2,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "is_infused",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "draw",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Somersault",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_snipe",
+		"type": "special",
+		"display_name": "Snipe",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 8,
+		"power": 5,
+		"speed": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			},
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "draw",
+						"amount": 1,
+						"and": {
+							"effect_type": "return_attack_to_top_of_deck"
+						}
+					},
+					{
+						"effect_type": "pass"
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Nimble",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "vorhild_frozenarrow",
+		"type": "special",
+		"display_name": "Frozen Arrow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 3,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tripwire",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "opponent_discard_choose",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "VORHILD CARDS END",
+		"id": "vorhild_snowblind",
+		"type": "special",
+		"display_name": "Snowblind",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "add_top_deck_to_gauge"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Recon",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 3,
+					"and": {
+						"effect_type": "gauge_from_hand",
+						"min_amount": 1,
+						"max_amount": 1
+					}
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "push",
+							"amount": 1
+						},
+						{
+							"effect_type": "push",
+							"amount": 2
+						}
+					]
+				}
+			]
+		},
+		"NOTEEND": "VORHILD CARDS END"
+	},
+	
+	
 	{
 		"NOTE": "WAGNER CARDS START",
 		"id": "wagner_megiddo",
@@ -40529,6 +40902,357 @@
 		},
 		"NOTEEND": "WALDSTEIN CARDS END"
 	},
+	
+	{
+		"NOTE": "YAMI CARDS START",
+		"id": "yami_harbinger",
+		"type": "ultra",
+		"display_name": "Harbinger",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 1,
+		"armor": 3,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "move_to_any_space",
+				"move_min": 0,
+				"move_max": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Endless Hatred",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Harbinger"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "yami_vengeance",
+		"type": "ultra",
+		"display_name": "Vengeance",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 7,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity",
+				"and": {
+					"effect_type": "ignore_armor"
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				"overall_effect": null,
+				"gauge_max": -1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Death Looms",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "strike",
+						"opponent_forced_wild": true
+					},
+					"force_max": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike",
+					"NOTE": "This boost always strikes, so this is for when the above is not paid for"
+				}
+			]
+		}
+	},
+	{
+		"id": "yami_spiritchains",
+		"type": "special",
+		"display_name": "Spirit Chains",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 1,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "initiated_strike",
+				"effect_type": "rangeup",
+				"amount": 0,
+				"amount2": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Kneel Before Me",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"condition": "opponent_stunned",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "yami_haunting",
+		"type": "special",
+		"display_name": "Haunting",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "retreat", "amount": 3 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Restless Avenger",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		}
+	},
+	{
+		"id": "yami_flameswipe",
+		"type": "special",
+		"display_name": "Flame Swipe",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Spectral",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "after",
+					"effect_type": "move_to_any_space",
+					"move_min": 1,
+					"move_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "yami_screamingscythe",
+		"type": "special",
+		"display_name": "Screaming Scythe",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range_greater_or_equal",
+				"condition_amount": 3,
+				"effect_type": "push",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "after",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Screeching Terror",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "YAMI CARDS END",
+		"id": "yami_seize",
+		"type": "special",
+		"display_name": "Seize",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ghost Walk",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 2,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "advanced_through",
+								"effect_type": "bonus_action"
+							}
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 2
+						}
+					]
+				}
+			]
+		},
+		"NOTEEND": "YAMI CARDS END"
+	},
+	
 	{
 		"NOTE": "YUZURIHA CARDS START",
 		"id": "yuzu_kashou",
@@ -40888,6 +41612,392 @@
 		},
 		"NOTEEND": "YUZURIHA CARDS END"
 	},
+	
+	{
+		"NOTE": "ZACOAL CARDS START",
+		"id": "zacoal_titanicslam",
+		"type": "ultra",
+		"display_name": "Titanic Slam",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 7,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 4,
+				"and": {
+					"effect_type": "draw",
+					"amount": 4
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "War Cry",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "push",
+					"amount": 2,
+					"and": {
+						"condition": "is_infused",
+						"effect_type": "strike"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_kradoom",
+		"type": "ultra",
+		"display_name": "Kradoom!",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 0,
+		"speed": 1,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 10,
+				"save_unpushed_spaces_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Royal Blood",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2,
+						"and": {
+							"effect_type": "guardup",
+							"amount": 2
+						}
+					}
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike_from_sealed" },
+						{ "effect_type": "strike_wild" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_leap",
+		"type": "special",
+		"display_name": "Leap",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 7,
+		"speed": 3,
+		"armor": 1,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Juggernaut",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "advance",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_clonk",
+		"type": "special",
+		"display_name": "Clonk!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Accursed",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "seal_topdeck"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_hurl",
+		"type": "special",
+		"display_name": "Hurl",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 1,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "push",
+						"amount": 3,
+						"use_semicolon_for_and": true,
+						"and": {
+							"condition": "not_full_push",
+							"effect_type": "powerup",
+							"amount": 3
+						}
+					},
+					{
+						"effect_type": "pull",
+						"amount": 3,
+						"use_semicolon_for_and": true,
+						"and": {
+							"condition": "not_full_pull",
+							"effect_type": "powerup",
+							"amount": 3
+						}
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Big",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "zacoal_crush",
+		"type": "special",
+		"display_name": "Crush",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 2,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Massive Blow",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "push",
+							"amount": 3,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "not_full_push",
+								"effect_type": "powerup",
+								"amount": 3
+							}
+						},
+						{
+							"effect_type": "pull",
+							"amount": 3,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "not_full_pull",
+								"effect_type": "powerup",
+								"amount": 3
+							}
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "ZACOAL CARDS END",
+		"id": "zacoal_boulder",
+		"type": "special",
+		"display_name": "Boulder",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 5,
+		"speed": 3,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				},
+				"gauge_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Redeemed",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"source": "sealed",
+					"limitation": "",
+					"destination": "gauge"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 2
+				}
+			]
+		},
+		"NOTEEND": "ZACOAL CARDS END"
+	},
+	
 	{
 		"NOTE": "ZANGIEF CARDS START",
 		"id": "zangief_ultimateatomicbuster",

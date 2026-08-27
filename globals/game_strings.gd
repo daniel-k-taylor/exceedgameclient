@@ -1679,6 +1679,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "%s ([color=%s]%s[/color])" % [effect["buddy_name"], CardHighlightColor, effect.get('card_name', "")]
 		StrikeEffects.StrikeFaceup:
 			effect_str += "Strike face-up"
+		StrikeEffects.StrikeFromSealed:
+			effect_str += "Strike from Sealed Area"
 		StrikeEffects.StrikeOpponentSetsFirst:
 			effect_str += "Strike (opponent sets first)"
 		StrikeEffects.StrikeRandomFromGauge:

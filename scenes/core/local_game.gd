@@ -11806,6 +11806,8 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 				"hand":
 					performing_player.move_card_from_sealed_to_hand(card_id)
 					secret_zones = performing_player.sealed_area_is_secret
+				"gauge":
+					performing_player.move_card_from_sealed_to_gauge(card_id)
 				_:
 					printlog("ERROR: Choose from sealed destination not implemented.")
 					assert(false, "Choose from sealed destination not implemented.")
