@@ -61,6 +61,10 @@ var active_post_action_effect : bool = false
 var active_start_of_turn_effects : bool = false
 var active_end_of_turn_effects : bool = false
 var _last_effect_source_player_id : int = -1
+# Snapshot of the effect choice currently being resolved, so a cancellable
+# sub-decision can put the player back on the exact choice they came from.
+var _effect_choice_undo = {}
+var _tournelouse_transform_bonus_undo = {}
 var _exceeded_wonderland_active = false
 var remaining_overdrive_effects = []
 var queued_effect_chain = {
@@ -6787,6 +6791,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.tournelouse_may_seal_for_gauge = true
 		StrikeEffects.SealTransformForPowerup, StrikeEffects.SealTransformForArmorup:
 			if performing_player.transforms.size() > 0:
+				# Remember the choice this came from so cancelling restores it.
+				var seal_undo = _effect_choice_undo
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseFromBoosts
@@ -6795,6 +6801,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.amount = 1
 				decision_info.amount_min = 1
 				decision_info.effect = effect
+				_tournelouse_transform_bonus_undo = seal_undo
 				create_event(Enums.EventType.EventType_ChooseFromBoosts, performing_player.my_id, 1)
 		StrikeEffects.TransformCardFromHand:
 			# Choose one card in hand that can be transformed and transform it.
@@ -6823,20 +6830,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if transform_card_id != -1 and performing_player.is_card_in_hand(transform_card_id):
 				do_ex_transform(performing_player, transform_card_id, -1, false, true)
 		StrikeEffects.TournelouseOuroboros:
-			if performing_player.transforms.size() == 0 or _get_tournelouse_transform_hand_options(performing_player).size() == 0:
+			if not _begin_tournelouse_ouroboros_force_choice(performing_player, card_id):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no hand card and transform to swap.")
-			else:
-				var ouroboros_force_effect = {
-					"effect_type": StrikeEffects.ForceForEffect,
-					"force_max": 1,
-					"required": true,
-					"tournelouse_ouroboros_force": true,
-					"per_force_effect": null,
-					"overall_effect": {
-						"effect_type": StrikeEffects.Pass
-					}
-				}
-				handle_strike_effect(card_id, ouroboros_force_effect, performing_player)
 		StrikeEffects.TransformAttack:
 			# This effect is expected to be at the end of a strike.
 			assert(active_strike)
@@ -7286,13 +7281,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var syrus_rg_boosts = performing_player.get_boosts(true)
 			if syrus_rg_boosts.is_empty():
 				return
-			var syrus_rg_choices = [{"effect_type": StrikeEffects.Pass, "_choice_text": "Pass"}]
+			var syrus_rg_choices = []
 			for syrus_rg_b in syrus_rg_boosts:
 				syrus_rg_choices.append({
 					"effect_type": "syrus_reckless_greed_strike",
 					"boost_id": syrus_rg_b.id,
 					"_choice_text": "Discard %s & Strike" % card_db.get_card_name(syrus_rg_b.id)
 				})
+			syrus_rg_choices.append({"effect_type": StrikeEffects.Pass, "_choice_text": "Pass"})
 			do_effect_if_condition_met(performing_player, card_id, {
 				"effect_type": StrikeEffects.Choice,
 				StrikeEffects.Choice: syrus_rg_choices,
@@ -10137,8 +10133,8 @@ func _on_player_discard(discarding_player, card_ids : Array):
 					if hand_speed == discarded_speed:
 						match_cards.append(hand_card)
 
-			# Build choice: each matching card + Pass
-			var choices = [{"_choice_text": "Pass (don't reveal)", "effect_type": StrikeEffects.Pass}]
+			# Build choice: each matching card + Pass (Pass goes last).
+			var choices = []
 			for hc in match_cards:
 				var card_name = card_db.get_card_name(hc.id)
 				choices.append({
@@ -10155,6 +10151,7 @@ func _on_player_discard(discarding_player, card_ids : Array):
 						}
 					}
 				})
+			choices.append({"_choice_text": "Pass (don't reveal)", "effect_type": StrikeEffects.Pass})
 
 			if match_cards.size() > 0:
 				_append_log_full(Enums.LogType.LogType_Effect, other_player, "may reveal a matching card to deal 2 non-lethal damage!")
@@ -10196,8 +10193,8 @@ func _on_player_discard(discarding_player, card_ids : Array):
 				# discard(). If it didn't, the source doesn't match → reject.
 				return
 
-			# Build choice to pick a card to add to Wonderland, or pass
-			var choices = [{"_choice_text": "Pass", "effect_type": StrikeEffects.Pass}]
+			# Build choice to pick a card to add to Wonderland, or pass (Pass goes last).
+			var choices = []
 			for cid in card_ids:
 				var cname = card_db.get_card_name(cid)
 				if cname:
@@ -10206,6 +10203,7 @@ func _on_player_discard(discarding_player, card_ids : Array):
 						"effect_type": "wonderland_add_card",
 						"card_id": cid
 					})
+			choices.append({"_choice_text": "Pass", "effect_type": StrikeEffects.Pass})
 			if game_state != Enums.GameState.GameState_PlayerDecision:
 				var choice_effect = {
 					"effect_type": StrikeEffects.Choice,
@@ -11327,7 +11325,22 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	if '_source_player_id' not in effect:
 		effect['_source_player_id'] = _last_effect_source_player_id
 	var saved_source = _last_effect_source_player_id
+	# Record what the player is choosing from so a cancellable sub-decision
+	# (e.g. Tournelouse's seal-a-transform prompt) can put them back on this
+	# exact choice instead of inventing a new one.
+	var saved_choice_undo = _effect_choice_undo
+	if decision_info.type == Enums.DecisionType.DecisionType_EffectChoice:
+		_effect_choice_undo = {
+			"player": decision_info.player,
+			"choice": decision_info.choice,
+			"choice_card_id": decision_info.choice_card_id,
+			"multiple_choice_amount": decision_info.multiple_choice_amount,
+			"queued_effect_chain": queued_effect_chain,
+		}
+	else:
+		_effect_choice_undo = {}
 	do_effect_if_condition_met(performing_player, card_id, effect, null)
+	_effect_choice_undo = saved_choice_undo
 	_last_effect_source_player_id = saved_source
 	continue_player_action_resolution(performing_player)
 	return true
@@ -11481,6 +11494,7 @@ func do_choose_from_boosts(performing_player : Player, card_ids : Array) -> bool
 			return false
 
 	if choosing_transform and choose_effect.get("effect_type") in [StrikeEffects.SealTransformForPowerup, StrikeEffects.SealTransformForArmorup]:
+		_tournelouse_transform_bonus_undo = {}
 		set_player_action_processing_state()
 		for card_id in card_ids:
 			var transform_card = card_db.get_card(card_id)
@@ -11531,20 +11545,34 @@ func do_cancel_tournelouse_transform_bonus_choice(performing_player : Player) ->
 		printlog("ERROR: Tried to cancel transform bonus choice for unsupported effect.")
 		return false
 
-	var amount = choose_effect.get("amount", 2)
+	var undo_info = _tournelouse_transform_bonus_undo
+	_tournelouse_transform_bonus_undo = {}
+
+	var choice_player_id = performing_player.my_id
 	var source_card_id = decision_info.choice_card_id
-	var choices = [
-		{ "effect_type": StrikeEffects.Pass },
-		{ "effect_type": StrikeEffects.SealTransformForPowerup, "amount": amount },
-		{ "effect_type": StrikeEffects.SealTransformForArmorup, "amount": amount }
-	]
+	var multiple_amount = 1
+	var choices = []
+	if undo_info:
+		# Put the player back on the exact choice that led here, including any
+		# queued follow-up effects that the chosen option added.
+		queued_effect_chain = undo_info["queued_effect_chain"]
+		choice_player_id = undo_info["player"]
+		source_card_id = undo_info["choice_card_id"]
+		multiple_amount = undo_info["multiple_choice_amount"]
+		choices = undo_info["choice"]
+	else:
+		# No recorded choice (e.g. the effect resolved on its own), so rebuild
+		# one that looks like it, with Pass last.
+		choices = [choose_effect.duplicate(true), { "effect_type": StrikeEffects.Pass }]
+
 	change_game_state(Enums.GameState.GameState_PlayerDecision)
 	decision_info.clear()
 	decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
-	decision_info.player = performing_player.my_id
+	decision_info.player = choice_player_id
 	decision_info.choice_card_id = source_card_id
 	decision_info.choice = choices
-	create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")
+	decision_info.multiple_choice_amount = multiple_amount
+	create_event(Enums.EventType.EventType_Strike_EffectChoice, choice_player_id, 0, "EffectOption")
 	return true
 
 func _can_tournelouse_transform_card_from_hand(performing_player : Player, card_id : int, excluded_card_ids : Array = []) -> bool:
@@ -11586,6 +11614,31 @@ func _get_tournelouse_ouroboros_paid_sources(performing_player : Player, card_id
 		else:
 			sources.append("")
 	return sources
+
+func _begin_tournelouse_ouroboros_force_choice(performing_player : Player, source_card_id : int) -> bool:
+	if performing_player.transforms.size() == 0:
+		return false
+	if _get_tournelouse_transform_hand_options(performing_player).size() == 0:
+		return false
+	if performing_player.get_available_force() < 1:
+		return false
+	change_game_state(Enums.GameState.GameState_PlayerDecision)
+	decision_info.clear()
+	decision_info.player = performing_player.my_id
+	decision_info.type = Enums.DecisionType.DecisionType_ForceForEffect
+	decision_info.choice_card_id = source_card_id
+	decision_info.effect = {
+		"effect_type": StrikeEffects.ForceForEffect,
+		"force_max": 1,
+		"required": true,
+		"tournelouse_ouroboros_force": true,
+		"per_force_effect": null,
+		"overall_effect": { "effect_type": StrikeEffects.Pass }
+	}
+	# The UI reads this to confirm a hand payment still leaves a card to transform.
+	decision_info.choice = _get_tournelouse_transform_hand_options(performing_player)
+	create_event(Enums.EventType.EventType_ForceForEffect, performing_player.my_id, 0)
+	return true
 
 func _begin_tournelouse_ouroboros_hand_choice(performing_player : Player, source_card_id : int, paid_card_ids : Array, paid_card_sources : Array) -> bool:
 	var hand_options = _get_tournelouse_transform_hand_options(performing_player, paid_card_ids)
@@ -11651,22 +11704,9 @@ func do_cancel_tournelouse_ouroboros_hand_choice(performing_player : Player) -> 
 		printlog("ERROR: Tried to cancel unsupported Ouroboros hand choice.")
 		return false
 	var source_card_id = decision_info.choice_card_id
-	var force_effect = {
-		"effect_type": StrikeEffects.ForceForEffect,
-		"force_max": 1,
-		"required": true,
-		"tournelouse_ouroboros_force": true,
-		"per_force_effect": null,
-		"overall_effect": { "effect_type": StrikeEffects.Pass }
-	}
-	change_game_state(Enums.GameState.GameState_PlayerDecision)
-	decision_info.clear()
-	decision_info.player = performing_player.my_id
-	decision_info.type = Enums.DecisionType.DecisionType_ForceForEffect
-	decision_info.choice_card_id = source_card_id
-	decision_info.effect = force_effect
-	decision_info.choice = _get_tournelouse_transform_hand_options(performing_player)
-	create_event(Enums.EventType.EventType_ForceForEffect, performing_player.my_id, 0)
+	if not _begin_tournelouse_ouroboros_force_choice(performing_player, source_card_id):
+		printlog("ERROR: Tried to cancel back to an Ouroboros force payment that is no longer possible.")
+		return false
 	return true
 
 func do_cancel_tournelouse_ouroboros_transform_choice(performing_player : Player) -> bool:

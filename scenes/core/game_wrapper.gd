@@ -515,7 +515,11 @@ func can_player_boost(player_id : Enums.PlayerId,
 
 	var card_db = current_game.get_card_database()
 	var card = card_db.get_card(card_id)
-	if limitation:
+	# Tournelouse treats his normals as transforms until he exceeds, so a
+	# "transform" limitation has to accept them even though their printed boost
+	# is an ordinary normal boost.
+	var treat_as_transform = limitation == "transform" and player_treats_card_as_transform(player_id, card_id)
+	if limitation and not treat_as_transform:
 		if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:
 			return false
 	if card.definition['type'] == "decree_glorious" and not is_player_exceeded(player_id):
@@ -528,6 +532,10 @@ func can_player_boost(player_id : Enums.PlayerId,
 
 	if limitation == "transform" and _get_player(player_id).has_card_name_in_zone(card, "transform"):
 		return false
+
+	# Transforming never costs anything; the normal's printed boost cost doesn't apply.
+	if treat_as_transform:
+		return true
 
 	if ignore_costs:
 		return true
@@ -544,6 +552,12 @@ func can_player_boost(player_id : Enums.PlayerId,
 		var force_available = get_player_available_force(player_id) - boosting_card_force_value
 		return force_cost <= force_available
 
+func player_treats_card_as_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
+	var card = current_game.get_card_database().get_card(card_id)
+	if card == null:
+		return false
+	return _get_player(player_id).can_treat_card_as_transform(card)
+
 func can_player_ex_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
 	if not is_card_in_hand(player_id, card_id):
 		return false
@@ -551,6 +565,10 @@ func can_player_ex_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
 	var card_db = current_game.get_card_database()
 	var card = card_db.get_card(card_id)
 	if card.definition['boost']['boost_type'] != "transform":
+		# Tournelouse's normals may be transformed on their own before he exceeds,
+		# so they never need a second copy discarded.
+		if player_treats_card_as_transform(player_id, card_id):
+			return not _get_player(player_id).has_card_name_in_zone(card, "transform")
 		return false
 
 	return get_ex_transform_copy(player_id, card_id) != -1

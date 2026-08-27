@@ -16,7 +16,6 @@
 			"character_effect": true,
 			"effect_type": "choice",
 			"choice": [
-				{ "effect_type": "pass" },
 				{
 					"effect_type": "seal_transform_for_powerup",
 					"amount": 2
@@ -24,7 +23,8 @@
 				{
 					"effect_type": "seal_transform_for_armorup",
 					"amount": 2
-				}
+				},
+				{ "effect_type": "pass" }
 			]
 		}
 	],

@@ -258,7 +258,7 @@ func test_exceeded_set_strike_can_choose_transform_to_seal_for_power():
 
 	assert_true(game_logic.do_strike(player1, strike_id, false, -1))
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
-	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
 	assert_true(game_logic.do_choose_from_boosts(player1, [transform_id]))
 
@@ -272,13 +272,16 @@ func test_exceeded_transform_bonus_choice_can_cancel_back_to_options():
 
 	assert_true(game_logic.do_strike(player1, strike_id, false, -1))
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
-	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
 	assert_true(game_logic.do_cancel_tournelouse_transform_bonus_choice(player1))
+	# Cancelling restores the exact choice that was offered, not an invented one.
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
 	assert_eq(game_logic.decision_info.choice.size(), 3)
-	assert_eq(game_logic.decision_info.choice[2].get("effect_type"), StrikeEffects.SealTransformForArmorup)
-	assert_true(game_logic.do_choice(player1, 2))
+	assert_eq(game_logic.decision_info.choice[0].get("effect_type"), StrikeEffects.SealTransformForPowerup)
+	assert_eq(game_logic.decision_info.choice[1].get("effect_type"), StrikeEffects.SealTransformForArmorup)
+	assert_eq(game_logic.decision_info.choice[2].get("effect_type"), StrikeEffects.Pass)
+	assert_true(game_logic.do_choice(player1, 1))
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
 	assert_true(game_logic.do_choose_from_boosts(player1, [transform_id]))
 
@@ -410,3 +413,222 @@ func test_bargeist_only_offers_repeats_up_to_transformable_hand_count():
 	# The one transformable card is spent, so the chain ends and draws right away.
 	assert_true(player1.is_card_in_transforms(only_id))
 	assert_eq(player1.hand.size(), hand_size_before - 1 + 3)
+
+# ===== Death Omen "you may Transform a card from your hand" =====
+# Tournelouse's normals count as transforms until he exceeds, so the transform
+# limitation has to accept them both in the engine and in the UI helper the
+# client uses to decide which cards are selectable.
+
+func test_death_omen_before_effect_can_transform_a_normal_from_hand():
+	position_players(player1, 3, player2, 6)
+	player1.life = 20
+	player2.life = 30
+	_empty_hand(player1)
+	var death_omen_id = give_player_specific_card(player1, "tournelouse_death_omen")
+	var normal_id = give_player_specific_card(player1, "standard_normal_grasp")
+	var response_id = give_player_specific_card(player2, "standard_normal_focus")
+
+	assert_true(game_logic.do_strike(player1, death_omen_id, false, -1))
+	assert_true(game_logic.do_strike(player2, response_id, false, -1))
+
+	# Focus's before effect resolves at the same time, so pick Death Omen first.
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect)
+	assert_true(game_logic.do_choice(player1, 0))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_BoostNow)
+	assert_eq(game_logic.decision_info.limitation, "transform")
+
+	var wrapper = GameWrapper.new()
+	wrapper.current_game = game_logic
+	assert_true(wrapper.can_player_boost(player1.my_id, normal_id, ["hand"], "transform", false),
+			"the UI should offer Tournelouse's normals when a transform is requested")
+	wrapper.free()
+
+	assert_true(game_logic.do_boost(player1, normal_id, []))
+	assert_true(player1.is_card_in_transforms(normal_id))
+	assert_eq(player1.transforms[0].definition["boost"]["boost_type"], "transform")
+
+func test_death_omen_before_effect_offers_the_boost_when_behind_on_life():
+	position_players(player1, 3, player2, 6)
+	player1.life = 20
+	player2.life = 30
+	_empty_hand(player1)
+	var death_omen_id = give_player_specific_card(player1, "tournelouse_death_omen")
+	give_player_specific_card(player1, "standard_normal_grasp")
+	var response_id = give_player_specific_card(player2, "standard_normal_focus")
+
+	assert_true(game_logic.do_strike(player1, death_omen_id, false, -1))
+	assert_true(game_logic.do_strike(player2, response_id, false, -1))
+
+	assert_true(player1.can_boost_something(["hand"], "transform"),
+			"a normal in hand should count as something transformable")
+
+func test_exceeded_normals_are_not_treated_as_transforms():
+	player1.exceed()
+	_empty_hand(player1)
+	var normal_id = give_player_specific_card(player1, "standard_normal_grasp")
+
+	var wrapper = GameWrapper.new()
+	wrapper.current_game = game_logic
+	assert_false(wrapper.can_player_boost(player1.my_id, normal_id, ["hand"], "transform", false),
+			"once exceeded, normals are just normals again")
+	assert_false(wrapper.can_player_ex_transform(player1.my_id, normal_id))
+	wrapper.free()
+
+func test_ui_offers_ex_transform_for_a_single_normal_before_exceeding():
+	_empty_hand(player1)
+	var normal_id = give_player_specific_card(player1, "standard_normal_grasp")
+
+	var wrapper = GameWrapper.new()
+	wrapper.current_game = game_logic
+	assert_true(game_logic.can_do_ex_transform(player1))
+	assert_true(wrapper.can_player_ex_transform(player1.my_id, normal_id),
+			"a lone normal can be transformed as a turn action before exceeding")
+
+	assert_true(game_logic.do_ex_transform(player1, normal_id, -1))
+	assert_true(player1.is_card_in_transforms(normal_id))
+
+	var duplicate_id = give_player_specific_card(player1, "standard_normal_grasp")
+	assert_false(wrapper.can_player_ex_transform(player1.my_id, duplicate_id),
+			"a second copy of an already-transformed normal cannot be transformed")
+	wrapper.free()
+
+# ===== Netherstorm: seal transforms to pay its gauge cost =====
+
+func test_netherstorm_can_pay_gauge_cost_by_sealing_transforms():
+	position_players(player1, 3, player2, 5)
+	var netherstorm_id = give_player_specific_card(player1, "tournelouse_netherstorm")
+	var gauge_ids = give_gauge(player1, 3)
+	add_transform(player1, "standard_normal_assault")
+	add_transform(player1, "standard_normal_cross")
+	var transform_id_1 = player1.transforms[0].id
+	var transform_id_2 = player1.transforms[1].id
+	var response_id = give_player_specific_card(player2, "standard_normal_grasp")
+
+	assert_true(game_logic.do_strike(player1, netherstorm_id, false, -1))
+	assert_true(game_logic.do_strike(player2, response_id, false, -1))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_PayStrikeCost_Required)
+	assert_true(player1.tournelouse_may_seal_for_gauge,
+			"Netherstorm should allow transforms to be sealed as gauge")
+	assert_true(player1.can_pay_cost(0, 5),
+			"3 gauge plus 2 transforms should cover the 5 gauge cost")
+
+	var payment = gauge_ids.duplicate()
+	payment.append(transform_id_1)
+	payment.append(transform_id_2)
+	assert_true(game_logic.do_pay_strike_cost(player1, payment, false))
+
+	assert_eq(player1.transforms.size(), 0)
+	assert_true(player1.is_card_in_sealed(transform_id_1))
+	assert_true(player1.is_card_in_sealed(transform_id_2))
+	assert_false(player1.tournelouse_may_seal_for_gauge)
+
+func test_netherstorm_cannot_seal_transforms_for_gauge_outside_its_strike():
+	add_transform(player1, "standard_normal_assault")
+	assert_false(player1.tournelouse_may_seal_for_gauge)
+	assert_false(player1.can_pay_cost(0, 1),
+			"transforms only count as gauge while the seal effect is active")
+
+# ===== Ouroboros as a turn action from the Netherstorm transform =====
+
+func test_netherstorm_transform_exposes_a_named_bonus_action():
+	add_transform(player1, "tournelouse_netherstorm")
+
+	var bonus_actions = player1.get_bonus_actions()
+	assert_eq(bonus_actions.size(), 1)
+	# The UI reads this directly to label the button.
+	assert_true(bonus_actions[0].has("text"),
+			"action-timing boost effects need a 'text' label for the action button")
+	assert_eq(bonus_actions[0]["text"], "Pay 1 Force: Swap Card in Hand with Transform")
+	assert_eq(bonus_actions[0]["effect_type"], StrikeEffects.TournelouseOuroboros)
+	assert_ne(bonus_actions[0].get("card_id", -1), -1)
+
+func test_netherstorm_bonus_turn_action_runs_the_ouroboros_swap():
+	add_transform(player1, "tournelouse_netherstorm")
+	add_transform(player1, "standard_normal_assault")
+	var transform_id = player1.transforms[1].id
+	var hand_transform_id = give_player_specific_card(player1, "standard_normal_cross")
+	var gauge_ids = give_gauge(player1, 1)
+
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_true(game_logic.do_bonus_turn_action(player1, 0))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [gauge_ids[0]], false))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseToDiscard)
+	assert_true(game_logic.do_choose_to_discard(player1, [hand_transform_id]))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
+	assert_true(game_logic.do_choose_from_boosts(player1, [transform_id]))
+
+	assert_true(player1.is_card_in_transforms(hand_transform_id))
+	assert_true(player1.is_card_in_hand(transform_id))
+	assert_true(player1.is_card_in_discards(gauge_ids[0]))
+	assert_false(game_logic.active_character_action)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_netherstorm_bonus_turn_action_can_be_cancelled_back_to_pick_action():
+	add_transform(player1, "tournelouse_netherstorm")
+	add_transform(player1, "standard_normal_assault")
+
+	assert_true(game_logic.do_bonus_turn_action(player1, 0))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true, false))
+
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_false(game_logic.active_character_action)
+
+func test_death_omen_seal_choice_cancel_restores_the_death_omen_choice():
+	position_players(player1, 3, player2, 6)
+	add_transform(player1, "standard_normal_assault")
+	var transform_id = player1.transforms[0].id
+
+	execute_strike(player1, player2,
+		"tournelouse_death_omen", "standard_normal_focus",
+		false, false,
+		[], [],
+		true)
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect)
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_eq(game_logic.decision_info.choice.size(), 2)
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
+
+	assert_true(game_logic.do_cancel_tournelouse_transform_bonus_choice(player1))
+	# Death Omen only offers seal-for-power or pass, so cancelling must not
+	# conjure up a seal-for-armor option.
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_eq(game_logic.decision_info.choice.size(), 2)
+	assert_eq(game_logic.decision_info.choice[0].get("effect_type"), StrikeEffects.SealTransformForPowerup)
+	assert_eq(game_logic.decision_info.choice[0].get("amount"), 3)
+	assert_eq(game_logic.decision_info.choice[1].get("effect_type"), StrikeEffects.Pass)
+
+	# The restored choice is still fully playable.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromBoosts)
+	assert_true(game_logic.do_choose_from_boosts(player1, [transform_id]))
+	assert_true(player1.is_card_in_sealed(transform_id))
+
+func test_ouroboros_force_step_offers_the_same_hand_options_before_and_after_cancel():
+	add_transform(player1, "tournelouse_netherstorm")
+	add_transform(player1, "standard_normal_assault")
+	var hand_transform_id = give_player_specific_card(player1, "standard_normal_cross")
+	give_gauge(player1, 1)
+
+	assert_true(game_logic.do_bonus_turn_action(player1, 0))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	# The UI needs the legal hand options to validate a hand payment.
+	var options_before = game_logic.decision_info.choice.duplicate()
+	assert_true(options_before.has(hand_transform_id))
+
+	assert_true(game_logic.do_force_for_effect(player1, [player1.gauge[0].id], false))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseToDiscard)
+	assert_true(game_logic.do_cancel_tournelouse_ouroboros_hand_choice(player1))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.decision_info.effect.get("tournelouse_ouroboros_force"))
+	assert_eq(game_logic.decision_info.choice, options_before)

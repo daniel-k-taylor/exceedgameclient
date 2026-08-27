@@ -293,9 +293,22 @@ func process_decisions(player, strike_state, decisions):
 				assert_true(game_logic.do_choice(player, select_space(content)),
 						"%s failed to move to location %s" % [player, content])
 			var decision_type:  # Unknown decision type, just roll with it
-				assert_true(game_logic.do_choice(player, content),
+				var choice_index = content
+				if typeof(content) == TYPE_STRING and content == "pass":
+					choice_index = find_pass_choice_index()
+				assert_true(game_logic.do_choice(player, choice_index),
 						"Decision of type %s unhandled by test harness (attempted by player %s, content %s)" % [
 								decision_type, player, content])
+
+# Choices are built dynamically (one option per legal card, plus a Pass), so
+# tests that just want to decline should ask for "pass" rather than an index.
+func find_pass_choice_index() -> int:
+	for i in range(game_logic.decision_info.choice.size()):
+		var choice = game_logic.decision_info.choice[i]
+		if typeof(choice) == TYPE_DICTIONARY and choice.get("effect_type", "") == StrikeEffects.Pass:
+			return i
+	fail_test("Expected a Pass option in the current choice but there wasn't one.")
+	return -1
 
 func process_remaining_decisions(initiator, defender, init_choices, def_choices):
 	var empty_loop_count = 0
@@ -383,7 +396,10 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 						fail_test("Attempting to apply array choice %s to a decision of type %s" % [
 								choice, Enums.DecisionType.keys()[decision_type]])
 						return
-					assert_true(game_logic.do_choice(player, choice),
+					var choice_index = choice
+					if typeof(choice) == TYPE_STRING and choice == "pass":
+						choice_index = find_pass_choice_index()
+					assert_true(game_logic.do_choice(player, choice_index),
 							"Decision of type %s unhandled by test harness (attempted by player %s, content %s)" % [
 									decision_type, player, choice])
 		## TODO: Does the loop need to wait a tick or two here for the game engine to

@@ -102,7 +102,7 @@ func test_absinthin_arrow_damage_and_discard():
 	# Absinthin boost is immediate (no transform offer). Passive: Pass (idx0).
 	execute_strike(player1, player2, "eugenia_absinthin_arrow", "standard_normal_grasp",
 		false, false,
-		[0],  # normal passive: pass (don't reveal)
+		["pass"],  # normal passive: pass (don't reveal)
 		[])
 	validate_life(player1, 30, player2, 28)
 	var events = game_logic.get_latest_events()
@@ -120,7 +120,7 @@ func test_shimmer_choose_discard():
 	# Shimmer boost is a transform (Hanging by a Thread) and it hit -> transform offer: pass (idx1).
 	execute_strike(player1, player2, "eugenia_shimmer_of_madness", "standard_normal_dive",
 		false, false,
-		[[target], 0, 1],  # choose opp card to discard; passive pass; transform pass
+		[[target], "pass", 1],  # choose opp card to discard; passive pass; transform pass
 		[])
 	validate_life(player1, 30, player2, 28)
 	# The chosen card is now in the opponent's discard.
@@ -140,7 +140,7 @@ func test_werelight_opponent_discards():
 	# Werelight boost is immediate (no transform offer).
 	execute_strike(player1, player2, "eugenia_werelight", "standard_normal_grasp",
 		false, false,
-		[0],   # Eugenia normal passive: pass
+		["pass"],   # Eugenia normal passive: pass
 		[0])   # opponent chooses discard 2 random
 	validate_life(player1, 30, player2, 26)
 
@@ -153,7 +153,7 @@ func test_color_spray_damage():
 	# Color Spray boost is a transform (Unhinged) and it hit -> transform offer: pass (idx1).
 	execute_strike(player1, player2, "eugenia_color_spray", "standard_normal_grasp",
 		false, false,
-		[0, 1],  # passive pass; transform pass
+		["pass", 1],  # passive pass; transform pass
 		[])
 	validate_life(player1, 30, player2, 24)
 
@@ -183,7 +183,7 @@ func test_queen_of_hearts_discard_hand():
 	# hit: opp discards hand -> passive fires: pass (idx0). Queen boost is immediate (no transform offer).
 	execute_strike(player1, player2, "eugenia_queen_of_hearts", "standard_normal_dive",
 		false, false,
-		[gauge_ids, 0],  # pay gauge; passive pass
+		[gauge_ids, "pass"],  # pay gauge; passive pass
 		[])
 	validate_life(player1, 30, player2, 23)  # 30 - (1 base + 6 from discarded hand)
 	# The hit discards the opponent's hand (they then draw 1 fresh card).
@@ -205,7 +205,7 @@ func test_cats_cradle_power_scales_with_opponent_hand():
 	var gauge_ids = give_gauge(player1, 3)
 	execute_strike(player1, player2, "eugenia_cats_cradle", def_id,
 		false, false,
-		[gauge_ids, 0],  # pay gauge; passive pass
+		[gauge_ids, "pass"],  # pay gauge; passive pass
 		[])
 	validate_life(player1, 30, player2, 21)  # 30 - 9
 
@@ -226,7 +226,7 @@ func test_normal_passive_reveal_deals_nonlethal_damage():
 	# hit: choose to discard the Spike (S3). Passive: reveal Werelight (S3) -> 2 non-lethal: p2 28-2=26.
 	execute_strike(player1, player2, strike_card, "standard_normal_dive",
 		false, false,
-		[[target], 1, 1],  # choose Spike to discard; passive: reveal match (idx1); transform: pass
+		[[target], 0, 1],  # choose Spike to discard; passive: reveal match; transform: pass
 		[])
 	validate_life(player1, 30, player2, 26)
 
@@ -241,7 +241,7 @@ func test_normal_passive_pass_declines():
 	give_player_specific_card(player1, "eugenia_werelight")
 	execute_strike(player1, player2, strike_card, "standard_normal_dive",
 		false, false,
-		[[target], 0, 1],  # choose Spike; passive: pass; transform: pass
+		[[target], "pass", 1],  # choose Spike; passive: pass; transform: pass
 		[])
 	validate_life(player1, 30, player2, 28)
 
@@ -271,7 +271,7 @@ func test_exceeded_passive_adds_card_to_wonderland():
 	# to Wonderland (idx1). wonderland_add_card REPLACES the placeholder (size stays 1).
 	execute_strike(player1, player2, "eugenia_shimmer_of_madness", "standard_normal_dive",
 		false, false,
-		[[target], 1, 1],  # choose Spike; exceeded passive: add to Wonderland; transform pass
+		[[target], 0, 1],  # choose Spike; exceeded passive: add to Wonderland; transform pass
 		[])
 	validate_life(player1, 30, player2, 28)
 	assert_eq(player1.set_aside_cards.size(), 1)
@@ -289,7 +289,7 @@ func test_wonderland_replace_returns_old_card_to_opponent_discard():
 	var first = give_player_specific_card(player2, "standard_normal_cross")
 	execute_strike(player1, player2, "eugenia_shimmer_of_madness", "standard_normal_dive",
 		false, false,
-		[[first], 1, 1],  # choose Cross; exceeded passive: add to Wonderland; transform pass
+		[[first], 0, 1],  # choose Cross; exceeded passive: add to Wonderland; transform pass
 		[])
 	assert_eq(player1.set_aside_cards[0].id, first)
 	# Step 2: Next turn, add a second card (Spike). The first (Cross) should
@@ -299,7 +299,7 @@ func test_wonderland_replace_returns_old_card_to_opponent_discard():
 	var second = give_player_specific_card(player2, "standard_normal_spike")
 	execute_strike(player1, player2, "eugenia_shimmer_of_madness", "standard_normal_grasp",
 		false, false,
-		[[second], 1, 1],  # choose Spike; exceeded passive: add to Wonderland; transform pass
+		[[second], 0, 1],  # choose Spike; exceeded passive: add to Wonderland; transform pass
 		[])
 	assert_eq(player1.set_aside_cards.size(), 1, "Wonderland should still hold exactly 1 card")
 	assert_eq(player1.set_aside_cards[0].id, second, "Wonderland should now hold the new card")
@@ -420,7 +420,7 @@ func test_unhinged_adds_discard_on_ex_strike():
 	# EX strike with Grasp (no innate discard); Unhinged adds the opponent discard on hit.
 	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_dive",
 		true, false,
-		[0, 0, 0],  # order simultaneous hit effects; Grasp push/pull choice; passive pass
+		[0, 0, "pass"],  # order simultaneous hit effects; Grasp push/pull choice; passive pass
 		[])
 	# Opponent lost a card to the Unhinged-added discard.
 	assert_lt(player2.hand.size(), before)

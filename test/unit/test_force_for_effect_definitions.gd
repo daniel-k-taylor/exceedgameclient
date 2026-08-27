@@ -65,3 +65,38 @@ func test_force_for_effect_does_not_define_both_per_force_and_overall():
 			problems.append("%s defines both per_force_effect and overall_effect" % entry["source"])
 	assert_eq(problems.size(), 0,
 		"force_for_effect supports only one of the two:\n" + "\n".join(problems))
+
+# Bonus turn actions are labelled with bonus_action['text'] in _update_buttons,
+# so an "action" timing effect without a text key crashes when its button is drawn.
+
+const ACTION_TIMINGS := ["action", "opponent_action"]
+
+func _collect_action_effects(data, source : String, found : Array) -> void:
+	if data is Dictionary:
+		if data.get("timing", "") in ACTION_TIMINGS:
+			found.append({ "source": source, "effect": data })
+		for key in data:
+			_collect_action_effects(data[key], source, found)
+	elif data is Array:
+		for entry in data:
+			_collect_action_effects(entry, source, found)
+
+func _all_action_effects() -> Array:
+	var found = []
+	for card_id in CardDataManager.card_data:
+		_collect_action_effects(CardDataManager.card_data[card_id], "card '%s'" % card_id, found)
+	for deck_id in CardDataManager.decks:
+		_collect_action_effects(CardDataManager.decks[deck_id], "deck '%s'" % deck_id, found)
+	return found
+
+func test_scan_actually_finds_action_timing_effects():
+	assert_gt(_all_action_effects().size(), 5, "Expected to scan many action timing effects.")
+
+func test_action_timing_effects_declare_button_text():
+	var problems = []
+	for entry in _all_action_effects():
+		var effect = entry["effect"]
+		if not ("text" in effect) or str(effect["text"]).is_empty():
+			problems.append("%s: %s effect is missing 'text'" % [entry["source"], effect["timing"]])
+	assert_eq(problems.size(), 0,
+		"Action timing effects need a 'text' label for their button:\n" + "\n".join(problems))

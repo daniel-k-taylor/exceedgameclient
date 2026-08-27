@@ -446,6 +446,32 @@ func is_tournelouse_ouroboros_bargeist_return_blocked(card_id : int) -> bool:
 				return true
 	return false
 
+# Netherstorm / Bargeist Fang set this flag while their strike cost is being
+# paid, letting transforms be sealed as if they were gauge.
+func can_seal_transforms_for_gauge() -> bool:
+	if not game_wrapper:
+		return false
+	var seal_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	return seal_player != null and seal_player.tournelouse_may_seal_for_gauge
+
+# Tournelouse's normals count as transforms until he exceeds, so the UI has to
+# route them to the transform action even though their printed boost is a
+# regular normal boost.
+func acts_as_transform_card(card_id : int, limitation : String = "") -> bool:
+	if not game_wrapper:
+		return false
+	var logic_card = game_wrapper.get_card_database().get_card(card_id)
+	if logic_card == null:
+		return false
+	if logic_card.definition['boost']['boost_type'] == "transform":
+		return true
+	# A Tournelouse normal is only forced down the transform path when the effect
+	# explicitly asks for a transform; otherwise it is still a normal boost and
+	# the player is asked which they want.
+	if limitation != "transform":
+		return false
+	return game_wrapper.player_treats_card_as_transform(Enums.PlayerId.PlayerId_Player, card_id)
+
 # Called when the node enters the scene tree for the first time.
 var started_directly : bool = true
 var image_loader : CardImageLoader
@@ -1924,7 +1950,13 @@ func can_select_card(card):
 				_:
 					meets_limitation = true
 			return in_hand and meets_limitation and len(selected_cards) < select_card_require_max
-		UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel:
+		UISubState.UISubState_SelectCards_StrikeGauge:
+			# Tournelouse's Netherstorm/Bargeist Fang let him seal transforms to
+			# generate gauge, so the transform zone counts as a payment source.
+			if in_player_transforms and can_seal_transforms_for_gauge():
+				return len(selected_cards) < select_card_require_max
+			return in_gauge and len(selected_cards) < select_card_require_max
+		UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel:
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
 			return in_gauge or in_hand
@@ -2009,6 +2041,13 @@ func can_select_card(card):
 					valid_card = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, card.card_id)
 			else:
 				valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_valid_zones, select_boost_limitation, select_boost_ignore_costs)
+				# Tournelouse can transform a normal from his hand instead of
+				# boosting it, even when its boost cost is unaffordable.
+				if not valid_card and !select_boost_limitation and "hand" in select_boost_valid_zones \
+						and game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player) \
+						and game_wrapper.player_treats_card_as_transform(Enums.PlayerId.PlayerId_Player, card.card_id) \
+						and game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, card.card_id):
+					valid_card = true
 			return valid_amount and valid_card
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			return (in_gauge or in_hand) and selected_boost_to_pay_for != card.card_id
@@ -3489,7 +3528,10 @@ func update_gauge_selection_message():
 		var life_info = ""
 		if can_spend_life_for_gauge and gauge_from_life > 0:
 			life_info = " (%s from spent life)" % gauge_from_life
-		set_instructions("Select %s more gauge card(s).%s%s" % [max(0, num_remaining), life_info, discard_reminder])
+		var seal_transform_info = ""
+		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge and can_seal_transforms_for_gauge():
+			seal_transform_info = "\nYou may also select transforms to seal for gauge."
+		set_instructions("Select %s more gauge card(s).%s%s%s" % [max(0, num_remaining), life_info, seal_transform_info, discard_reminder])
 
 func update_gauge_for_effect_message():
 	var effect_str = ""
@@ -4898,7 +4940,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 			var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
 			for i in range(bonus_available_actions.size()):
 				var bonus_action = bonus_available_actions[i]
-				var action_text = bonus_action['text']
+				var action_text = bonus_action.get('text', "Special Action")
 				var bonus_index = i
 				button_choices.append({ "text": action_text, "action": func(): _on_bonus_action_pressed(bonus_index), "disabled": false })
 		else:
@@ -4949,6 +4991,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 						can_ex_transform = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
 					else:
 						can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ["hand"], "", false)
+						# Tournelouse's normals may also be transformed on their own.
+						if game_wrapper.player_treats_card_as_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id):
+							can_ex_transform = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
+							if can_ex_transform:
+								boost_text = "Boost/Transform" if can_boost else "Transform"
 				elif len(selected_cards) == 2:
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
@@ -5860,6 +5907,36 @@ func _show_boost_placement_choice():
 	close_popout()
 	return idx
 
+func _show_boost_or_transform_choice():
+	current_action_menu_choices = [
+		{"action": func(): pass},
+		{"action": func(): pass}
+	]
+	action_menu.set_choices("Play this card as:", [
+		{"text": "Boost"},
+		{"text": "Transform"}
+	], false, -1, -1, false, false, true)
+	action_menu.visible = true
+	var idx = await action_menu.choice_selected
+	close_popout()
+	return idx
+
+# Tournelouse's normals can be boosted normally or transformed, so he has to be
+# asked which one he meant. Returns -2 when no choice is needed, -1 when the
+# player backed out, 0 for Boost and 1 for Transform.
+func _get_tournelouse_boost_or_transform_choice(card_id : int) -> int:
+	if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card_id):
+		return -2
+	if not game_wrapper.player_treats_card_as_transform(Enums.PlayerId.PlayerId_Player, card_id):
+		return -2
+	if not game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player):
+		return -2
+	if not game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, card_id):
+		return -2
+	if not game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card_id, ["hand"], "", false):
+		return 1
+	return await _show_boost_or_transform_choice()
+
 func _get_renea_boost_placement_choice(player_id : Enums.PlayerId, card_id : int) -> int:
 	var renea_player = game_wrapper._get_player(player_id)
 	if renea_player == null or not renea_player.deck_flag("facedown_boosts_delay_effects") or renea_player.exceeded:
@@ -6320,16 +6397,25 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
 				var logic_card = game_wrapper.get_card_database().get_card(single_card_id)
+				var play_as_transform = acts_as_transform_card(single_card_id, select_boost_options['limitation'])
 				var facedown_override = null
-				if logic_card.definition['boost']['boost_type'] != "transform":
+				if not play_as_transform and not select_boost_options['limitation']:
+					var boost_or_transform = await _get_tournelouse_boost_or_transform_choice(single_card_id)
+					if boost_or_transform == -1:
+						return
+					if boost_or_transform >= 0:
+						play_as_transform = boost_or_transform == 1
+				if not play_as_transform:
 					var placement_choice = await _get_renea_boost_placement_choice(Enums.PlayerId.PlayerId_Player, single_card_id)
 					if placement_choice == -1:
 						return
 					if placement_choice >= 0:
 						facedown_override = placement_choice == 1
-				if logic_card.definition['boost']['boost_type'] == "transform":
+				if play_as_transform:
 					var ex_transform_id = -1
-					if select_boost_options['limitation'] != "transform": # makes sure it's an EX transform action
+					# Tournelouse's normals transform on their own; other cards need
+					# a second copy discarded when this is the EX transform action.
+					if select_boost_options['limitation'] != "transform" and logic_card.definition['boost']['boost_type'] == "transform":
 						ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, single_card_id)
 					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [ex_transform_id], false, spent_life_for_force, [])
 				else:
@@ -6630,18 +6716,24 @@ func _on_shortcut_boost_pressed():
 	var success = false
 
 	var logic_card = game_wrapper.get_card_database().get_card(card_id)
+	var play_as_transform = logic_card.definition['boost']['boost_type'] == "transform"
+	if not play_as_transform:
+		var boost_or_transform = await _get_tournelouse_boost_or_transform_choice(card_id)
+		if boost_or_transform == -1:
+			return
+		if boost_or_transform >= 0:
+			play_as_transform = boost_or_transform == 1
 	var facedown_override = null
-	if logic_card.definition['boost']['boost_type'] != "transform":
+	if not play_as_transform:
 		var placement_choice = await _get_renea_boost_placement_choice(Enums.PlayerId.PlayerId_Player, card_id)
 		if placement_choice == -1:
 			return
 		if placement_choice >= 0:
 			facedown_override = placement_choice == 1
-	if logic_card.definition['boost']['boost_type'] == "transform":
+	if play_as_transform:
 		var ex_transform_id = -1
-		if len(selected_cards) > 0:
-			ex_transform_id = selected_cards[1]
-		else:
+		# Tournelouse's normals transform on their own, without a second copy.
+		if logic_card.definition['boost']['boost_type'] == "transform":
 			ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, card_id)
 		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [ex_transform_id], false, 0)
 	else:

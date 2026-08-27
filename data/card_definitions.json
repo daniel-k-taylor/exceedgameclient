@@ -363,7 +363,7 @@
 		},
 		"NOTEEND": "AKIMO CARDS END"
 	},
-	
+
 	{
 		"NOTE": "AKUMA CARDS START",
 		"id": "akuma_demonarmageddon",
@@ -1584,8 +1584,8 @@
 		},
 		"NOTEEND": "ARAKUNE CARDS END"
 	},
-	
-	
+
+
 	{
 		"NOTE": "ASTRYDA CARDS START",
 		"id": "astryda_iceblock",
@@ -12413,8 +12413,8 @@
 		},
 		"NOTEEND": "HAZAMA CARDS END"
 	},
-	
-	
+
+
 	{
 		"NOTE": "HERAAL CARDS START",
 		"id": "heraal_thewildsride",
@@ -12546,7 +12546,7 @@
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				],
 				"and": {
 					"effect_type": "choice",
@@ -12623,7 +12623,7 @@
 			{
 				"timing": "after",
 				"effect_type": "draw",
-				"amount": 1,
+				"amount": 1
 			}
 		],
 		"boost": {
@@ -12810,7 +12810,7 @@
 		},
 		"NOTEEND": "HERAAL CARDS END"
 	},
-	
+
 	{
 		"NOTE": "HILDA CARDS START",
 		"id": "hilda_inthedarkness",
@@ -37764,8 +37764,8 @@
 			"effects": [
 				{
 					"timing": "action",
-					"effect_type": "tournelouse_ouroboros",
-					"override_description": "Action: Spend 1 force to swap a card in hand with a transform."
+					"text": "Pay 1 Force: Swap Card in Hand with Transform",
+					"effect_type": "tournelouse_ouroboros"
 				}
 			]
 		},
@@ -39750,8 +39750,8 @@
 		},
 		"NOTEND": "VINCENT CARDS END"
 	},
-	
-	
+
+
 	{
 		"NOTE": "VORHILD CARDS START",
 		"id": "vorhild_thousandfangs",
@@ -40123,8 +40123,8 @@
 		},
 		"NOTEEND": "VORHILD CARDS END"
 	},
-	
-	
+
+
 	{
 		"NOTE": "WAGNER CARDS START",
 		"id": "wagner_megiddo",
@@ -40902,7 +40902,7 @@
 		},
 		"NOTEEND": "WALDSTEIN CARDS END"
 	},
-	
+
 	{
 		"NOTE": "YAMI CARDS START",
 		"id": "yami_harbinger",
@@ -41252,7 +41252,7 @@
 		},
 		"NOTEEND": "YAMI CARDS END"
 	},
-	
+
 	{
 		"NOTE": "YUZURIHA CARDS START",
 		"id": "yuzu_kashou",
@@ -41612,7 +41612,7 @@
 		},
 		"NOTEEND": "YUZURIHA CARDS END"
 	},
-	
+
 	{
 		"NOTE": "ZACOAL CARDS START",
 		"id": "zacoal_titanicslam",
@@ -41997,7 +41997,7 @@
 		},
 		"NOTEEND": "ZACOAL CARDS END"
 	},
-	
+
 	{
 		"NOTE": "ZANGIEF CARDS START",
 		"id": "zangief_ultimateatomicbuster",

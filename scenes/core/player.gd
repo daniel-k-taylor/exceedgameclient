@@ -1911,6 +1911,10 @@ func can_boost_something(valid_zones : Array, limitation : String, ignore_costs 
 
 			if ignore_costs:
 				return true
+			# Transforming is free, so a Tournelouse normal never has to pay the
+			# force cost printed on its (replaced) normal boost.
+			if limitation == "transform" and can_treat_card_as_transform(card):
+				return true
 			var force_available_when_boosting_this = force_available - parent.card_db.get_card_force_value(card.id)
 			var cost = parent.card_db.get_card_boost_force_cost(card.id)
 			if force_available_when_boosting_this >= cost:
