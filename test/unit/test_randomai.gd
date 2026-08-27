@@ -769,3 +769,6 @@ func test_akimo_100():
 
 func test_astryda_100():
 	run_iterations_with_deck("astryda")
+
+func test_heraal_100():
+	run_iterations_with_deck("heraal")

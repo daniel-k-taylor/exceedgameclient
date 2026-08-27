@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cgnu0u030n2cl"]
+
+[ext_resource type="Texture2D" uid="uid://bcbm1bi1rhx85" path="res://assets/character_animations/heraal/idle/heraal_model.png" id="1_tis7e"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_tis7e")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = false
+metadata/scaling = 0.4
