@@ -1,4 +1,4 @@
-[gd_scene load_steps=128 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=129 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://dj3a6fhyrmcfp" path="res://assets/portraits/vorhild.png" id="4_rjnbv"]
@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://bn3hol65r7ylf" path="res://assets/portraits/random.png" id="8_vlgsf"]
 [ext_resource type="Texture2D" uid="uid://crv3kw2rfgg8g" path="res://assets/portraits/kykisuke.png" id="9_0auwh"]
 [ext_resource type="Texture2D" uid="uid://0yltyr2kvk7b" path="res://assets/portraits/zacoal.png" id="9_eet6p"]
+[ext_resource type="Texture2D" uid="uid://40wqhy2mbo3f" path="res://assets/portraits/kohai.png" id="11_agn3q"]
 [ext_resource type="Texture2D" uid="uid://dr8rttc30qga6" path="res://assets/portraits/shafathi.png" id="11_mpw8p"]
 [ext_resource type="Texture2D" uid="uid://bwrjf0kdg6pt8" path="res://assets/portraits/may.png" id="12_305dm"]
 [ext_resource type="Texture2D" uid="uid://g32sibw8hpwj" path="res://assets/portraits/potemkin.png" id="12_keamw"]
@@ -256,6 +257,11 @@ alignment = 1
 layout_mode = 2
 char_id = "zacoal"
 portrait_texture = ExtResource("9_eet6p")
+
+[node name="Kohai" parent="CenterContainer/STCharacterSelect/Rows/Row6" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "kohai"
+portrait_texture = ExtResource("11_agn3q")
 
 [node name="Row5" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
 layout_mode = 2
@@ -1165,6 +1171,8 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Vorhild" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row6/Zacoal" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row6/Zacoal" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row6/Kohai" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row6/Kohai" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row5/Shafathi" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row5/Shafathi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row7/Random" to="." method="_on_char_hover"]
