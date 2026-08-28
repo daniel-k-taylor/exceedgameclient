@@ -204,6 +204,8 @@ func get_timing_text(timing):
 			text += "When you change cards, "
 		"on_continuous_boost":
 			text += "When you play a continuous boost, "
+		"before_boost_effects":
+			text += "When boosting (before effects), "
 		"on_move_action":
 			text += "When you take a move action, "
 		"on_prepare":

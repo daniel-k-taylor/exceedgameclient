@@ -80,6 +80,7 @@ var resolving_boost_before_queue : bool = false
 
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
+var preparing_boost_info : Dictionary = {}
 
 var game_state : Enums.GameState = Enums.GameState.GameState_NotStarted
 
@@ -10700,6 +10701,23 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 	# Bonus effects for playing a boost, assumed to be non-blocking
 	if decision_info.bonus_effect:
 		do_effect_if_condition_met(performing_player, -1, decision_info.bonus_effect, null)
+	
+	# Effects that happen before resolving a boost (including if it gets negated)
+	var before_boost_effects = performing_player.get_character_effects_at_timing("before_boost_effects")
+	if len(before_boost_effects) > 1:
+		assert(false, "Processing more than one effects at this timing will need more robust handling")
+		# More explicitly, you'd probably need to pop out the loop below to its own function so you coud
+		#    track how many have been resolved and return after one causes a decision
+	for before_boost_effect in before_boost_effects:
+		do_effect_if_condition_met(performing_player, -1, before_boost_effect, null)
+		if game_state == Enums.GameState.GameState_PlayerDecision:
+			preparing_boost_info = {
+				'performing_player': performing_player,
+				'card_id': card_id,
+				'additional_boost_ids': additional_boost_ids,
+				'shuffle_discard_on_boost_cleanup': shuffle_discard_on_boost_cleanup
+			}
+			return true
 
 	begin_resolve_boost(performing_player, card_id, additional_boost_ids, shuffle_discard_on_boost_cleanup)
 	return true
@@ -11462,7 +11480,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 func set_player_action_processing_state():
 	if active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
 	or active_character_action or active_exceed or active_change_cards or active_prepare \
-	or active_special_draw_effect or active_post_action_effect:
+	or active_special_draw_effect or active_post_action_effect or preparing_boost_info:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
@@ -11524,6 +11542,13 @@ func continue_player_action_resolution(performing_player : Player):
 				continue_begin_turn()
 			elif active_overdrive:
 				do_remaining_overdrive(performing_player)
+			elif preparing_boost_info:
+				var boost_performing_player = preparing_boost_info['performing_player']
+				var boost_card_id = preparing_boost_info['card_id']
+				var boost_additional_boost_ids = preparing_boost_info['additional_boost_ids']
+				var boost_shuffle_discard_on_boost_cleanup = preparing_boost_info['shuffle_discard_on_boost_cleanup']
+				preparing_boost_info = {}
+				begin_resolve_boost(boost_performing_player, boost_card_id, boost_additional_boost_ids, boost_shuffle_discard_on_boost_cleanup)
 			elif active_boost:
 				if active_boost.checked_counter:
 					active_boost.effects_resolved += 1

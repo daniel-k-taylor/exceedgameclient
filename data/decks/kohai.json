@@ -43,16 +43,14 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "set_strike",
-			"condition": "initiated_strike",
-			"effect_type": "pass",
-			"and": {
-				"condition": "is_infused",
-				"effect_type": "rangeup",
-				"character_effect": true,
-				"amount": 0,
-				"amount2": 1
-			}
+			"timing": "before_boost_effects",
+			"condition": "is_infused",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "pull", "amount": 1 },
+				{ "effect_type": "pull", "amount": 2 },
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"exceed_ability_effects": [
@@ -67,19 +65,23 @@
 			"gauge_max": 1
 		},
 		{
+			"timing": "before_boost_effects",
+			"condition": "is_infused",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "pull", "amount": 1 },
+				{ "effect_type": "pull", "amount": 2 },
+				{ "effect_type": "pass" }
+			]
+		},
+		{
+			"character_effect": true,
 			"timing": "set_strike",
-			"condition": "initiated_strike",
-			"effect_type": "pass",
-			"and": {
-				"condition": "is_infused",
-				"effect_type": "rangeup",
-				"character_effect": true,
-				"amount": 0,
-				"amount2": 1,
-				"and": {
-					"effect_type": "powerup",
-					"amount": 2
-				}
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "hit",
+				"effect_type": "powerup_per_boost_in_play",
+				"amount": 1
 			}
 		}
 	],
