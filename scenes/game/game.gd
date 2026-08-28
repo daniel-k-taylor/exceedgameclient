@@ -3351,7 +3351,9 @@ func _on_choose_to_discard(event, informative_only : bool):
 	var allow_fewer = false or event['extra_info']
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
-	var source = decision_info.source
+	var source = "hand"
+	if decision_info.source:
+		source = decision_info.source
 	if informative_only or not can_pass:
 		if not decision_info.destination in ["reveal", "sealed", "opponent_overdrive", "lightningrod_any_space"]:
 			var amount_string = "Forced Discard %s" % str(amount)

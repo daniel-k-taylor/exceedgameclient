@@ -1671,6 +1671,11 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				if performing_player.is_in_location(Enums.CenterArenaLocation + space_offset):
 					return true
 			return false
+		elif condition == "opponent_in_center_three_spaces":
+			for space_offset in [-1, 0, 1]:
+				if other_player.is_in_location(Enums.CenterArenaLocation + space_offset):
+					return true
+			return false
 		elif condition == "attack_still_in_play":
 			var card = active_strike.get_player_card(performing_player)
 			return card in active_strike.cards_in_play
