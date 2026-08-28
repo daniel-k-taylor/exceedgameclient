@@ -1167,7 +1167,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'move_min' in effect:
 				var move_min = effect['move_min']
 				var move_max = effect['move_max']
-				effect_str += "Advance or Retreat %s-%s" % [move_min, move_max]
+				var move_string = "Advance or Retreat"
+				if effect.get('advance_only', false):
+					move_string = "Advance"
+				effect_str += "%s %s-%s" % [move_string, move_min, move_max]
 			else:
 				effect_str += "Move to any space."
 		StrikeEffects.MoveRandomCards:

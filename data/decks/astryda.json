@@ -1,7 +1,7 @@
 {
 	"id": "astryda",
 	"season": 8,
-	"display_name": "Astryda (playtest)",
+	"display_name": "Astryda (8/28 test)",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "zero_vector",
@@ -101,7 +101,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/kuiRSX6.jpeg",
+			"url": "https://i.imgur.com/gvXdf1M.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

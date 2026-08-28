@@ -1,7 +1,7 @@
 {
 	"id": "akimo",
 	"season": 8,
-	"display_name": "Akimo (playtest)",
+	"display_name": "Akimo (8/28 test)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,
@@ -151,7 +151,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/jaXKiy3.jpeg",
+			"url": "https://i.imgur.com/XaexnHV.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

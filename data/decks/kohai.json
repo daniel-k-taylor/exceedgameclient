@@ -1,7 +1,7 @@
 {
 	"id": "kohai",
 	"season": 8,
-	"display_name": "Kohai (playtest)",
+	"display_name": "Kohai (8/28 test)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,
@@ -99,7 +99,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/wugLXjb.jpeg",
+			"url": "https://i.imgur.com/ZhJDPcL.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

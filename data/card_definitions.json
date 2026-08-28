@@ -89,11 +89,15 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "strike" } },
-						{ "effect_type": "pass" }
-					]
+					"effect_type": "advance",
+					"amount": 2,
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "strike" } },
+							{ "effect_type": "pass" }
+						]
+						}
 				}
 			]
 		}
@@ -120,7 +124,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "pull",
-				"amount": 3,
+				"amount": 2,
 				"and": {
 					"effect_type": "opponent_discard_random",
 					"amount": 1
@@ -231,14 +235,14 @@
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "advance",
-				"amount": 3
-			},
-			{
-				"timing": "hit",
 				"condition": "is_infused",
 				"effect_type": "draw",
 				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
 			}
 		],
 		"boost": {
@@ -1598,7 +1602,7 @@
 		"power": 7,
 		"speed": 2,
 		"armor": 4,
-		"guard": 2,
+		"guard": 3,
 		"effects": [
 			{
 				"timing": "before",
@@ -12438,7 +12442,7 @@
 				"timing": "hit",
 				"effect_type": "move_to_any_space",
 				"move_min": 0,
-				"move_max": 5,
+				"move_max": 4,
 				"advance_only": true
 			}
 		],
@@ -12623,7 +12627,7 @@
 			{
 				"timing": "after",
 				"effect_type": "draw",
-				"amount": 1
+				"amount": 2
 			}
 		],
 		"boost": {
@@ -18197,14 +18201,16 @@
 				{
 					"timing": "now",
 					"effect_type": "draw",
-					"amount": 2,
-					"and": {
-						"condition": "opponent_in_center_three_spaces",
-						"effect_type": "strike"
-					}
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
 				},
 				{
 					"timing": "after",
+					"condition": "in_center_three_spaces",
 					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
 					"card_name": "Earthquake Stomp"
 				}
@@ -23204,7 +23210,7 @@
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
-		"power": 3,
+		"power": 2,
 		"speed": 3,
 		"armor": 2,
 		"guard": 3,
@@ -33606,9 +33612,13 @@
 			},
 			{
 				"timing": "after",
-				"effect_type": "dodge_at_range",
-				"range_min": 1,
-				"range_max": 1
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "dodge_at_range",
+					"range_min": 1,
+					"range_max": 1
+				}
 			}
 		],
 		"boost": {
@@ -41725,12 +41735,8 @@
 				},
 				{
 					"timing": "hit",
-					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-						"card_name": "Harbinger"
-					}
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Harbinger"
 				}
 			]
 		}
@@ -41824,7 +41830,16 @@
 			{
 				"timing": "hit",
 				"effect_type": "pull",
-				"amount": 3
+				"amount": 2,
+				"use_semicolon_for_and": true,
+				"and": {
+					"condition": "pulled_past",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				}
 			}
 		],
 		"boost": {
@@ -41861,7 +41876,7 @@
 		"gauge_cost": 0,
 		"range_min": 2,
 		"range_max": 3,
-		"power": 5,
+		"power": 4,
 		"speed": 4,
 		"armor": 0,
 		"guard": 0,
@@ -41901,7 +41916,7 @@
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
-		"power": 4,
+		"power": 3,
 		"speed": 6,
 		"armor": 0,
 		"guard": 0,

@@ -25,7 +25,7 @@ func test_akimo_duelforthedome_outside():
 	var strike_cards = execute_strike(player2, player1, "standard_normal_assault", "akimo_bloodthirst",
 		false, false, [2], []) #player 2 must decline infusion
 		
-	validate_positions(player1, 3, player2, 1)
+	validate_positions(player1, 3, player2, 2)
 	validate_life(player1, 30, player2, 27)
 
 	advance_turn(player1)

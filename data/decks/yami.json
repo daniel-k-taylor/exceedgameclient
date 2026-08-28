@@ -1,7 +1,7 @@
 {
 	"id": "yami",
 	"season": 8,
-	"display_name": "Yami (playtest)",
+	"display_name": "Yami (8/28 test)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,
@@ -97,7 +97,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/cq91Jhk.jpeg",
+			"url": "https://i.imgur.com/unDgOPV.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

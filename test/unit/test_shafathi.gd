@@ -41,9 +41,11 @@ func test_shafathi_dematerialize_character_after():
 func test_shafathi_dematerialize_boost_after():
 	position_players(player1, 3, player2, 6)
 	var walkworld_boost = give_player_specific_card(player1, "shafathi_dematerialize")
+	var forcecard_1 = give_player_specific_card(player1, "standard_normal_grasp")
+	var forcecard_2 = give_player_specific_card(player1, "standard_normal_grasp")
 	
 	var p1_handsize = len(player1.hand)
-	assert_true(game_logic.do_boost(player1, walkworld_boost, [player1.hand[0].id, player1.hand[1].id]))
+	assert_true(game_logic.do_boost(player1, walkworld_boost, [forcecard_1, forcecard_2]))
 	# Draw choice is skipped because there are no ultras in discard
 	assert_eq(len(player1.hand), p1_handsize - 2) # spent 3 cards from hand, then drew for end of turn
 	advance_turn(player2)

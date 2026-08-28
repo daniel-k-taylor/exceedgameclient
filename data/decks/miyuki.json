@@ -1,7 +1,7 @@
 {
 	"id": "miyuki",
 	"season": 8,
-	"display_name": "Miyuki (playtest)",
+	"display_name": "Miyuki (8/28 test)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -97,7 +97,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/NSOFifw.jpeg",
+			"url": "https://i.imgur.com/Vy5C3fJ.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
