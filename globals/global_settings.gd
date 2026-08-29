@@ -25,7 +25,11 @@ const MatchmakingMinimumTimePerChoice : int = 20
 const MatchmakingBestOf : int = 1
 
 # Persistent Settings
-var BGMEnabled = true
+# Music defaults off on web and in dev builds (editor runs, headless unit test
+# runs) so they don't blast the main menu BGM; release builds default on. An
+# explicit user toggle is still remembered and honoured.
+var BGMEnabled : bool = default_bgm_enabled()
+var _bgm_preference_set : bool = false
 var DefaultPlayerName = ""
 var GameSoundsEnabled = true
 var PlayerCharacter = ""
@@ -146,6 +150,35 @@ func is_logging_enabled() -> bool:
 		return true
 	return OS.is_debug_build()
 
+# Whether BGM should play when the player has never explicitly chosen. Web and
+# dev builds (editor runs, headless test runs) stay silent so they don't blast
+# the main menu music; release builds keep the music on.
+static func default_bgm_enabled() -> bool:
+	if OS.has_feature("web"):
+		return false
+	return not OS.is_debug_build()
+
+# Resolve the BGM preference from a loaded settings dictionary (non-web).
+func _apply_loaded_bgm_settings(json) -> void:
+	var stored_bgm = json['BGMEnabled'] if 'BGMEnabled' in json and json['BGMEnabled'] is bool else null
+	var preference_set = 'BGMPreferenceSet' in json and json['BGMPreferenceSet'] is bool \
+			and json['BGMPreferenceSet']
+
+	if preference_set and stored_bgm != null:
+		# The player toggled BGM at some point, so honour their choice.
+		BGMEnabled = stored_bgm
+		_bgm_preference_set = true
+	elif stored_bgm == false:
+		# Legacy settings file written before BGMPreferenceSet existed. Back then
+		# the default was on, so a stored `false` can only have come from the
+		# player switching the music off - keep honouring that. A stored `true`
+		# is indistinguishable from the old default, so it falls through below.
+		BGMEnabled = false
+		_bgm_preference_set = true
+	else:
+		BGMEnabled = default_bgm_enabled()
+		_bgm_preference_set = false
+
 func get_server_url() -> String:
 	const azure_url = "wss://fightingcardslinux.azurewebsites.net"
 	const local_url = "ws://localhost:8080"
@@ -166,8 +199,9 @@ func load_persistent_settings() -> bool:  # returns success code
 	if OS.has_feature("web"):
 		# On web, always default BGM off each session; ignore any stored BGM preference.
 		BGMEnabled = false
-	elif 'BGMEnabled' in json and json['BGMEnabled'] is bool:
-		BGMEnabled = json['BGMEnabled']
+		_bgm_preference_set = false
+	else:
+		_apply_loaded_bgm_settings(json)
 	if 'DefaultPlayerName' in json and json['DefaultPlayerName'] is String:
 		DefaultPlayerName = json['DefaultPlayerName']
 	if 'GameSoundsEnabled' in json and json['GameSoundsEnabled'] is bool:
@@ -208,7 +242,7 @@ func load_persistent_settings() -> bool:  # returns success code
 
 func save_persistent_settings():
 	var settings = {
-		"HasExplicitBGMPreference": true,
+		"BGMPreferenceSet": _bgm_preference_set,
 		"BGMEnabled": BGMEnabled,
 		"DefaultPlayerName": DefaultPlayerName,
 		"GameSoundsEnabled": GameSoundsEnabled,
@@ -233,6 +267,7 @@ func save_persistent_settings():
 
 func set_bgm(value : bool):
 	BGMEnabled = value
+	_bgm_preference_set = true
 	save_persistent_settings()
 
 func set_game_sounds_enabled(value : bool):

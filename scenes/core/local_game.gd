@@ -844,6 +844,8 @@ func start_begin_turn():
 	opponent.used_once_per_turn_effects = {}
 	player.renea_boost_from_briefcase_used = false
 	opponent.renea_boost_from_briefcase_used = false
+	player.syrus_reckless_greed_used = false
+	opponent.syrus_reckless_greed_used = false
 
 	# Handle any start of turn boost effects.
 	# Iterate in reverse as items can be removed.

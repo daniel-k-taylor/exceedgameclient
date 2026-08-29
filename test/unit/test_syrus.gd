@@ -306,3 +306,172 @@ func test_treasure_hunter_boost_moves_a_chosen_card_from_hand_to_gauge():
 	# Boosting ends the turn, so the two cards that left hand are offset by the
 	# end-of-turn draw.
 	assert_eq(player1.hand.size(), hand_before - 1)
+
+# ===== Reckless Greed (Aria of the Winds transform) =====
+# "Once per turn, after resolving an action that does not cause a strike, you
+#  may discard one of your boosts in play to strike."
+# The boosts created by Syrus's Starting Ability (instant boosts re-played
+# face-down as continuous boosts) are boosts in play, so they are valid targets.
+
+func _reckless_greed_choice_index_for(boost_id : int):
+	var choices = game_logic.decision_info.choice
+	for i in range(choices.size()):
+		if choices[i].get("boost_id", -1) == boost_id:
+			return i
+	return -1
+
+func _reckless_greed_pass_index():
+	var choices = game_logic.decision_info.choice
+	return choices.size() - 1
+
+func test_reckless_greed_offers_the_facedown_boost_from_the_passive():
+	position_players(player1, 3, player2, 6)
+	add_transform(player1, "syrus_aria_of_the_winds", true)
+
+	# Boosting an instant boost triggers the character ability, which re-plays it
+	# as a facedown continuous boost.
+	var boost_id = give_player_specific_card(player1, "syrus_tidal_whirl")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(player1.is_card_in_continuous_boosts(boost_id))
+
+	# Reckless Greed should now offer that facedown boost.
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_eq(game_logic.decision_info.choice.size(), 2)
+	assert_ne(_reckless_greed_choice_index_for(boost_id), -1,
+			"Reckless Greed should offer the facedown boost created by the character ability")
+
+func test_reckless_greed_discards_the_passive_boost_and_strikes():
+	position_players(player1, 2, player2, 6)
+	add_transform(player1, "syrus_aria_of_the_winds", true)
+
+	var boost_id = give_player_specific_card(player1, "syrus_tidal_whirl")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_true(game_logic.do_choice(player1, 0))  # Tidal Whirl: advance 1 & draw
+
+	var choice_index = _reckless_greed_choice_index_for(boost_id)
+	assert_ne(choice_index, -1)
+	assert_true(game_logic.do_choice(player1, choice_index))
+
+	# The boost is discarded and its original boost definition is restored.
+	assert_false(player1.is_card_in_continuous_boosts(boost_id))
+	assert_true(player1.is_card_in_discards(boost_id))
+	var boost_card = game_logic.get_card_database().get_card(boost_id)
+	assert_false(boost_card.definition.has("replaced_boost"))
+	assert_eq(boost_card.definition["boost"]["boost_type"], "immediate")
+
+	# ...and the player is now striking.
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+	assert_eq(game_logic.decision_info.player, player1.my_id)
+	assert_true(player1.syrus_reckless_greed_used)
+
+	var strike_cards = execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross", false, false, [], [])
+	assert_null(game_logic.active_strike, "the Reckless Greed strike should have resolved")
+	assert_true(player1.is_card_in_discards(strike_cards[0]) or player1.is_card_in_gauge(strike_cards[0]),
+			"the attack card should have left play once the strike resolved")
+
+func test_reckless_greed_is_available_again_on_a_later_turn():
+	position_players(player1, 2, player2, 6)
+	add_transform(player1, "syrus_aria_of_the_winds", true)
+
+	# Turn 1: use Reckless Greed with a facedown boost from the passive.
+	var boost_id = give_player_specific_card(player1, "syrus_tidal_whirl")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, _reckless_greed_choice_index_for(boost_id)))
+	assert_true(player1.syrus_reckless_greed_used)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross", false, false, [], [])
+
+	advance_turn(player2)
+	assert_false(player1.syrus_reckless_greed_used,
+			"Reckless Greed is once per turn, so it should be usable again next turn")
+
+	# Turn 3: another instant boost, another facedown boost, Reckless Greed again.
+	position_players(player1, 3, player2, 5)
+	var boost_id2 = give_player_specific_card(player1, "syrus_tidal_whirl")
+	assert_true(game_logic.do_boost(player1, boost_id2, []))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	var choice_index = _reckless_greed_choice_index_for(boost_id2)
+	assert_ne(choice_index, -1, "Reckless Greed should be offered again on a later turn")
+	assert_true(game_logic.do_choice(player1, choice_index))
+	assert_true(player1.is_card_in_discards(boost_id2))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+
+func test_reckless_greed_offers_both_normal_and_passive_boosts():
+	position_players(player1, 3, player2, 6)
+	add_transform(player1, "syrus_aria_of_the_winds", true)
+
+	# Turn 1: a plain continuous boost. Pass on Reckless Greed.
+	var continuous_id = give_player_specific_card(player1, "standard_normal_grasp")
+	assert_true(game_logic.do_boost(player1, continuous_id, []))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, _reckless_greed_pass_index()))
+
+	advance_turn(player2)
+
+	# Turn 3: an instant boost becomes a second, facedown boost.
+	var boost_id = give_player_specific_card(player1, "syrus_tidal_whirl")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_true(game_logic.do_choice(player1, 0))
+
+	assert_eq(game_logic.decision_info.choice.size(), 3)
+	assert_ne(_reckless_greed_choice_index_for(continuous_id), -1)
+	assert_ne(_reckless_greed_choice_index_for(boost_id), -1)
+	assert_true(game_logic.do_choice(player1, _reckless_greed_pass_index()))
+	assert_true(player1.is_card_in_continuous_boosts(continuous_id))
+	assert_true(player1.is_card_in_continuous_boosts(boost_id))
+
+func test_reckless_greed_offers_the_exceeded_facedown_boost():
+	position_players(player1, 3, player2, 6)
+	player1.exceed()
+	add_transform(player1, "syrus_aria_of_the_winds", true)
+
+	var boost_id = give_player_specific_card(player1, "syrus_tidal_whirl")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_true(game_logic.do_choice(player1, 0))  # Tidal Whirl advance & draw
+	assert_true(game_logic.do_choice(player1, 0))  # exceeded replacement: move up to 1
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	var choice_index = _reckless_greed_choice_index_for(boost_id)
+	assert_ne(choice_index, -1,
+			"Reckless Greed should offer the exceeded facedown boost from the passive")
+	assert_true(game_logic.do_choice(player1, choice_index))
+	assert_false(player1.is_card_in_continuous_boosts(boost_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+
+func test_reckless_greed_is_not_offered_with_no_boosts_in_play():
+	position_players(player1, 3, player2, 6)
+	add_transform(player1, "syrus_aria_of_the_winds", true)
+
+	assert_true(game_logic.do_prepare(player1))
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_PlayerDecision,
+			"Reckless Greed should not prompt when there are no boosts to discard")
+
+func test_reckless_greed_offers_the_passive_boost_after_riptides_bonus_action():
+	# Riptide (Dredge Fury's boost) is an instant boost that grants a bonus
+	# action, so the character ability's facedown boost is created before the
+	# extra action. Reckless Greed must still see it afterwards.
+	position_players(player1, 3, player2, 6)
+	add_transform(player1, "syrus_aria_of_the_winds", true)
+
+	var boost_id = give_player_specific_card(player1, "syrus_dredge_fury")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_true(game_logic.do_choice(player1, 3))  # Riptide: pass on drawing
+	assert_true(game_logic.do_choice(player2, 3))  # opponent passes on drawing
+
+	assert_true(player1.is_card_in_continuous_boosts(boost_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.get_active_player(), player1.my_id)
+
+	assert_true(game_logic.do_prepare(player1))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	var choice_index = _reckless_greed_choice_index_for(boost_id)
+	assert_ne(choice_index, -1,
+			"Reckless Greed should offer the facedown boost after the bonus action")
+	assert_true(game_logic.do_choice(player1, choice_index))
+	assert_true(player1.is_card_in_discards(boost_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
