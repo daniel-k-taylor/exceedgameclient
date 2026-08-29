@@ -2435,6 +2435,8 @@ func _set_card_bonus(card_id, bonus, value=true):
 			card.set_wild(value)
 		"critical":
 			card.set_crit(value)
+		"infuse":
+			card.set_infuse(value)
 		_:
 			assert(false, "Set card bonus for unknown effect")
 
@@ -4816,7 +4818,7 @@ func _handle_events(events):
 				_set_card_bonus(event['number'], "critical")
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_MarkInfused:
-				_set_card_bonus(event['number'], "critical")
+				_set_card_bonus(event['number'], "infuse")
 				_add_bonus_label_text(event['event_player'], "[color=sky_blue]Infused![/color]\n")
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
 				delay = _stat_notice_event(event)
