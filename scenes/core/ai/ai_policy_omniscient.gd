@@ -1753,7 +1753,6 @@ func _get_card_discard_priority(card_id: int, state: AIPlayer.AIGameState) -> in
 	if speed >= SPEED_CURVE.get(distance, 4): return -5
 	return 50 - speed * 3 - _get_card_power(card_id, state) * 2
 
-
 func pick_choose_to_discard(possible_actions: Array, ai_game_state: AIPlayer.AIGameState):
 	if possible_actions.size() == 0: return null
 	var state: AIPlayer.AIGameState = ai_game_state

@@ -9,7 +9,7 @@ func who_am_i():
 
 ## Redeemed - (1F) Add a card from your sealed area to your Gauge. Close 2.
 
-func test_zacoal_redeamed_seal():
+func test_zacoal_redeemed_seal():
 	position_players(player1, 3, player2, 7)
 	var sealed_card = player1.hand[0].id
 	player1.seal_from_location(sealed_card, 'hand')
@@ -25,7 +25,7 @@ func test_zacoal_redeamed_seal():
 
 # Ensure it doesn't lock up if nothing is sealed
 
-func test_zacoal_redeamed_no_seal():
+func test_zacoal_redeemed_no_seal():
 	position_players(player1, 3, player2, 7)
 	
 	var boost_card = give_player_specific_card(player1, "zacoal_boulder")

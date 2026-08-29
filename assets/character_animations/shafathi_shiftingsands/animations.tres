@@ -1,0 +1,17 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://ji1uov7jrncd"]
+
+[ext_resource type="Texture2D" uid="uid://bensa8gbopsch" path="res://assets/character_animations/shafathi_shiftingsands/shafathi_sands.png" id="1_pv77x"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_pv77x")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+metadata/flip = false
+metadata/scaling = 1.5
+metadata/vertical_offset = 0.0

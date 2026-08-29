@@ -1,18 +1,50 @@
 {
-	"id": "miyuki",
+	"id": "shafathi",
 	"season": 8,
-	"display_name": "Miyuki (8/28 test)",
-	"exceed_cost": 3,
+	"display_name": "Shafathi (8/28 test)",
+	"exceed_cost": 2,
+	"buddy_cards": [
+		"scheme1",
+		"scheme2",
+		"shiftingsands1",
+		"shiftingsands2",
+		"shadowoverspace1",
+		"shadowoverspace2"
+	],
+	"hide_buddy_reference": true,
+	"buddy_card_graphic_override": [
+		"",
+		"",
+		"",
+		"",
+		"",
+		""
+	],
+	"buddy_card_graphics_id": [
+		"shafathi_scheme",
+		"shafathi_scheme",
+		"shafathi_shiftingsands",
+		"shafathi_shiftingsands",
+		"shafathi_shadowoverspace",
+		"shafathi_shadowoverspace"
+	],
+	"buddy_display_names": [
+		"Scheme",
+		"Scheme",
+		"Shifting Sands",
+		"Shifting Sands",
+		"Shadow Over Space",
+		"Shadow Over Space"
+	],
+	"buddy_cards_foreground": [
+		true,
+		true,
+		true,
+		true,
+		true,
+		true
+	],
 	"character_action_default": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"can_boost_from_gauge": true,
-		"shortcut_effect_type": "boost_from_gauge",
-		"effect": {
-			"effect_type": "boost_from_gauge",
-			"limitation": ""
-		}
-	}, {
 		"gauge_cost": 1,
 		"force_cost": 0,
 		"action_name": "Infuse",
@@ -26,26 +58,22 @@
 			}
 		}
 	}],
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"can_boost_from_gauge": true,
-		"shortcut_effect_type": "boost_from_gauge",
-		"effect": {
-			"effect_type": "boost_from_gauge",
-			"limitation": "",
-			"and": {
-				"effect_type": "infused",
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "strike" },
-						{ "effect_type": "pass" }
-					]
-				}
+	"on_exceed": {
+		"effect_type": "choice",
+		"choice": [
+			{
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "hand"
+			},
+			{
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "gauge"
 			}
-		}
-	}, {
+		]
+	},
+	"character_action_exceeded": [{
 		"gauge_cost": 1,
 		"force_cost": 0,
 		"action_name": "Infuse",
@@ -69,6 +97,17 @@
 				"effect_type": "infused"
 			},
 			"gauge_max": 1
+		},
+		{
+			"timing": "after",
+			"effect_type": "force_for_effect",
+			"per_force_effect": null,
+			"overall_effect": {
+				"effect_type": "choose_discard",
+				"limitation": "ultra",
+				"destination": "hand"
+			},
+			"force_max": 1
 		}
 	],
 	"exceed_ability_effects": [
@@ -81,15 +120,28 @@
 				"effect_type": "infused"
 			},
 			"gauge_max": 1
+		},
+		{
+			"timing": "after",
+			"condition": "is_infused",
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "boost_then_sustain",
+					"valid_zones": ["hand"],
+					"limitation": "continuous"
+				},
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/UtqxDdJ.jpeg",
+			"url": "https://i.imgur.com/uUwTly0.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/EyHWOwe.jpeg",
+			"url": "https://i.imgur.com/Tfo18yS.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -97,7 +149,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/Vy5C3fJ.jpeg",
+			"url": "https://i.imgur.com/VKuQm1m.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
@@ -107,72 +159,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "miyuki_uncagedsoul",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "miyuki_uncagedsoul",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "miyuki_spiritheal",
+			"definition_id": "shafathi_flashback",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "miyuki_spiritheal",
+			"definition_id": "shafathi_flashback",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "miyuki_cripplingsparks",
+			"definition_id": "shafathi_timetwist",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "shafathi_timetwist",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "shafathi_dematerialize",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "miyuki_cripplingsparks",
+			"definition_id": "shafathi_dematerialize",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "miyuki_cleansingflame",
+			"definition_id": "shafathi_sandform",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "miyuki_cleansingflame",
+			"definition_id": "shafathi_sandform",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "miyuki_lifestealtouch",
+			"definition_id": "shafathi_penumbra",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "miyuki_lifestealtouch",
+			"definition_id": "shafathi_penumbra",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "miyuki_firelight",
+			"definition_id": "shafathi_stasis",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "miyuki_firelight",
+			"definition_id": "shafathi_stasis",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "miyuki_radiantwarmth",
+			"definition_id": "shafathi_splitsecond",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "miyuki_radiantwarmth",
+			"definition_id": "shafathi_splitsecond",
 			"image_name": "specials",
 			"image_index": 4
 		},

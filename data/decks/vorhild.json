@@ -1,7 +1,7 @@
 {
 	"id": "vorhild",
 	"season": 8,
-	"display_name": "Vorhild (playtest)",
+	"display_name": "Vorhild (8/28 test)",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "strike"

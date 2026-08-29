@@ -71,6 +71,8 @@ func get_choice_summary(choice, card_name_source : String):
 					effect_summary.min_value = "X"
 				elif str(effect_summary.min_value) == "TOTAL_POWER":
 					effect_summary.min_value = "your Total Power"
+				elif str(effect_summary.min_value) == "-1":
+					effect_summary.min_value = "any number"
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value)
 			else:
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value) + "-" + str(effect_summary.max_value)
@@ -202,6 +204,8 @@ func get_timing_text(timing):
 			text += "When you change cards, "
 		"on_continuous_boost":
 			text += "When you play a continuous boost, "
+		"before_boost_effects":
+			text += "When boosting (before effects), "
 		"on_move_action":
 			text += "When you take a move action, "
 		"on_prepare":
@@ -244,6 +248,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If at arena edge, "
 		"in_center_three_spaces":
 			text += "If in center 3 spaces, "
+		"opponent_in_center_three_spaces":
+			text += "If opponent in center 3 spaces, "
 		"attack_still_in_play":
 			text += "If your attack is still in play, "
 		"attacks_match_printed_speed":
@@ -434,6 +440,10 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you can hit %s, " % detail
 		"opponent_in_boost_space":
 			text += "If opponent on %s, " % detail
+		"boost_space_unoccupied":
+			text += "If %s is unoccupied, " % detail
+		"boost_is_at_specific_range":
+			text += "If %s is at range %s from you, " % [detail, effect['condition_amount']]
 		"boost_space_in_range_towards_opponent":
 			text += "If %s in range towards opponent, " % detail
 		"opponent_moved_or_was_moved":
@@ -883,6 +893,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Close " + str(effect['amount'])
 		StrikeEffects.CopyOtherHitEffect:
 			effect_str += "Copy another Hit effect"
+		StrikeEffects.CopyOtherAfterEffect:
+			effect_str += "Copy another After effect"
 		StrikeEffects.Critical:
 			var crit_name = "Critical"
 			if 'alt_crit_name' in effect:
@@ -1149,11 +1161,16 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Move %s %s space(s)%s" % [effect['buddy_name'], movement_str, strike_str]
 		StrikeEffects.MoveToBuddy:
 			effect_str += "Move to %s" % effect['buddy_name']
+		StrikeEffects.MoveToBoostSpace:
+			effect_str += "Move to this space"
 		StrikeEffects.MoveToAnySpace:
 			if 'move_min' in effect:
 				var move_min = effect['move_min']
 				var move_max = effect['move_max']
-				effect_str += "Advance or Retreat %s-%s" % [move_min, move_max]
+				var move_string = "Advance or Retreat"
+				if effect.get('advance_only', false):
+					move_string = "Advance"
+				effect_str += "%s %s-%s" % [move_string, move_min, move_max]
 			else:
 				effect_str += "Move to any space."
 		StrikeEffects.MoveRandomCards:
@@ -1329,6 +1346,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + " Power per sealed normal%s." % max_text
 		StrikeEffects.PowerupDamageTaken:
 			effect_str += "+" + str(effect['amount']) + " Power per damage taken this strike."
+		StrikeEffects.PowerupDiscardedCardPrintedPower:
+			effect_str += "+ Power equal to card's printed power."
 		StrikeEffects.PowerupOpponent:
 			if effect['amount'] > 0:
 				effect_str += "+"
@@ -1431,6 +1450,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per force spent this turn."
 		StrikeEffects.RangeupPerSealedNormal:
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
+		StrikeEffects.RangeupDiscardedCardPrintedRange:
+			effect_str += "+ Range equal to card's printed range."
 		StrikeEffects.RemoveBuddyNearOpponent:
 			var offset_allowed = effect['offset_allowed']
 			var same_space_allowed = effect['same_space_allowed']
@@ -1609,8 +1630,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var optional_text = ""
 			if optional:
 				optional_text = "You may: "
+				
+			var source_str = "card(s) from hand"
+			if effect.get('source', "hand") == "boosts":
+				source_str = "boosts"
 
 			var amount_str = str(effect['amount'])
+			if amount_str == "-1":
+				amount_str = "any number of"
 			if amount_str == "force_spent_before_strike":
 				amount_str = "that many"
 			if 'discard_effect' in effect:
@@ -1618,13 +1645,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				if 'per_discard' in effect['discard_effect'] and effect['discard_effect']['per_discard']:
 					bonus += " for each"
 			if destination == "sealed":
-				effect_str += optional_text + "Seal " + amount_str + limitation_str + " card(s)" + bonus
+				effect_str += optional_text + "Seal " + amount_str + limitation_str + " " + source_str + bonus
 			elif destination == "reveal":
-				effect_str += optional_text + "Reveal " + amount_str + limitation_str + " card(s)" + bonus
+				effect_str += optional_text + "Reveal " + amount_str + limitation_str + " " + source_str + bonus
 			elif destination == "opponent_overdrive":
-				effect_str += optional_text + "Add " + amount_str + limitation_str + " card(s) from hand to your opponent's overdrive" + bonus
+				effect_str += optional_text + "Add " + amount_str + limitation_str + " " + source_str + " to your opponent's overdrive" + bonus
 			else:
-				effect_str += optional_text + "Discard " + amount_str + limitation_str + " card(s)" + bonus
+				effect_str += optional_text + "Discard " + amount_str + limitation_str + " " + source_str + bonus
 		StrikeEffects.SetUsedCharacterBonus:
 			if 'linked_effect' in effect:
 				effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)
