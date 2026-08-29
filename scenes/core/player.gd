@@ -3525,6 +3525,9 @@ func _revert_strike_bonus_effect(effect, card_id : int, check_and_effects : bool
 		_revert_strike_bonus_effect(effect['and'], card_id, check_and_effects)
 
 func remove_from_continuous_boosts(card : GameCard, destination : String = "discard"):
+	if card not in continuous_boosts:
+		return
+		
 	disable_boost_effects(card)
 	
 	for effect in card.definition['boost']['effects']:

@@ -787,3 +787,6 @@ func test_shafathi_100():
 
 func test_kohai_100():
 	run_iterations_with_deck("kohai")
+
+func test_gulbjarn_100():
+	run_iterations_with_deck("gulbjarn")
