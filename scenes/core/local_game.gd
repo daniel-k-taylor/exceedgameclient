@@ -2881,6 +2881,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.spend_life_for_force_amount = effect['amount']
 		StrikeEffects.CanSpendLifeForGauge:
 			performing_player.spend_life_for_gauge_amount = effect['amount']
+		StrikeEffects.CannotDrawPassive:
+			performing_player.cannot_draw += 1
+			if performing_player.cannot_draw == 1:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot draw cards!")
 		StrikeEffects.CannotGoBelowLife:
 			performing_player.strike_stat_boosts.cannot_go_below_life = effect['amount']
 		StrikeEffects.CannotStun:
@@ -3886,6 +3890,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.ignore_push_and_pull -= 1
 			if performing_player.ignore_push_and_pull == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer ignores pushes and pulls.")
+		StrikeEffects.RemoveCannotDrawPassive:
+			performing_player.cannot_draw -= 1
+			if performing_player.cannot_draw == 0:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "can draw cards once more.")
 		StrikeEffects.LoseAllArmor:
 			if active_strike:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "loses all armor!")

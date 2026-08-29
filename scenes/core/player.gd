@@ -404,6 +404,7 @@ var has_non_exceed_overdrive : bool
 var non_exceed_overdrive_active : bool
 var spent_gauge_this_turn : bool
 var infused : bool
+var cannot_draw : int
 
 func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 	my_id = id
@@ -569,6 +570,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	non_exceed_overdrive_active = false
 	spent_gauge_this_turn = false
 	infused = false
+	cannot_draw = 0
 
 	if "buddy_cards" in deck_def:
 		var buddy_index = 0
@@ -2122,6 +2124,10 @@ func get_extra_strike_options_count():
 	return effects.size()
 
 func draw(num_to_draw : int, is_fake_draw : bool = false, from_bottom: bool = false, update_if_empty : bool = true):
+	if cannot_draw and not is_fake_draw:
+		parent._append_log_full(Enums.LogType.LogType_Effect, self, "is unable to draw cards.")
+		num_to_draw = 0
+	
 	if num_to_draw > 0:
 		if is_fake_draw:
 			# Used by topdeck boost as an easy way to get it in your hand to boost.
@@ -3270,6 +3276,10 @@ func reenable_boost_effects(card : GameCard):
 					ignore_push_and_pull += 1
 					if ignore_push_and_pull == 1:
 						parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot be pushed or pulled!")
+				StrikeEffects.CannotDrawPassive:
+					cannot_draw += 1
+					if cannot_draw == 1:
+						parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot draw cards!")
 	if parent.active_strike and not parent.active_strike.in_setup:
 		# Redo continuous effects
 		for effect in _find_during_strike_effects(card):
@@ -3407,6 +3417,12 @@ func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = fals
 						ignore_push_and_pull -= 1
 						if ignore_push_and_pull == 0:
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
+				StrikeEffects.CannotDrawPassive:
+					# ensure this won't be doubly-undone by a discard effect
+					if not being_discarded:
+						cannot_draw -= 1
+						if cannot_draw == 0:
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "can draw cards once more.")
 				StrikeEffects.ForceCostsReducedPassive:
 					force_cost_reduction -= effect['amount']
 					if force_cost_reduction < 0:
