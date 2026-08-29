@@ -1382,7 +1382,7 @@ func get_cards_in_hand_matching_types(types : Array):
 	return cards
 
 func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0):
-	return get_cards_in_zone_of_type(hand, limitation)
+	return get_cards_in_zone_of_type(hand, limitation, limitation_amount)
 
 func get_cards_in_boosts_of_type(limitation : String):
 	return get_cards_in_zone_of_type(continuous_boosts, limitation)

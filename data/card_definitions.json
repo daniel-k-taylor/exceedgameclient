@@ -33548,7 +33548,7 @@
 						"pass_discards_to_and": true,
 						"and": {
 							"effect_type": "add_attack_triggers",
-							"include_passive": true,
+							"include_passive": true
 						}
 					}
 				}

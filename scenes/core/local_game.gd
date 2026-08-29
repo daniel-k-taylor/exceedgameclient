@@ -5527,7 +5527,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var discarded_card_id = effect["discarded_card_ids"][0]
 			var discarded_card = card_db.get_card(discarded_card_id)
 			var printed_power = max(get_card_stat(performing_player, discarded_card, 'power'), 0)
-			if printed_power >= 0:
+			if printed_power > 0:
 				performing_player.add_power_bonus(printed_power)
 				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, printed_power)
 			var card_name = card_db.get_card_name(discarded_card_id)
@@ -6269,7 +6269,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				if not optional and cards_available.size() > 0:
 					if source != "hand":
-						assert(false, "Mandatory discards from non-hand zones not implemented." % source)
+						assert(false, "Mandatory discards from non-hand zones not implemented.")
 						
 					create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, performing_player.my_id, this_effect['amount'])
 					# Forced to discard whole hand.
@@ -12355,7 +12355,9 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 			printlog("ERROR: Tried to choose to discard wrong number of cards.")
 			return false
 
-	var source = decision_info.source
+	var source = "hand"
+	if decision_info.source:
+		source = decision_info.source
 	for card_id in card_ids:
 		if not target_opponent:
 			if source == "hand" and not performing_player.is_card_in_hand(card_id):

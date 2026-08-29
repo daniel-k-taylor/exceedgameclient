@@ -1924,12 +1924,10 @@ func can_select_card(card):
 			var card_type = game_card.definition['type']
 			var card_name = game_card.definition['display_name']
 			match source:
-				"hand":
-					correct_source = in_hand
 				"boosts":
 					correct_source = in_player_boosts
 				_:
-					assert(false, "unhandled discard source")
+					correct_source = in_hand
 			match limitation:
 				"can_pay_cost":
 					var card_options = game_wrapper.get_player_extra_attack_card_options(Enums.PlayerId.PlayerId_Player)
@@ -3470,7 +3468,7 @@ func update_discard_selection_message_choose():
 				var limitation_str = decision_info.limitation
 				if decision_info.limitation == "range_to_opponent":
 					limitation_str = "matching opponent range"
-				set_instructions("Select %s%s more %s card(s) from your %s to move to %s%s." % [optional_string, num_remaining, source, limitation_str, destination_str, bonus])
+				set_instructions("Select %s%s more %s card(s) from your %s to move to %s%s." % [optional_string, num_remaining, limitation_str, source, destination_str, bonus])
 		else:
 			set_instructions("Select %s%s more card(s) from your %s to move to %s%s." % [optional_string, num_remaining, source, destination_str, bonus])
 
