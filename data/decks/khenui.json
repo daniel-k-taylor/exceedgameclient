@@ -3,6 +3,12 @@
 	"season": 8,
 	"display_name": "Khenui (8/28 test)",
 	"exceed_cost": 3,
+	"on_exceed": {
+		"effect_type": "choose_discard",
+		"limitation": "",
+		"destination": "gauge",
+		"amount": 2
+	},
 	"character_action_default": [{
 		"gauge_cost": 1,
 		"force_cost": 0,
@@ -43,16 +49,13 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "set_strike",
-			"condition": "initiated_strike",
-			"effect_type": "pass",
-			"and": {
-				"condition": "is_infused",
-				"effect_type": "rangeup",
-				"character_effect": true,
-				"amount": 0,
-				"amount2": 1
-			}
+			"timing": "moved_past",
+			"character_effect": true,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "add_top_deck_to_gauge" },
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"exceed_ability_effects": [
@@ -67,20 +70,19 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "set_strike",
-			"condition": "initiated_strike",
-			"effect_type": "pass",
-			"and": {
-				"condition": "is_infused",
-				"effect_type": "rangeup",
-				"character_effect": true,
-				"amount": 0,
-				"amount2": 1,
-				"and": {
-					"effect_type": "powerup",
-					"amount": 2
-				}
-			}
+			"timing": "after",
+			"condition": "is_infused",
+			"effect_type": "force_for_effect",
+			"per_force_effect": {
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "draw", "amount": 1 }
+				]
+			},
+			"overall_effect": null,
+			"force_max": 2
 		}
 	],
 	"image_resources": {
