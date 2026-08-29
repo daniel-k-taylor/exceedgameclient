@@ -12115,9 +12115,17 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		force_generated = 0
 		if decision_info.effect.get("cancel_resume_strike") or active_strike:
 			change_game_state(Enums.GameState.GameState_Strike_Processing)
+		elif active_character_action:
+			change_game_state(Enums.GameState.GameState_PickAction)
+			active_character_action = false
+		elif _is_action_resolution_in_progress():
+			# Declining an optional force payment during some other resolution
+			# (prepare, boost, start/end of turn, etc.) must resume that
+			# resolution; dropping to PickAction here strands the game.
+			set_player_action_processing_state()
 		else:
 			change_game_state(Enums.GameState.GameState_PickAction)
-		active_character_action = false
+			active_character_action = false
 		continue_player_action_resolution(performing_player)
 		return true
 	var ultras = 0

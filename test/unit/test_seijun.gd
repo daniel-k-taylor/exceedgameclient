@@ -322,6 +322,22 @@ func test_seijun_watchfulguardian():
 	validate_positions(player1, 2, player2, 7)
 	advance_turn(player2)
 
+func test_seijun_watchfulguardian_decline():
+	position_players(player1, 3, player2, 7)
+
+	give_player_specific_card(player1, "seijun_inksplash")
+	player1.add_to_transforms(player1.hand[-1])
+	var original_hand_size = len(player1.hand)
+
+	assert_true(game_logic.do_prepare(player1))
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+
+	assert_eq(len(player1.hand), original_hand_size + 2)
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_DiscardDownToMax)
+	assert_true(game_logic.do_discard_to_max(player1, [player1.hand[0].id]))
+	advance_turn(player2)
+
 ## Yokai Banishing transform -- When an opponent plays a Boost, you may discard a copy of that card.
 ##     If you do, their card is discarded with no effect.
 func test_seijun_meddlesome_no_matching_card():
