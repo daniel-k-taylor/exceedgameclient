@@ -3379,6 +3379,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)
+		StrikeEffects.DiscardAttack:
+			var strike_card = active_strike.get_player_card(performing_player)
+			var card_name = strike_card.definition['display_name']
+			
+			performing_player.strike_stat_boosts.discard_attack_now = true
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % _log_card_name(card_name))
+			handle_strike_attack_immediate_removal(performing_player)
 		StrikeEffects.DiscardBoostInOpponentSpace:
 			decision_info.clear()
 			decision_info.destination = "discard"
@@ -4981,7 +4988,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					lightning_card = active_strike.get_player_card(performing_player)
 					# If this is the current attack, get rid of it now, putting it on top the discard pile.
 					# This is convenient since now lightning rods always come from the top discard card.
-					performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod = true
+					performing_player.strike_stat_boosts.discard_attack_now = true
 					handle_strike_attack_immediate_removal(performing_player)
 				_:
 					assert(false, "Unknown lightningrod source.")
@@ -9268,8 +9275,8 @@ func handle_strike_attack_immediate_removal(performing_player : Player):
 
 	change_stats_when_attack_leaves_play(performing_player)
 
-	if performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod:
-		# No logline since there will be a log about this in the lightning rod effect.
+	if performing_player.strike_stat_boosts.discard_attack_now:
+		# No logline since there will be a log about this in the effect that causes it.
 		performing_player.add_to_discards(card)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_opponent_gauge:

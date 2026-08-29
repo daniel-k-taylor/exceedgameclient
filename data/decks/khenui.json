@@ -109,72 +109,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "yami_harbinger",
+			"definition_id": "khenui_echodance",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "yami_harbinger",
+			"definition_id": "khenui_echodance",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "yami_vengeance",
+			"definition_id": "khenui_whirlingsands",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "yami_vengeance",
+			"definition_id": "khenui_whirlingsands",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "yami_spiritchains",
+			"definition_id": "khenui_elude",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "yami_spiritchains",
+			"definition_id": "khenui_elude",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "yami_haunting",
+			"definition_id": "khenui_bendreality",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "yami_haunting",
+			"definition_id": "khenui_bendreality",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "yami_flameswipe",
+			"definition_id": "khenui_pirouette",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "yami_flameswipe",
+			"definition_id": "khenui_pirouette",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "yami_screamingscythe",
+			"definition_id": "khenui_soulswap",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "yami_screamingscythe",
+			"definition_id": "khenui_soulswap",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "yami_seize",
+			"definition_id": "khenui_deceptivelead",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "yami_seize",
+			"definition_id": "khenui_deceptivelead",
 			"image_name": "specials",
 			"image_index": 4
 		},

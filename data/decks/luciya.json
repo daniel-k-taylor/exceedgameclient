@@ -1,9 +1,9 @@
 {
 	"id": "luciya",
-	"season": 2,
+	"season": 2.0,
 	"display_name": "Luciya",
 	"spent_gauge_becomes_boost_when_exceeded": true,
-	"exceed_cost": 5,
+	"exceed_cost": 5.0,
 	"exceed_cost_reduced_by": [
 		{
 			"reduction_type": "transform_discount"
@@ -16,7 +16,7 @@
 			"effect_type": "take_damage",
 			"opponent": true,
 			"nonlethal": true,
-			"amount": 1,
+			"amount": 1.0,
 			"and": {
 				"effect_type": "add_top_discard_to_gauge"
 			}
@@ -25,26 +25,25 @@
 	"replacement_boost_definition": {
 		"boost_type": "continuous",
 		"facedown": true,
-		"force_cost": 0,
-		"cancel_cost": -1,
+		"force_cost": 0.0,
+		"cancel_cost": -1.0,
 		"display_name": "Gauge Boost",
 		"effects": [
 			{
 				"timing": "during_strike",
 				"effect_type": "powerup",
-				"amount": 1,
+				"amount": 1.0,
 				"override_description": "+1 Power"
 			}
 		],
 		"description": "facedown continuous boost: +1 Power"
 	},
-	"exceed_ability_effects": [
-	],
+	"exceed_ability_effects": [],
 	"on_exceed": {
 		"effect_type": "add_hand_to_gauge",
 		"and": {
 			"effect_type": "draw",
-			"amount": 5
+			"amount": 5.0
 		}
 	},
 	"image_resources": {
@@ -73,152 +72,152 @@
 		{
 			"definition_id": "luciya_ride_the_lightning",
 			"image_name": "specials",
-			"image_index": 5
+			"image_index": 5.0
 		},
 		{
 			"definition_id": "luciya_ride_the_lightning",
 			"image_name": "specials",
-			"image_index": 5
+			"image_index": 5.0
 		},
 		{
 			"definition_id": "luciya_skies_aflame",
 			"image_name": "specials",
-			"image_index": 6
+			"image_index": 6.0
 		},
 		{
 			"definition_id": "luciya_skies_aflame",
 			"image_name": "specials",
-			"image_index": 6
+			"image_index": 6.0
 		},
 		{
 			"definition_id": "luciya_downburst",
 			"image_name": "specials",
-			"image_index": 0
+			"image_index": 0.0
 		},
 		{
 			"definition_id": "luciya_downburst",
 			"image_name": "specials",
-			"image_index": 0
+			"image_index": 0.0
 		},
 		{
 			"definition_id": "luciya_talon_sweep",
 			"image_name": "specials",
-			"image_index": 1
+			"image_index": 1.0
 		},
 		{
 			"definition_id": "luciya_talon_sweep",
 			"image_name": "specials",
-			"image_index": 1
+			"image_index": 1.0
 		},
 		{
 			"definition_id": "luciya_mantis_strike",
 			"image_name": "specials",
-			"image_index": 2
+			"image_index": 2.0
 		},
 		{
 			"definition_id": "luciya_mantis_strike",
 			"image_name": "specials",
-			"image_index": 2
+			"image_index": 2.0
 		},
 		{
 			"definition_id": "luciya_bug_zapper",
 			"image_name": "specials",
-			"image_index": 3
+			"image_index": 3.0
 		},
 		{
 			"definition_id": "luciya_bug_zapper",
 			"image_name": "specials",
-			"image_index": 3
+			"image_index": 3.0
 		},
 		{
 			"definition_id": "luciya_firefly_gunner",
 			"image_name": "specials",
-			"image_index": 4
+			"image_index": 4.0
 		},
 		{
 			"definition_id": "luciya_firefly_gunner",
 			"image_name": "specials",
-			"image_index": 4
+			"image_index": 4.0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
 			"image_name": "normals",
-			"image_index": 0
+			"image_index": 0.0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
 			"image_name": "normals",
-			"image_index": 0
+			"image_index": 0.0
 		},
 		{
 			"definition_id": "standard_normal_cross",
 			"image_name": "normals",
-			"image_index": 1
+			"image_index": 1.0
 		},
 		{
 			"definition_id": "standard_normal_cross",
 			"image_name": "normals",
-			"image_index": 1
+			"image_index": 1.0
 		},
 		{
 			"definition_id": "standard_normal_assault",
 			"image_name": "normals",
-			"image_index": 2
+			"image_index": 2.0
 		},
 		{
 			"definition_id": "standard_normal_assault",
 			"image_name": "normals",
-			"image_index": 2
+			"image_index": 2.0
 		},
 		{
 			"definition_id": "standard_normal_dive",
 			"image_name": "normals",
-			"image_index": 3
+			"image_index": 3.0
 		},
 		{
 			"definition_id": "standard_normal_dive",
 			"image_name": "normals",
-			"image_index": 3
+			"image_index": 3.0
 		},
 		{
 			"definition_id": "standard_normal_spike",
 			"image_name": "normals",
-			"image_index": 4
+			"image_index": 4.0
 		},
 		{
 			"definition_id": "standard_normal_spike",
 			"image_name": "normals",
-			"image_index": 4
+			"image_index": 4.0
 		},
 		{
 			"definition_id": "standard_normal_sweep",
 			"image_name": "normals",
-			"image_index": 5
+			"image_index": 5.0
 		},
 		{
 			"definition_id": "standard_normal_sweep",
 			"image_name": "normals",
-			"image_index": 5
+			"image_index": 5.0
 		},
 		{
 			"definition_id": "standard_normal_focus",
 			"image_name": "normals",
-			"image_index": 6
+			"image_index": 6.0
 		},
 		{
 			"definition_id": "standard_normal_focus",
 			"image_name": "normals",
-			"image_index": 6
+			"image_index": 6.0
 		},
 		{
 			"definition_id": "standard_normal_block",
 			"image_name": "normals",
-			"image_index": 7
+			"image_index": 7.0
 		},
 		{
 			"definition_id": "standard_normal_block",
 			"image_name": "normals",
-			"image_index": 7
+			"image_index": 7.0
 		}
 	]
 }

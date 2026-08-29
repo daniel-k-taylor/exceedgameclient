@@ -17911,6 +17911,472 @@
 		},
 		"NOTEEND": "KEN CARDS END"
 	},
+	
+
+	{
+		"NOTE": "KHENUI CARDS START",
+		"id": "khenui_echodance",
+		"type": "ultra",
+		"display_name": "Echo Dance",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 4,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "is_infused",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "pass" }
+				],
+				"and": {
+					"override_description": "You may return a card from Gauge to hand",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "nothing",
+						"spent_cards_to_hand": true
+					},
+					"spent_cards_to_hand": true,
+					"gauge_max": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Mirror of Nupten",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "dodge_at_range",
+					"range_min": 1,
+					"range_max": 1
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "pass" }
+					],
+					"and": {
+						"effect_type": "add_to_gauge_immediately"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "khenui_whirlingsands",
+		"type": "ultra",
+		"display_name": "Whirling Sands",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 2,
+		"range_max": 2,
+		"power": 4,
+		"speed": 8,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "force_for_effect",
+						"per_force_effect": {
+							"combine_multiple_into_one": true,
+							"effect_type": "push",
+							"amount": 1
+						},
+						"overall_effect": null,
+						"force_max": 4
+					},
+					{
+						"effect_type": "force_for_effect",
+						"per_force_effect": {
+							"combine_multiple_into_one": true,
+							"effect_type": "pull",
+							"amount": 1
+						},
+						"overall_effect": null,
+						"force_max": 4
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Elusive Step",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 2
+				},
+				{
+					"timing": "after",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "advance", "amount": 1 },
+							{ "effect_type": "retreat", "amount": 1 },
+							{ "effect_type": "draw", "amount": 1 }
+						]
+					},
+					"overall_effect": null,
+					"force_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "khenui_elude",
+		"type": "special",
+		"display_name": "Elude",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "armorup",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "pass" }
+				],
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Rise Up",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "khenui_bendreality",
+		"type": "special",
+		"display_name": "Bend Reality",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"condition": "is_infused",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 2 }
+					]
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "discard_attack",
+						"and": {
+							"override_description": "Return a card from Gauge to hand",
+							"effect_type": "gauge_for_effect",
+							"per_gauge_effect": null,
+							"overall_effect": {
+								"effect_type": "nothing",
+								"spent_cards_to_hand": true
+							},
+							"spent_cards_to_hand": true,
+							"required": true,
+							"gauge_max": 1
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Refraction",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "after",
+					"condition": "is_infused",
+					"effect_type": "choose_discard",
+					"limitation": "",
+					"destination": "gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "khenui_pirouette",
+		"type": "special",
+		"display_name": "Pirouette",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "range",
+				"condition_amount": 2,
+				"effect_type": "pass",
+				"and": {
+					"condition": "is_infused",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "advance",
+						"amount": 1,
+						"use_semicolon_for_and": true,
+						"and": {
+							"condition": "advanced_through",
+							"effect_type": "powerup",
+							"amount": 2
+						}
+					},
+					{
+						"effect_type": "advance",
+						"amount": 2,
+						"use_semicolon_for_and": true,
+						"and": {
+							"condition": "advanced_through",
+							"effect_type": "powerup",
+							"amount": 2
+						}
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Momentum",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "advance",
+					"amount": 2,
+					"and": {
+						"effect_type": "strike"
+					}
+				},
+				{
+					"timing": "after",
+					"condition": "is_infused",
+					"effect_type": "gain_advantage"
+				}
+			]
+		}
+	},
+	{
+		"id": "khenui_soulswap",
+		"type": "special",
+		"display_name": "Soul Swap",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull_not_past",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "advance",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Slip Away",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"condition": "is_infused",
+					"effect_type": "gain_advantage"
+				},
+				{
+					"timing": "after",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 1
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 1
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "KHENUI CARDS END",
+		"id": "khenui_deceptivelead",
+		"type": "special",
+		"display_name": "Deceptive Lead",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 2,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "powerup",
+				"amount": 1
+			},
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Vigilante",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					],
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			]
+		},
+		"NOTEEND": "KHENUI CARDS END"
+	},
+	
 	{
 		"NOTE": "KING CARDS START",
 		"id": "king_decree_kinglystrut",

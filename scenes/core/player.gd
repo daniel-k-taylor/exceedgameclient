@@ -35,7 +35,7 @@ class StrikeStatBoosts:
 	var deal_nonlethal_damage : bool = false
 	var always_add_to_gauge : bool = false
 	var always_add_to_overdrive : bool = false
-	var discard_attack_now_for_lightningrod : bool = false
+	var discard_attack_now : bool = false
 	var return_attack_to_hand : bool = false
 	var move_strike_to_boosts : bool = false
 	var move_strike_to_boosts_sustain : bool = true
@@ -154,7 +154,7 @@ class StrikeStatBoosts:
 		deal_nonlethal_damage = false
 		always_add_to_gauge = false
 		always_add_to_overdrive = false
-		discard_attack_now_for_lightningrod = false
+		discard_attack_now = false
 		return_attack_to_hand = false
 		move_strike_to_boosts = false
 		move_strike_to_boosts_sustain = true

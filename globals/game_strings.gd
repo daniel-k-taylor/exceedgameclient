@@ -902,8 +902,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'alt_crit_name' in effect:
 				crit_name = effect['alt_crit_name']
 			effect_str += "%s Strike" % crit_name
+		StrikeEffects.DiscardAttack:
+			effect_str += "Discard your attack"
 		StrikeEffects.DiscardThis:
-			effect_str += "Discard this"
+			effect_str += "Discard this boost"
 		StrikeEffects.DiscardSameCardAsBoost:
 			effect_str += "Discard a copy of the boosted card"
 		StrikeEffects.DiscardStrikeAfterCleanup:
