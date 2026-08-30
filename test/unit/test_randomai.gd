@@ -790,3 +790,6 @@ func test_kohai_100():
 
 func test_gulbjarn_100():
 	run_iterations_with_deck("gulbjarn")
+
+func test_khenui_100():
+	run_iterations_with_deck("khenui")

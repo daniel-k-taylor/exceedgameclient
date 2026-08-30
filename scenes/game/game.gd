@@ -3436,7 +3436,9 @@ func update_discard_selection_message_choose():
 		bonus = "\nfor %s" % effect_text
 		if 'per_discard' in decision_info.bonus_effect and decision_info.bonus_effect['per_discard']:
 			bonus += " for each"
-	var source = decision_info.source
+	var source = "hand"
+	if decision_info.source:
+		source = decision_info.source
 	if destination == "play_attack":
 		set_instructions("Select a card from your %s to move to play as an extra attack." % source)
 	else:
