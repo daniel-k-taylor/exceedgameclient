@@ -1,4 +1,4 @@
-[gd_scene load_steps=131 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=132 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://dj3a6fhyrmcfp" path="res://assets/portraits/vorhild.png" id="4_rjnbv"]
@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://qnhb30sjxi2p" path="res://assets/portraits/baiken.png" id="14_mxl0r"]
 [ext_resource type="Texture2D" uid="uid://4mpq32yiwlik" path="res://assets/portraits/khenui.png" id="14_n1ook"]
 [ext_resource type="Texture2D" uid="uid://e0tnn730b3fj" path="res://assets/portraits/millia.png" id="14_ui4sm"]
+[ext_resource type="Texture2D" uid="uid://b4m74d0kfmlfa" path="res://assets/portraits/shaidrus.png" id="15_2wvxv"]
 [ext_resource type="Texture2D" uid="uid://c7xyes2u01quq" path="res://assets/portraits/giovanna.png" id="15_joo7j"]
 [ext_resource type="Texture2D" uid="uid://otdwoejmwsf1" path="res://assets/portraits/nago.png" id="17_v8770"]
 [ext_resource type="Texture2D" uid="uid://baeok8iwnd55t" path="res://assets/portraits/goldlewis.png" id="18_nhabj"]
@@ -284,6 +285,11 @@ portrait_texture = ExtResource("11_mpw8p")
 layout_mode = 2
 char_id = "khenui"
 portrait_texture = ExtResource("14_n1ook")
+
+[node name="Shaidrus" parent="CenterContainer/STCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "shaidrus"
+portrait_texture = ExtResource("15_2wvxv")
 
 [node name="Row5" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
 layout_mode = 2
@@ -1191,6 +1197,8 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Shafathi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Khenui" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Khenui" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Shaidrus" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Shaidrus" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row5/Random" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row5/Random" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Testament" to="." method="_on_char_hover"]
