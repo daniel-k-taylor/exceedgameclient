@@ -81,6 +81,7 @@ var resolving_boost_before_queue : bool = false
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
 var preparing_boost_info : Dictionary = {}
+var active_spend_to_repeat_effect_info : Dictionary = {}
 
 var game_state : Enums.GameState = Enums.GameState.GameState_NotStarted
 
@@ -2881,6 +2882,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.spend_life_for_force_amount = effect['amount']
 		StrikeEffects.CanSpendLifeForGauge:
 			performing_player.spend_life_for_gauge_amount = effect['amount']
+		StrikeEffects.CannotDrawPassive:
+			performing_player.cannot_draw += 1
+			if performing_player.cannot_draw == 1:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot draw cards!")
 		StrikeEffects.CannotGoBelowLife:
 			performing_player.strike_stat_boosts.cannot_go_below_life = effect['amount']
 		StrikeEffects.CannotStun:
@@ -3373,6 +3378,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)
+		StrikeEffects.DiscardAttack:
+			if active_strike:
+				var strike_card = active_strike.get_player_card(performing_player)
+				var card_name = strike_card.definition['display_name']
+				
+				performing_player.strike_stat_boosts.discard_attack_now = true
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % _log_card_name(card_name))
+				handle_strike_attack_immediate_removal(performing_player)
 		StrikeEffects.DiscardBoostInOpponentSpace:
 			decision_info.clear()
 			decision_info.destination = "discard"
@@ -3886,6 +3899,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.ignore_push_and_pull -= 1
 			if performing_player.ignore_push_and_pull == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer ignores pushes and pulls.")
+		StrikeEffects.RemoveCannotDrawPassive:
+			performing_player.cannot_draw -= 1
+			if performing_player.cannot_draw == 0:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "can draw cards once more.")
 		StrikeEffects.LoseAllArmor:
 			if active_strike:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "loses all armor!")
@@ -4971,7 +4988,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					lightning_card = active_strike.get_player_card(performing_player)
 					# If this is the current attack, get rid of it now, putting it on top the discard pile.
 					# This is convenient since now lightning rods always come from the top discard card.
-					performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod = true
+					performing_player.strike_stat_boosts.discard_attack_now = true
 					handle_strike_attack_immediate_removal(performing_player)
 				_:
 					assert(false, "Unknown lightningrod source.")
@@ -8346,7 +8363,9 @@ func _increment_bonus_move_counters(performing_player : Player, move_amount : in
 
 func handle_advanced_through(performing_player : Player, other_player : Player):
 	var effects = get_all_effects_for_timing("moved_past", performing_player, null, false)
-	# Assume no decisions.
+	# This was written assuming no decisions, which is no longer always the case (Khenui);
+	#		however, the actions or effects that cause this should generally handle things
+	#		properly, unless multiple decisions are triggered at once somehow
 	for effect in effects:
 		if effect['timing'] == "moved_past":
 			if is_effect_condition_met(performing_player, effect, null):
@@ -9256,8 +9275,8 @@ func handle_strike_attack_immediate_removal(performing_player : Player):
 
 	change_stats_when_attack_leaves_play(performing_player)
 
-	if performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod:
-		# No logline since there will be a log about this in the lightning rod effect.
+	if performing_player.strike_stat_boosts.discard_attack_now:
+		# No logline since there will be a log about this in the effect that causes it.
 		performing_player.add_to_discards(card)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_opponent_gauge:
@@ -10490,8 +10509,10 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 	var effects = get_all_effects_for_timing("on_move_action", performing_player, null)
 	add_queued_effects(effects)
 	active_character_action = true
-	set_player_action_processing_state()
-	continue_player_action_resolution(performing_player)
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		# Some other player action will result in the end turn finishing.
+		set_player_action_processing_state()
+		continue_player_action_resolution(performing_player)
 	return true
 
 func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
@@ -11404,7 +11425,8 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 func _is_action_resolution_in_progress() -> bool:
 	return active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
 		or active_character_action or active_exceed or active_change_cards or active_prepare \
-		or active_special_draw_effect or active_post_action_effect or active_strike
+		or active_special_draw_effect or active_post_action_effect or active_strike or preparing_boost_info \
+		or active_spend_to_repeat_effect_info
 
 func do_choice(performing_player : Player, choice_index : int) -> bool:
 	printlog("SubAction: CHOICE by %s card %s" % [performing_player.name, str(choice_index)])
@@ -11487,7 +11509,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 func set_player_action_processing_state():
 	if active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
 	or active_character_action or active_exceed or active_change_cards or active_prepare \
-	or active_special_draw_effect or active_post_action_effect or preparing_boost_info:
+	or active_special_draw_effect or active_post_action_effect or preparing_boost_info \
+	or active_spend_to_repeat_effect_info:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
@@ -11540,6 +11563,8 @@ func continue_player_action_resolution(performing_player : Player):
 		if game_state != Enums.GameState.GameState_PlayerDecision:
 			if active_special_draw_effect:
 				check_hand_size_advance_turn(performing_player)
+			elif active_spend_to_repeat_effect_info:
+				continue_spend_to_repeat_effect(performing_player)
 			elif active_post_action_effect:
 				post_action_effects_resolved += 1
 				check_post_action_effects(performing_player)
@@ -12204,11 +12229,21 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "generates force by discarding %s." % _log_card_name(card_names))
 			performing_player.discard(card_ids)
 
-		for i in range(0, effect_times):
-			do_effect_if_condition_met(performing_player, decision_info.choice_card_id, decision_effect, null)
-
 		if not handle_spend_life_for_force(performing_player, spent_life_for_force):
 			return false
+			
+		for i in range(0, effect_times):
+			do_effect_if_condition_met(performing_player, decision_info.choice_card_id, decision_effect, null)
+			# If decisions have to be made before the loop is done, store and continue later
+			if game_state == Enums.GameState.GameState_PlayerDecision and i + 1 < effect_times:
+				active_spend_to_repeat_effect_info = {
+					"card_id": decision_info.choice_card_id,
+					"effect": decision_effect,
+					"next_idx": i + 1,
+					"effect_times": effect_times
+				}
+				return true
+
 		if game_over:
 			return true
 
@@ -12332,6 +12367,27 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 	if decision_info.bonus_effect:
 		handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
 
+	continue_player_action_resolution(performing_player)
+	return true
+
+func continue_spend_to_repeat_effect(performing_player : Player):
+	var card_id = active_spend_to_repeat_effect_info['card_id']
+	var effect = active_spend_to_repeat_effect_info['effect']
+	var effect_times = active_spend_to_repeat_effect_info['effect_times']
+	for i in range(active_spend_to_repeat_effect_info['next_idx'], effect_times):
+		do_effect_if_condition_met(performing_player, card_id, effect, null)
+		if game_state == Enums.GameState.GameState_PlayerDecision and i + 1 < effect_times:
+			active_spend_to_repeat_effect_info = {
+				"card_id": card_id,
+				"effect": effect,
+				"next_idx": i + 1,
+				"effect_times": effect_times
+			}
+			return true
+	
+	active_spend_to_repeat_effect_info = {}
+	if game_over:
+		return true
 	continue_player_action_resolution(performing_player)
 	return true
 

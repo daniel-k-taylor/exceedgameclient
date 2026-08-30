@@ -2435,6 +2435,8 @@ func _set_card_bonus(card_id, bonus, value=true):
 			card.set_wild(value)
 		"critical":
 			card.set_crit(value)
+		"infuse":
+			card.set_infuse(value)
 		_:
 			assert(false, "Set card bonus for unknown effect")
 
@@ -3434,7 +3436,9 @@ func update_discard_selection_message_choose():
 		bonus = "\nfor %s" % effect_text
 		if 'per_discard' in decision_info.bonus_effect and decision_info.bonus_effect['per_discard']:
 			bonus += " for each"
-	var source = decision_info.source
+	var source = "hand"
+	if decision_info.source:
+		source = decision_info.source
 	if destination == "play_attack":
 		set_instructions("Select a card from your %s to move to play as an extra attack." % source)
 	else:
@@ -4816,7 +4820,7 @@ func _handle_events(events):
 				_set_card_bonus(event['number'], "critical")
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_MarkInfused:
-				_set_card_bonus(event['number'], "critical")
+				_set_card_bonus(event['number'], "infuse")
 				_add_bonus_label_text(event['event_player'], "[color=sky_blue]Infused![/color]\n")
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
 				delay = _stat_notice_event(event)
@@ -6937,6 +6941,12 @@ func ai_handle_character_action(action : AIPlayer.CharacterActionAction):
 	if not success:
 		printlog("FAILED AI CHARACTER ACTION")
 	return success
+	
+func ai_handle_bonus_action(action : AIPlayer.BonusActionAction):
+	var success = game_wrapper.submit_bonus_turn_action(Enums.PlayerId.PlayerId_Opponent, action.action_idx)
+	if not success:
+		printlog("FAILED AI BONUS ACTION")
+	return success
 
 func ai_take_turn():
 	change_ui_state(UIState.UIState_WaitForGameServer)
@@ -6959,6 +6969,8 @@ func ai_take_turn():
 		success = ai_handle_strike(turn_action)
 	elif turn_action is AIPlayer.CharacterActionAction:
 		success = ai_handle_character_action(turn_action)
+	elif turn_action is AIPlayer.BonusActionAction:
+		success = ai_handle_bonus_action(turn_action)
 	else:
 		assert(false, "Unknown turn action: %s" % turn_action)
 

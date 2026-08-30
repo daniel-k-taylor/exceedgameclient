@@ -31,6 +31,7 @@ signal clicked_card(card)
 @onready var bonus_ex = $CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox/ExLabel
 @onready var bonus_wild = $CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox/WildLabel
 @onready var bonus_crit = $CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox/CritLabel
+@onready var bonus_infuse = $CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox/InfuseLabel
 
 const ActualCardSize = Vector2(250,350)
 const HandCardScale = Vector2(0.7, 0.7)
@@ -220,10 +221,14 @@ func set_wild(wild_visible):
 func set_crit(crit_visible):
 	bonus_crit.visible = crit_visible
 
+func set_infuse(infuse_visible):
+	bonus_infuse.visible = infuse_visible
+
 func clear_bonuses():
 	set_ex(false)
 	set_wild(false)
 	set_crit(false)
+	set_infuse(false)
 
 func is_front_showing():
 	return not card_back.visible

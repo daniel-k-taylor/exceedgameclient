@@ -295,6 +295,24 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
+[node name="InfuseLabel" type="RichTextLabel" parent="CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(3.60981e-07, 0.157452, 0.223786, 1)
+theme_override_colors/font_shadow_color = Color(0.408184, 0.28585, 1, 1)
+theme_override_constants/outline_size = 5
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_outline_size = 12
+theme_override_font_sizes/bold_italics_font_size = 42
+bbcode_enabled = true
+text = "[right][color=skyblue][b][i]INFUSE [/i][/b][/color][/right]"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
 [node name="StunIndicator" type="Node2D" parent="CardFocusFeatures"]
 visible = false
 

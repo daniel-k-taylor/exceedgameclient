@@ -240,10 +240,11 @@ func handle_decisions(game: LocalGame):
 					chooseaction = decision_ai.pick_choose_opponent_card_to_discard(card_ids)
 				else:
 					var amount = game.decision_info.effect['amount']
+					var source = game.decision_info.source
 					var limitation = game.decision_info.limitation
 					var can_pass = game.decision_info.can_pass
 					var allow_fewer = 'allow_fewer' in game.decision_info.effect and game.decision_info.effect['allow_fewer']
-					chooseaction = decision_ai.pick_choose_to_discard(amount, limitation, can_pass, allow_fewer)
+					chooseaction = decision_ai.pick_choose_to_discard(amount, limitation, can_pass, allow_fewer, source)
 				assert_true(game.do_choose_to_discard(decision_ai.game_player, chooseaction.card_ids), "do choose to discard failed")
 			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
 				var decision_action = decision_ai.pick_discard_opponent_gauge(game.decision_info.extra_info)
@@ -343,6 +344,14 @@ func handle_character_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AI
 
 	return events
 
+func handle_bonus_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AIPlayer, action : AIPlayer.BonusActionAction):
+	assert_true(game.do_bonus_turn_action(aiplayer.game_player, action.action_idx), "character action failed")
+	var events = []
+	events += game.get_latest_events()
+	events += handle_decisions(game)
+
+	return events
+
 func _detect_stuck_game() -> bool:
 	# Build a signature of the observable game state. If it stays identical for
 	# many consecutive outer-loop iterations, the game is wedged (no progress).
@@ -409,6 +418,8 @@ func run_ai_game():
 				turn_events += handle_strike(game_logic, current_ai, other_ai, turn_action)
 			elif turn_action is AIPlayer.CharacterActionAction:
 				turn_events += handle_character_action(game_logic, current_ai, other_ai, turn_action)
+			elif turn_action is AIPlayer.BonusActionAction:
+				turn_events += handle_bonus_action(game_logic, current_ai, other_ai, turn_action)
 			else:
 				fail_test("Unknown turn action: %s" % turn_action)
 				assert(false, "Unknown turn action: %s" % turn_action)
@@ -787,3 +798,9 @@ func test_shafathi_100():
 
 func test_kohai_100():
 	run_iterations_with_deck("kohai")
+
+func test_gulbjarn_100():
+	run_iterations_with_deck("gulbjarn")
+
+func test_khenui_100():
+	run_iterations_with_deck("khenui")

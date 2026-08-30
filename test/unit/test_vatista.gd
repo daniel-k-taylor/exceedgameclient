@@ -269,6 +269,7 @@ func test_vatista_lateus_orbis_extra_gauge():
 
 func test_vatista_lateus_orbis_die():
 	position_players(player1, 3, player2, 7)
+	player2.life = 40
 	var p1_gauge = []
 	for _i in range(3):
 		p1_gauge.append(give_player_specific_card(player1, "uni_normal_grasp"))
@@ -279,7 +280,7 @@ func test_vatista_lateus_orbis_die():
 	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp",
 			false, false, [p1_gauge], [[]])
 	validate_positions(player1, 3, player2, 7)
-	validate_life(player1, 30, player2, 24 - available_force)
+	validate_life(player1, 30, player2, 34 - available_force)
 	assert_eq(len(player1.hand), 0)
 	assert_eq(len(player1.gauge), 1)
 	advance_turn(player2)

@@ -823,6 +823,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Overdrive Effect: Play a continuous boost from hand."
 		StrikeEffects.CannotGoBelowLife:
 			effect_str += "Life cannot go below %s" % effect['amount']
+		StrikeEffects.CannotDrawPassive:
+			effect_str += "Cannot draw cards"
 		StrikeEffects.CanSpendLifeForGauge:
 			effect_str += "May spend %s life to generate 1 gauge" % effect['amount']
 		StrikeEffects.CannotStun:
@@ -900,8 +902,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'alt_crit_name' in effect:
 				crit_name = effect['alt_crit_name']
 			effect_str += "%s Strike" % crit_name
+		StrikeEffects.DiscardAttack:
+			effect_str += "Discard your attack"
 		StrikeEffects.DiscardThis:
-			effect_str += "Discard this"
+			effect_str += "Discard this boost"
 		StrikeEffects.DiscardSameCardAsBoost:
 			effect_str += "Discard a copy of the boosted card"
 		StrikeEffects.DiscardStrikeAfterCleanup:
@@ -1135,6 +1139,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.ResetCharacterPositions:
 			effect_str += "Move both players to starting positions"
 		StrikeEffects.RemoveIgnorePushAndPullPassiveBonus:
+			effect_str += ""
+		StrikeEffects.RemoveCannotDrawPassive:
 			effect_str += ""
 		StrikeEffects.LoseAllArmor:
 			effect_str += "Lose all armor"

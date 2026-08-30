@@ -950,6 +950,7 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 	var move_actions := []
 	var prepare_action = null
 	var character_actions := []
+	var bonus_actions := []
 
 	for action in possible_actions:
 		if action is AIPlayer.ExceedAction: exceed_actions.append(action)
@@ -960,6 +961,7 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 		elif action is AIPlayer.MoveAction: move_actions.append(action)
 		elif action is AIPlayer.PrepareAction: prepare_action = action
 		elif action is AIPlayer.CharacterActionAction: character_actions.append(action)
+		elif action is AIPlayer.BonusActionAction: bonus_actions.append(action)
 
 	# 1. KILL CHECK — opponent-aware: don't go for kill if opponent kills us first
 	var opp_kill_analysis = _opponent_can_do_now(state)
@@ -972,7 +974,7 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 				return sa
 	# 1.5 hand <= 3: resource-starved -- greatly raise Prepare (draw) chance, suppress boost/move/strike
 	# (kill chances were handled in step 1 and are unaffected; the remaining 30% normal flow keeps suppressing via _low_hand_bias)
-	if my_hand_size <= 3 and prepare_action:
+	if my_hand_size <= 3 and prepare_action and not state.player.cannot_draw:
 		if randf() < 0.7:
 			return prepare_action
 		_low_hand_bias = true
@@ -1033,7 +1035,7 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 	# 3. NO STRIKES & VERY FAR (dist > 4 only) — prefer prepare/character over blind move
 	if strike_actions.size() == 0 and distance > 4:
 		# Don't prepare when hand already has 5+ cards
-		if prepare_action and my_hand_size <= 5: return prepare_action
+		if prepare_action and my_hand_size <= 5 and not state.player.cannot_draw: return prepare_action
 		# Prefer character-ability movement -> then plain movement
 		if character_actions.size() > 0:
 			var __far_ca = null
@@ -1152,7 +1154,7 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 			break
 	if not _any_card_can_hit and not _passes_through_opponent(state.my_state.arena_location - 1 if state.my_state.arena_location > state.opponent_state.arena_location else state.my_state.arena_location + 1, state):
 		# 0th priority: with few cards, prefer Prepare instead of spending force on move/boost
-		if _low_hand_bias and prepare_action:
+		if _low_hand_bias and prepare_action and not state.player.cannot_draw:
 			return prepare_action
 		# 1st priority: boost with advance/retreat towards opponent
 		if boost_actions.size() > 0:
@@ -1238,6 +1240,10 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 		if prepare_action: all_valid.append({"action": prepare_action, "score": 0.0})
 		if character_actions.size() > 0:
 			for ca in character_actions: all_valid.append({"action": ca, "score": _score_character_action(ca, state)})
+		if boost_actions.size() > 0:
+			var sb := []
+			for ba in bonus_actions: sb.append({"action": ba, "score": 10.0}) # arbitrary score
+			all_valid.append_array(sb)
 		if all_valid.size() > 0: return all_valid[randi() % all_valid.size()]['action']
 
 	var has_strike: bool = scored_strikes.size() > 0 and scored_strikes[0]['score'] >= 12.0
@@ -1255,7 +1261,7 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 			for ba in boost_actions: sb.append({"action": ba, "score": _score_boost(ba, state)})
 			sb.sort_custom(_sort_by_score_desc)
 			return sb[0]['action']
-		elif prepare_action: return prepare_action
+		elif prepare_action and not state.player.cannot_draw: return prepare_action
 		elif has_strike: return scored_strikes[0]['action']
 	elif my_hand_size < 5:
 		if roll < 0.3 and has_strike: return scored_strikes[0]['action']
@@ -1264,7 +1270,7 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 			for ba in boost_actions: sb.append({"action": ba, "score": _score_boost(ba, state)})
 			sb.sort_custom(_sort_by_score_desc)
 			return sb[0]['action']
-		elif prepare_action: return prepare_action
+		elif prepare_action and not state.player.cannot_draw: return prepare_action
 		elif has_strike: return scored_strikes[0]['action']
 	else:
 		# Hand >= 5: reduce prepare, prefer boost and character actions
@@ -1287,9 +1293,9 @@ func pick_turn_action(possible_actions: Array, ai_game_state: AIPlayer.AIGameSta
 	# 10. FALLBACK
 	if scored_strikes.size() > 0: return scored_strikes[0]['action']
 	# Low hand: prepare before boost to refill cards
-	if my_hand_size < 4 and prepare_action: return prepare_action
+	if my_hand_size < 4 and prepare_action and not state.player.cannot_draw: return prepare_action
 	if boost_actions.size() > 0: return boost_actions[randi() % boost_actions.size()]
-	if prepare_action and my_hand_size <= 5: return prepare_action
+	if prepare_action and my_hand_size <= 5 and not state.player.cannot_draw: return prepare_action
 	# Prefer character-ability movement -> then plain movement
 	if character_actions.size() > 0:
 		var __fb_move_ca = null; var __fb_move_score: float = -999.0
