@@ -34514,6 +34514,402 @@
 		"NOTEEND": "SHAFATHI CARDS END"
 	},
 	
+
+	{
+		"NOTE": "SHAIDRUS CARDS START",
+		"id": "shaidrus_laststand",
+		"type": "ultra",
+		"display_name": "Last Stand",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 4,
+		"speed": 5,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "The Best Defense",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "is_infused",
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 3
+					}
+				},
+				{
+					"timing": "now",
+					"condition": "is_infused",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "shaidrus_divineintervention",
+		"type": "ultra",
+		"display_name": "Divine Intervention",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 7,
+		"speed": 0,
+		"armor": 7,
+		"guard": 7,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Unbreakable",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": -2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 4
+					}
+				},
+				{
+					"timing": "during_strike",
+					"condition": "is_infused",
+					"effect_type": "speedup",
+					"amount": -2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 4
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "shaidrus_bartheway",
+		"type": "special",
+		"display_name": "Bar The Way",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 3,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "opponent_cant_move_past"
+			},
+			{
+				"timing": "cleanup",
+				"condition": "is_infused",
+				"effect_type": "remove_opponent_cant_move_past"
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Forward March",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "shaidrus_shieldbash",
+		"type": "special",
+		"display_name": "Shield Bash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 4,
+		"speed": 3,
+		"armor": 1,
+		"guard": 2,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "armorup",
+				"amount": 3,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Unyielding",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "stun_immunity"
+				},
+				{
+					"timing": "now",
+					"effect_type": "close",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"condition": "was_hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Shield Bash"
+				}
+			]
+		}
+	},
+	{
+		"id": "shaidrus_voidshield",
+		"type": "special",
+		"display_name": "Void Shield",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 1,
+		"armor": 0,
+		"guard": 7,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "[unnamed boost]",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "dodge_at_range",
+					"range_min": 4,
+					"range_max": 9
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "pass" }
+					],
+					"and": {
+						"effect_type": "discard_this"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "shaidrus_shieldwhirlwind",
+		"type": "special",
+		"display_name": "Shield Whirlwind",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"power": 3,
+		"speed": 2,
+		"armor": 1,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 8,
+				"and": {
+					"effect_type": "pull",
+					"amount": 4,
+					"and": {
+						"condition": "is_infused",
+						"effect_type": "gain_advantage"
+					}
+				}
+			},
+			{
+				"timing": "after",
+				"condition": "was_hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "return_attack_to_hand",
+						"card_name": "Shield Whirlwind"
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Forged in Flame",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "advance",
+					"amount": 1,
+					"and": {
+						"effect_type": "bonus_action"
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "SHAIDRUS CARDS END",
+		"id": "shaidrus_thebestoffense",
+		"type": "special",
+		"display_name": "The Best Offense",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 3,
+		"speed": 4,
+		"armor": 1,
+		"guard": 1,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "set_strike",
+				"condition": "initiated_strike",
+				"effect_type": "pass",
+				"and": {
+					"condition": "was_not_wild_swing",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "reveal_strike"
+						},
+						{
+							"effect_type": "pass"
+						}
+					]
+				}
+			},
+			{
+				"timing": "during_strike",
+				"condition": "initiated_face_up",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Vigilance",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "during_strike",
+					"condition": "initiated_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			]
+		},
+		"NOTEEND": "SHAIDRUS CARDS END"
+	},
+	
 	{
 		"NOTE": "SHOVEL KNIGHT SOLO CARDS START",
 		"id": "shovelknight_propellerdagger",

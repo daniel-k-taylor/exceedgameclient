@@ -12202,10 +12202,10 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 				# This will work on a single nested "and" that has an amount.
 				# If it doesn't have an amount, this won't work as expected.
 				decision_effect = decision_effect.duplicate(true)
-				decision_effect['amount'] = effect_times * decision_effect['amount']
+				decision_effect['amount'] = int(effect_times * decision_effect['amount'])
 				var and_effect = decision_effect.get('and')
 				if and_effect and and_effect.get("amount"):
-					and_effect['amount'] = effect_times * and_effect['amount']
+					and_effect['amount'] = int(effect_times * and_effect['amount'])
 				effect_times = 1
 		elif decision_info.effect.get('overall_effect'):
 			decision_effect = decision_info.effect['overall_effect']
