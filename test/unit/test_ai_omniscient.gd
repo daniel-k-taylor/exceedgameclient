@@ -292,6 +292,13 @@ func handle_character_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AI
 	events += game.get_latest_events()
 	events += handle_decisions(game)
 	return events
+	
+func handle_bonus_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AIPlayer, action : AIPlayer.BonusActionAction):
+	assert_true(game.do_bonus_turn_action(aiplayer.game_player, action.action_idx), "character action failed")
+	var events = []
+	events += game.get_latest_events()
+	events += handle_decisions(game)
+	return events
 
 func _detect_stuck_game() -> bool:
 	var signature = "%s|%s|%s|%s|%s|%s|%s|%s" % [
@@ -353,6 +360,8 @@ func run_ai_game():
 				turn_events += handle_strike(game_logic, current_ai, other_ai, turn_action)
 			elif turn_action is AIPlayer.CharacterActionAction:
 				turn_events += handle_character_action(game_logic, current_ai, other_ai, turn_action)
+			elif turn_action is AIPlayer.BonusActionAction:
+				turn_events += handle_bonus_action(game_logic, current_ai, other_ai, turn_action)
 			else:
 				fail_test("Unknown turn action: %s" % turn_action)
 				assert(false, "Unknown turn action: %s" % turn_action)

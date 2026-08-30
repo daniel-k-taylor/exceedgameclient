@@ -329,6 +329,11 @@ class CharacterActionAction:
 		self.action_idx = action_idx_value
 		use_free_force = do_use_free_force
 
+class BonusActionAction:
+	var action_idx
+	func _init(action_idx_value):
+		self.action_idx = action_idx_value
+
 class ChooseArenaLocationAction:
 	var location
 	func _init(chosen_location):
@@ -381,6 +386,7 @@ func determine_possible_turn_actions():
 		possible_actions += get_boost_actions(boost_zones, "", false, 1)
 		possible_actions += get_strike_actions()
 		possible_actions += get_character_action_actions()
+		possible_actions += get_bonus_action_actions()
 	return possible_actions
 
 func get_prepare_actions():
@@ -744,6 +750,13 @@ func get_character_action_actions():
 			else:
 				# No cost.
 				possible_actions.append(CharacterActionAction.new([], action_idx, false))
+	return possible_actions
+
+func get_bonus_action_actions():
+	var possible_actions = []
+	for action_idx in range(len(game_player.get_bonus_actions())):
+		var action = game_player.get_bonus_actions()[action_idx]
+		possible_actions.append(BonusActionAction.new(action_idx))
 	return possible_actions
 
 func pay_strike_force_cost(force_cost : int, wild_swing_allowed : bool, _alternative_life_cost : int) -> PayStrikeCostAction:

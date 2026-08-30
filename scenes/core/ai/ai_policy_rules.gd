@@ -239,6 +239,11 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 		if strike_choices.size() > 0:
 			return strike_choices[randi() % strike_choices.size()]
 	else:
+		if ai_game_state.player.cannot_draw:
+			# Currently assumes that there exists some bonus action that will remove the lock
+			for action in possible_actions:
+				if action is AIPlayer.BonusActionAction:
+					return action
 		if ai_game_state.my_state.hand.size() < 3:
 			var highest_change_cards_value = 0
 			var highest_change_cards_action = null

@@ -6941,6 +6941,12 @@ func ai_handle_character_action(action : AIPlayer.CharacterActionAction):
 	if not success:
 		printlog("FAILED AI CHARACTER ACTION")
 	return success
+	
+func ai_handle_bonus_action(action : AIPlayer.BonusActionAction):
+	var success = game_wrapper.submit_bonus_turn_action(Enums.PlayerId.PlayerId_Opponent, action.action_idx)
+	if not success:
+		printlog("FAILED AI BONUS ACTION")
+	return success
 
 func ai_take_turn():
 	change_ui_state(UIState.UIState_WaitForGameServer)
@@ -6963,6 +6969,8 @@ func ai_take_turn():
 		success = ai_handle_strike(turn_action)
 	elif turn_action is AIPlayer.CharacterActionAction:
 		success = ai_handle_character_action(turn_action)
+	elif turn_action is AIPlayer.BonusActionAction:
+		success = ai_handle_bonus_action(turn_action)
 	else:
 		assert(false, "Unknown turn action: %s" % turn_action)
 

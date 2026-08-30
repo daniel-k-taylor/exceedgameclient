@@ -75,7 +75,6 @@ var remaining_start_of_turn_effects = []
 var remaining_end_of_turn_effects = []
 var prepare_effects_resolved : int = 0
 var post_action_effects_resolved : int = 0
-var spend_to_repeat_next_idx : int = 0
 var post_action_interruption : bool = false
 var resolving_boost_before_queue : bool = false
 
@@ -3380,12 +3379,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)
 		StrikeEffects.DiscardAttack:
-			var strike_card = active_strike.get_player_card(performing_player)
-			var card_name = strike_card.definition['display_name']
-			
-			performing_player.strike_stat_boosts.discard_attack_now = true
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % _log_card_name(card_name))
-			handle_strike_attack_immediate_removal(performing_player)
+			if active_strike:
+				var strike_card = active_strike.get_player_card(performing_player)
+				var card_name = strike_card.definition['display_name']
+				
+				performing_player.strike_stat_boosts.discard_attack_now = true
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % _log_card_name(card_name))
+				handle_strike_attack_immediate_removal(performing_player)
 		StrikeEffects.DiscardBoostInOpponentSpace:
 			decision_info.clear()
 			decision_info.destination = "discard"
@@ -10511,7 +10511,6 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 	active_character_action = true
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		# Some other player action will result in the end turn finishing.
-		# Striking is the end of an exceed so don't set this to true.
 		set_player_action_processing_state()
 		continue_player_action_resolution(performing_player)
 	return true
@@ -12379,8 +12378,8 @@ func continue_spend_to_repeat_effect(performing_player : Player):
 		do_effect_if_condition_met(performing_player, card_id, effect, null)
 		if game_state == Enums.GameState.GameState_PlayerDecision and i + 1 < effect_times:
 			active_spend_to_repeat_effect_info = {
-				"card_id": decision_info.choice_card_id,
-				"effect": card_id,
+				"card_id": card_id,
+				"effect": effect,
 				"next_idx": i + 1,
 				"effect_times": effect_times
 			}

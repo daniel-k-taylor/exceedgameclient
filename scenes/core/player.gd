@@ -2124,11 +2124,11 @@ func get_extra_strike_options_count():
 	return effects.size()
 
 func draw(num_to_draw : int, is_fake_draw : bool = false, from_bottom: bool = false, update_if_empty : bool = true):
-	if cannot_draw and not is_fake_draw:
-		parent._append_log_full(Enums.LogType.LogType_Effect, self, "is unable to draw cards.")
-		num_to_draw = 0
-	
 	if num_to_draw > 0:
+		if cannot_draw and not is_fake_draw:
+			parent._append_log_full(Enums.LogType.LogType_Effect, self, "is unable to draw cards.")
+			num_to_draw = 0
+		
 		if is_fake_draw:
 			# Used by topdeck boost as an easy way to get it in your hand to boost.
 			# This will add it, then it gets removed publicly by boost.
