@@ -18066,7 +18066,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "armorup",
-				"amount": 3
+				"amount": 2
 			},
 			{
 				"timing": "after",
@@ -41682,8 +41682,12 @@
 			{
 				"timing": "during_strike",
 				"condition": "is_infused",
-				"effect_type": "speedup",
-				"amount": 2
+				"effect_type": "powerup",
+				"amount": 1,
+				"and": {
+					"effect_type": "speedup",
+					"amount": 1
+				}
 			},
 			{
 				"timing": "hit",
@@ -41706,7 +41710,11 @@
 					"timing": "now",
 					"condition": "is_infused",
 					"effect_type": "draw",
-					"amount": 1
+					"amount": 1,
+					"and": {
+						"effect_type": "retreat",
+						"amount": 1
+					}
 				},
 				{
 					"timing": "hit",
