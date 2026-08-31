@@ -1386,6 +1386,9 @@ func get_cards_in_hand_matching_types(types : Array):
 func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0):
 	return get_cards_in_zone_of_type(hand, limitation, limitation_amount)
 
+func get_cards_in_gauge_of_type(limitation : String):
+	return get_cards_in_zone_of_type(gauge, limitation)
+
 func get_cards_in_boosts_of_type(limitation : String):
 	return get_cards_in_zone_of_type(continuous_boosts, limitation)
 	
@@ -1741,6 +1744,7 @@ func play_replacement_boosts(card_ids : Array, replacement_boost):
 		if replacement_boost:
 			card.definition["replaced_boost"] = card.definition["boost"]
 			card.definition["boost"] = replacement_boost
+			card.definition["boost"]["is_replacement"] = true
 
 		# Prep gamestate so we can boost.
 		parent.change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -1882,6 +1886,8 @@ func can_boost_card_from_gauge(card : GameCard) -> bool:
 		return true
 	# Transforms replace the original boost; the underlying boost is what gets played.
 	if "replaced_boost" in card.definition:
+		if card.definition["boost"].get("is_replacement", false) and boost_from_gauge_limitation == "replacement":
+			return true
 		return card.definition["replaced_boost"]["boost_type"] == boost_from_gauge_limitation
 	return false
 
@@ -2086,6 +2092,8 @@ func can_do_character_action(action_index : int) -> bool:
 		if used >= limit:
 			return false
 			
+	if 'requires_infused' in action and action['requires_infused']:
+		if not is_infused(): return false
 	if 'requires_not_infused' in action and action['requires_not_infused']:
 		if is_infused(): return false
 

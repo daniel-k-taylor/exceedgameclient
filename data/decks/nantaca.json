@@ -25,7 +25,48 @@
 		true,
 		true
 	],
+	"replacement_boost_definition": {
+		"boost_type": "continuous",
+		"facedown": true,
+		"force_cost": 0,
+		"cancel_cost": -1,
+		"display_name": "Nantaca Boost",
+		"effects": [
+			{
+				"timing": "hit",
+				"override_description": "Hit: +1 Power. Add this to Gauge.",
+				"effect_type": "powerup",
+				"amount": 1,
+				"and": {
+					"effect_type": "add_to_gauge_immediately"
+				}
+			}
+		],
+		"description": "Facedown continuous boost: Hit: +1 Power. Add this to Gauge."
+	},
+	"on_exceed": {
+		"effect_type": "enable_boost_from_gauge",
+		"limitation": "replacement"
+	},
 	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"action_name": "Character Action (Infused)",
+		"requires_infused": true,
+		"effect": {
+			"condition": "is_infused",
+			"effect_type": "draw",
+			"amount": 2,
+			"and": {
+				"effect_type": "self_discard_choose",
+				"allow_fewer": true,
+				"optional": true,
+				"amount": 2,
+				"destination": "replacement_boost"
+			}
+		}
+	},
+	{
 		"gauge_cost": 1,
 		"force_cost": 0,
 		"action_name": "Infuse",
@@ -40,6 +81,25 @@
 		}
 	}],
 	"character_action_exceeded": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"action_name": "Character Action (Infused)",
+		"requires_infused": true,
+		"effect": {
+			"condition": "is_infused",
+			"effect_type": "draw",
+			"amount": 2,
+			"and": {
+				"effect_type": "self_discard_choose",
+				"allow_fewer": true,
+				"optional": true,
+				"source": "hand/gauge",
+				"amount": 3,
+				"destination": "replacement_boost"
+			}
+		}
+	},
+	{
 		"gauge_cost": 1,
 		"force_cost": 0,
 		"action_name": "Infuse",

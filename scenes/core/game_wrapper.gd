@@ -488,7 +488,7 @@ func does_card_contain_range_to_opponent(player_id : Enums.PlayerId, card_id : i
 	return _get_player(player_id).does_card_contain_range_to_opponent(card_id)
 
 func can_player_boost_from_gauge(player_id : Enums.PlayerId):
-	return _get_player(player_id).can_boost_from_gauge
+	return _get_player(player_id).can_boost_from_gauge and _get_player(player_id).boost_from_gauge_limitation != "replacement"
 	
 func can_player_boost_from_extra(player_id : Enums.PlayerId):
 	return _get_player(player_id).can_boost_from_extra

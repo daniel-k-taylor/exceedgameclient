@@ -6263,6 +6263,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var cards_available = 0
 			if source == "hand":
 				cards_available = performing_player.get_cards_in_hand_of_type(limitation, limitation_amount)
+			elif source == "hand/gauge":
+				cards_available = performing_player.get_cards_in_hand_of_type(limitation)
+				cards_available += performing_player.get_cards_in_gauge_of_type(limitation)
 			elif source == "boosts":
 				cards_available = performing_player.get_cards_in_boosts_of_type(limitation)
 			else:
@@ -6384,6 +6387,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					if card_ids.size() == 1:
 						begin_extra_attack(performing_player, card_ids[0])
 				elif effect['destination'] == "replacement_boost":
+					var replacement_boost = performing_player.get_replacement_boost_definition()
+					performing_player.play_replacement_boosts(card_ids, replacement_boost)
+				else:
+					# Nothing else implemented.
+					assert(false)
+			elif effect['discard_source'] == "hand/gauge":
+				if effect['destination'] == "replacement_boost":
 					var replacement_boost = performing_player.get_replacement_boost_definition()
 					performing_player.play_replacement_boosts(card_ids, replacement_boost)
 				else:
@@ -12440,12 +12450,18 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 			if source == "hand" and not performing_player.is_card_in_hand(card_id):
 				printlog("ERROR: Tried to choose to discard with card not in hand.")
 				return false
+			if source == "hand/gauge" and not (performing_player.is_card_in_hand(card_id) or performing_player.is_card_in_gauge(card_id)):
+				printlog("ERROR: Tried to choose to discard with card not in hand/gauge.")
+				return false
 			if source == "boosts" and not performing_player.is_card_in_continuous_boosts(card_id):
 				printlog("ERROR: Tried to choose to discard with card not in boosts.")
 				return false
 		else:
 			if source == "hand" and not other_player.is_card_in_hand(card_id):
 				printlog("ERROR: Tried to discard opponent card not in their hand.")
+				return false
+			if source == "hand/gauge" and not (other_player.is_card_in_hand(card_id) or other_player.is_card_in_gauge(card_id)):
+				printlog("ERROR: Tried to discard opponent card not in their hand/gauge.")
 				return false
 			if source == "boosts" and not other_player.is_card_in_continuous_boosts(card_id):
 				printlog("ERROR: Tried to discard opponent card not in their boosts.")
