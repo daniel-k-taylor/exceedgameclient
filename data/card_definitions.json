@@ -35593,7 +35593,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "[unnamed boost]",
+			"display_name": "Boost",
 			"effects": [
 				{
 					"timing": "during_strike",
