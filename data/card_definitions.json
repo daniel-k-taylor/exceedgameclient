@@ -17304,6 +17304,391 @@
 		},
 		"NOTEEND": "INO CARDS END"
 	},
+
+	{
+		"NOTE": "IXATOSK CARDS START",
+		"id": "ixatosk_skytearpredator",
+		"type": "ultra",
+		"display_name": "Skytear Predator",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 6,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "is_infused",
+				"effect_type": "advance",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "discard_opponent_gauge",
+				"opponent_chooses": true,
+				"amount": 1,
+				"amount2": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Shard of Taulot",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"limitation": "",
+					"destination": "gauge",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 2,
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"effect_type": "seal_this"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "ixatosk_energyflux",
+		"type": "ultra",
+		"display_name": "Energy Flux",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 2,
+		"speed": 0,
+		"armor": 3,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": {
+					"combine_multiple_into_one": true,
+					"effect_type": "powerup",
+					"amount": 1,
+					"spent_cards_to_hand": true
+				},
+				"overall_effect": null,
+				"spent_cards_to_hand": true,
+				"gauge_max": -1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Undermine",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "discard_continuous_boost",
+					"required": true,
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"condition": "is_infused",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "ixatosk_clawdrill",
+		"type": "special",
+		"display_name": "Claw Drill",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "close",
+				"amount": 3,
+				"and": {
+					"effect_type": "pull",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Skytear Manifest",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"effect_type": "draw",
+						"amount": 2
+					},
+					"overall_effect": null,
+					"gauge_max": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "ixatosk_frombelow",
+		"type": "special",
+		"display_name": "From Below",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 5,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 8,
+				"and": {
+					"effect_type": "close",
+					"amount": 8
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Devour Energy",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"effect_type": "draw",
+						"amount": 2
+					},
+					"overall_effect": null,
+					"gauge_max": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "ixatosk_splitform",
+		"type": "special",
+		"display_name": "Split Form",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 4,
+		"armor": 0,
+		"guard": 5,
+		"linked_buddy_id": "burrowinghorror",
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "hit",
+				"condition": "is_infused",
+				"effect_type": "move_to_any_space",
+				"move_min": 0,
+				"move_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Burrowing Horror",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "before",
+					"condition": "boost_space_unoccupied",
+					"condition_detail": "Burrowing Horror",
+					"effect_type": "move_to_boost_space"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Split Form"
+				}
+			]
+		}
+	},
+	{
+		"id": "ixatosk_upheaval",
+		"type": "special",
+		"display_name": "Upheaval",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 2,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3,
+				"and": {
+					"condition": "advanced_through",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tunneling",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 3,
+					"and": {
+						"condition": "advanced_through",
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "IXATOSK CARDS END",
+		"id": "ixatosk_earthsplitter",
+		"type": "special",
+		"display_name": "Earth Splitter",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 4,
+		"speed": 2,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				},
+				"gauge_max": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "is_infused",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Underworld Dweller",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choose_discard",
+					"limitation": "",
+					"destination": "gauge"
+				}
+			]
+		},
+		"NOTEEND": "IXATOSK CARDS END"
+	},
+	
 	{
 		"NOTE": "JACKO CARDS START",
 		"id": "jacko_cheerservanton",
