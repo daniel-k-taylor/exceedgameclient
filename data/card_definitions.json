@@ -19150,8 +19150,8 @@
 			{
 				"timing": "during_strike",
 				"condition": "is_infused",
-				"effect_type": "powerup",
-				"amount": 1
+				"effect_type": "armorup",
+				"amount": 2
 			},
 			{
 				"timing": "before",

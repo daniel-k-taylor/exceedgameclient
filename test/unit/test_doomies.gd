@@ -9,7 +9,7 @@ func who_am_i():
 func test_doomies_legion_huge_hand():
 	position_players(player1, 2, player2, 6)
 	var gauge_cards = give_gauge(player1, 2)
-	player1.draw(10);
+	player1.draw(10)
 	var hand_size = len(player1.hand)
 	
 	execute_strike(player1, player2, "doomies_legion", "standard_normal_dive",
