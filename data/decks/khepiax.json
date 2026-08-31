@@ -1,20 +1,24 @@
 {
 	"id": "khepiax",
 	"season": 8,
-	"display_name": "Khepiax (8/28 test)",
+	"display_name": "Khepiax (8/30 test)",
 	"exceed_cost": 3,
 	"on_exceed": {
-		"effect_type": "choose_discard",
-		"limitation": "",
-		"destination": "gauge",
-		"amount": 1
+		"effect_type": "add_hand_to_gauge",
+		"and": {
+			"effect_type": "draw",
+			"amount": 4
+		}
 	},
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "draw",
-			"amount": 2
+			"effect_type": "spend_life",
+			"amount": 1,
+			"and": {
+				"effect_type": "add_top_deck_to_gauge"
+			}
 		}
 	},
 	{
@@ -69,20 +73,20 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "set_strike",
-			"effect_type": "force_for_effect",
-			"per_force_effect": {
+			"timing": "hit",
+			"condition": "is_infused",
+			"effect_type": "add_attack_effect",
+			"added_effect": {
 				"character_effect": true,
-				"combine_multiple_into_one": true,
-				"effect_type": "armorup",
-				"amount": 1,
-				"and": {
-					"effect_type": "guardup",
+				"timing": "hit",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "powerup",
 					"amount": 2
-				}
-			},
-			"overall_effect": null,
-			"force_max": 3
+				},
+				"gauge_max": 1
+			}
 		}
 	],
 	"image_resources": {
@@ -109,72 +113,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "shaidrus_laststand",
+			"definition_id": "khepiax_shock",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "shaidrus_laststand",
+			"definition_id": "khepiax_shock",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "shaidrus_divineintervention",
+			"definition_id": "khepiax_becomethestorm",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "shaidrus_divineintervention",
+			"definition_id": "khepiax_becomethestorm",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "shaidrus_bartheway",
+			"definition_id": "khepiax_gatheringstorm",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "shaidrus_bartheway",
+			"definition_id": "khepiax_gatheringstorm",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "shaidrus_shieldbash",
+			"definition_id": "khepiax_powersurge",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "shaidrus_shieldbash",
+			"definition_id": "khepiax_powersurge",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "shaidrus_voidshield",
+			"definition_id": "khepiax_energydrain",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "shaidrus_voidshield",
+			"definition_id": "khepiax_energydrain",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "shaidrus_shieldwhirlwind",
+			"definition_id": "khepiax_livinglightning",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "shaidrus_shieldwhirlwind",
+			"definition_id": "khepiax_livinglightning",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "shaidrus_thebestoffense",
+			"definition_id": "khepiax_thunderclap",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "shaidrus_thebestoffense",
+			"definition_id": "khepiax_thunderclap",
 			"image_name": "specials",
 			"image_index": 4
 		},

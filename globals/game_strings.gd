@@ -1082,7 +1082,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				destination = effect['destination_name']
 			if effect.get("from_last_cards"):
 				last_cards_req = " from the last %s drawn cards" % effect['from_last_cards']
-			effect_str += "Add a card from hand to %s%s" % [destination, last_cards_req]
+			var amount_string = "a card"
+			if effect.get("max_amount", 1) > 1:
+				amount_string = "%s-%s card(s)" % [effect.get("min_amount", 1), effect.get("max_amount", 1)]
+			effect_str += "Add %s from hand to %s%s" % [amount_string, destination, last_cards_req]
 		StrikeEffects.GenerateFreeForce:
 			effect_str += "Generate %s force for free" % effect['amount']
 		StrikeEffects.Guardup:
