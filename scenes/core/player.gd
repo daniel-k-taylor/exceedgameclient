@@ -26,6 +26,7 @@ class StrikeStatBoosts:
 	var range_includes_opponent : bool = false
 	var range_includes_if_moved_past : bool = false
 	var range_includes_lightningrods : bool = false
+	var range_includes_boost_spaces : Array = []
 	var attack_includes_ranges : Array = []
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
@@ -145,6 +146,7 @@ class StrikeStatBoosts:
 		range_includes_opponent = false
 		range_includes_if_moved_past = false
 		range_includes_lightningrods = false
+		range_includes_boost_spaces = []
 		attack_includes_ranges = []
 		ignore_armor = false
 		ignore_guard = false

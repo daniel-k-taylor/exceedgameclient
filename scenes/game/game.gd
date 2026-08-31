@@ -2564,6 +2564,9 @@ func _on_discard_continuous_boost_begin(event):
 			"owner_hand":
 				action_word = "Return"
 				extra_info = " to its owner's hand."
+			"gauge":
+				action_word = "Add"
+				extra_info = " to gauge."
 			_:
 				action_word = "Discard"
 		var instruction_text = "%s %s continuous boost%s." % [action_word, instruction_qualifier, extra_info]
