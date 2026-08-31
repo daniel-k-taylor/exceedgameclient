@@ -1,0 +1,17 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://3ic86jprw3w6"]
+
+[ext_resource type="Texture2D" uid="uid://btglxk28idsq1" path="res://assets/character_animations/doomies/idle/doomies_model.png" id="1_iie6n"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_iie6n")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.3
+metadata/vertical_offset = -10.0
