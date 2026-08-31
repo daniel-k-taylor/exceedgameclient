@@ -73,11 +73,11 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "hit",
+			"timing": "set_strike",
 			"condition": "is_infused",
+			"character_effect": true,
 			"effect_type": "add_attack_effect",
 			"added_effect": {
-				"character_effect": true,
 				"timing": "hit",
 				"effect_type": "gauge_for_effect",
 				"per_gauge_effect": null,

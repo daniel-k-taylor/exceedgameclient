@@ -8812,6 +8812,442 @@
 		},
 		"NOTEEND": "DAN CARDS END"
 	},
+	
+	{
+		"NOTE": "DOOMIES CARDS START",
+		"id": "doomies_legion",
+		"type": "ultra",
+		"display_name": "Legion",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 1,
+		"speed": 1,
+		"armor": 1,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "powerup_per_card_in_hand",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Join Us!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "spend_life",
+							"amount": 1,
+							"and": {
+								"effect_type": "draw",
+								"amount": 1
+							}
+						},
+						{
+							"effect_type": "spend_life",
+							"amount": 2,
+							"and": {
+								"effect_type": "draw",
+								"amount": 2
+							}
+						},
+						{
+							"effect_type": "spend_life",
+							"amount": 3,
+							"and": {
+								"effect_type": "draw",
+								"amount": 3
+							}
+						},
+						{
+							"effect_type": "spend_life",
+							"amount": 4,
+							"and": {
+								"effect_type": "draw",
+								"amount": 4
+							}
+						},
+						{
+							"effect_type": "spend_life",
+							"amount": 5,
+							"and": {
+								"effect_type": "draw",
+								"amount": 5
+							}
+						},
+						{
+							"effect_type": "pass"
+						}
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "doomies_boom",
+		"type": "ultra",
+		"display_name": "Boom!",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 3,
+		"speed": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 5,
+				"save_spaces_not_closed_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"multiplier": 1
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "push_damage_dealt"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Fearless Onikai",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "close",
+					"amount": 3,
+					"and": {
+						"effect_type": "add_top_deck_to_gauge",
+						"amount": 3
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "doomies_stonetrampler",
+		"type": "special",
+		"display_name": "Stonetrampler",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1,
+				"and": {
+					"condition": "advanced_through",
+					"effect_type": "ignore_armor"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Maniacal",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 3,
+					"and": {
+						"effect_type": "strike"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "doomies_bombtoss",
+		"type": "special",
+		"display_name": "Bomb Toss",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 4,
+		"power": 6,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "rangeup",
+				"amount": -2,
+				"amount2": -2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "All Together Now!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
+						"effect_type": "choice",
+						"choice": [
+							{
+								"effect_type": "self_discard_choose",
+								"amount": 1,
+								"and": {
+									"effect_type": "strike"
+								}
+							},
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "doomies_rocketeering",
+		"type": "special",
+		"display_name": "Rocketeering",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 3,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3,
+				"save_spaces_not_closed_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"multiplier": 1
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Swarm",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "min_cards_in_hand",
+					"condition_amount": 1,
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "self_discard_choose",
+							"amount": 1,
+							"and": {
+								"effect_type": "strike"
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "doomies_scatter",
+		"type": "special",
+		"display_name": "Scatter!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "self_discard_choose",
+				"amount": 3,
+				"and": {
+					"effect_type": "draw",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Kaenite Innovation",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
+				},
+				{
+					"timing": "immediate",
+					"condition": "is_infused",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "DOOMIES CARDS END",
+		"id": "doomies_bombardment",
+		"type": "special",
+		"display_name": "Bombardment",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 3,
+		"speed": 2,
+		"armor": 1,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "min_cards_in_hand",
+				"condition_amount": 1,
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "self_discard_choose",
+						"amount": 1,
+						"and": {
+							"effect_type": "powerup",
+							"amount": 2,
+							"and": {
+								"effect_type": "close",
+								"amount": 4
+							}
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Blast Off!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"condition": "min_cards_in_hand",
+					"condition_amount": 1,
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "self_discard_choose",
+							"amount": 1,
+							"and": {
+								"effect_type": "strike"
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		},
+		"NOTEEND": "DOOMIES CARDS END"
+	},	
+
 	{
 		"NOTE": "EMOGINE CARDS START",
 		"id": "emogine_handofjudgment",
@@ -18378,7 +18814,6 @@
 	},
 	
 	
-
 	{
 		"NOTE": "KHEPIAX CARDS START",
 		"id": "khepiax_shock",
@@ -18527,7 +18962,7 @@
 			"display_name": "Lady of Lightning",
 			"effects": [
 				{
-					"timing": "continuous",
+					"timing": "during_strike",
 					"effect_type": "speedup",
 					"amount": 2
 				},
@@ -34954,7 +35389,6 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"condition": "is_infused",
 					"effect_type": "powerup",
 					"amount": 3,
 					"and": {

@@ -3,6 +3,10 @@
 	"season": 8,
 	"display_name": "Doomies (8/28 test)",
 	"exceed_cost": 2,
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 3
+	},
 	"character_action_default": [{
 		"gauge_cost": 1,
 		"force_cost": 0,
@@ -48,10 +52,13 @@
 			"effect_type": "pass",
 			"and": {
 				"condition": "is_infused",
-				"effect_type": "rangeup",
 				"character_effect": true,
-				"amount": 0,
-				"amount2": 1
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2
+				}
 			}
 		}
 	],
@@ -72,13 +79,27 @@
 			"effect_type": "pass",
 			"and": {
 				"condition": "is_infused",
-				"effect_type": "rangeup",
 				"character_effect": true,
-				"amount": 0,
-				"amount2": 1,
-				"and": {
-					"effect_type": "powerup",
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "before",
+					"effect_type": "advance",
 					"amount": 2
+				}
+			}
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "pass",
+			"and": {
+				"condition": "is_infused",
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 1
 				}
 			}
 		}
@@ -107,72 +128,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "yami_harbinger",
+			"definition_id": "doomies_legion",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "yami_harbinger",
+			"definition_id": "doomies_legion",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "yami_vengeance",
+			"definition_id": "doomies_boom",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "yami_vengeance",
+			"definition_id": "doomies_boom",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "yami_spiritchains",
+			"definition_id": "doomies_stonetrampler",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "yami_spiritchains",
+			"definition_id": "doomies_stonetrampler",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "yami_haunting",
+			"definition_id": "doomies_bombtoss",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "yami_haunting",
+			"definition_id": "doomies_bombtoss",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "yami_flameswipe",
+			"definition_id": "doomies_rocketeering",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "yami_flameswipe",
+			"definition_id": "doomies_rocketeering",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "yami_screamingscythe",
+			"definition_id": "doomies_scatter",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "yami_screamingscythe",
+			"definition_id": "doomies_scatter",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "yami_seize",
+			"definition_id": "doomies_bombardment",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "yami_seize",
+			"definition_id": "doomies_bombardment",
 			"image_name": "specials",
 			"image_index": 4
 		},
