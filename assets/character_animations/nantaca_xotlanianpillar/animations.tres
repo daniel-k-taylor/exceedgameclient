@@ -1,0 +1,17 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://wid576vkbpbl"]
+
+[ext_resource type="Texture2D" uid="uid://wk1v3cihsj4x" path="res://assets/character_animations/nantaca_xotlanianpillar/nantaca_pillar_placeholder.png" id="1_yktjt"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_yktjt")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+metadata/flip = false
+metadata/scaling = 1.5
+metadata/vertical_offset = 0.0

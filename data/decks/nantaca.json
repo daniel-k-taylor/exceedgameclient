@@ -1,0 +1,273 @@
+{
+	"id": "nantaca",
+	"season": 8,
+	"display_name": "Nantaca (8/30 test)",
+	"exceed_cost": 2,
+	"has_sealed_area": true,
+	"buddy_cards": [
+		"xotlanianpillar1",
+		"xotlanianpillar1"
+	],
+	"hide_buddy_reference": true,
+	"buddy_card_graphic_override": [
+		"",
+		""
+	],
+	"buddy_card_graphics_id": [
+		"nantaca_xotlanianpillar",
+		"nantaca_xotlanianpillar"
+	],
+	"buddy_display_names": [
+		"Xotlanian Pillar",
+		"Xotlanian Pillar"
+	],
+	"buddy_cards_foreground": [
+		true,
+		true
+	],
+	"character_action_default": [{
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"action_name": "Infuse",
+		"requires_not_infused": true,
+		"effect": {
+			"effect_type": "infused",
+			"and": {
+				"effect_type": "take_bonus_actions",
+				"amount": 1,
+				"silent": true
+			}
+		}
+	}],
+	"character_action_exceeded": [{
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"action_name": "Infuse",
+		"requires_not_infused": true,
+		"effect": {
+			"effect_type": "infused",
+			"and": {
+				"effect_type": "take_bonus_actions",
+				"amount": 1,
+				"silent": true
+			}
+		}
+	}],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "is_not_infused",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "infused"
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "on_move_action",
+			"condition": "is_infused",
+			"effect_type": "draw",
+			"amount": 2
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "is_not_infused",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "infused"
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "on_move_action",
+			"condition": "is_infused",
+			"effect_type": "draw",
+			"amount": 2,
+			"and": {
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "strike" },
+					{ "effect_type": "pass" }
+				]
+			}
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/ld11rBd.png",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/pxAmkR5.png",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/uLntpXp.png",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/KWTq5Tp.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "ixatosk_skytearpredator",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "ixatosk_skytearpredator",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "ixatosk_energyflux",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "ixatosk_energyflux",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "ixatosk_clawdrill",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "ixatosk_clawdrill",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "ixatosk_frombelow",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "ixatosk_frombelow",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "ixatosk_splitform",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "ixatosk_splitform",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "ixatosk_upheaval",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "ixatosk_upheaval",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "ixatosk_earthsplitter",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "ixatosk_earthsplitter",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

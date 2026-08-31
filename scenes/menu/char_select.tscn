@@ -1,4 +1,4 @@
-[gd_scene load_steps=135 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=136 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://dj3a6fhyrmcfp" path="res://assets/portraits/vorhild.png" id="4_rjnbv"]
@@ -28,6 +28,7 @@
 [ext_resource type="Texture2D" uid="uid://e0tnn730b3fj" path="res://assets/portraits/millia.png" id="14_ui4sm"]
 [ext_resource type="Texture2D" uid="uid://b4m74d0kfmlfa" path="res://assets/portraits/shaidrus.png" id="15_2wvxv"]
 [ext_resource type="Texture2D" uid="uid://c7xyes2u01quq" path="res://assets/portraits/giovanna.png" id="15_joo7j"]
+[ext_resource type="Texture2D" uid="uid://nmbrc2s71ls1" path="res://assets/portraits/nantaca.png" id="15_vnruh"]
 [ext_resource type="Texture2D" uid="uid://qc7u453ovxb1" path="res://assets/portraits/khepiax.png" id="16_w5wx4"]
 [ext_resource type="Texture2D" uid="uid://otdwoejmwsf1" path="res://assets/portraits/nago.png" id="17_v8770"]
 [ext_resource type="Texture2D" uid="uid://baeok8iwnd55t" path="res://assets/portraits/goldlewis.png" id="18_nhabj"]
@@ -283,6 +284,11 @@ portrait_texture = ExtResource("9_eet6p")
 layout_mode = 2
 char_id = "kohai"
 portrait_texture = ExtResource("11_agn3q")
+
+[node name="Nantaca" parent="CenterContainer/STCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nantaca"
+portrait_texture = ExtResource("15_vnruh")
 
 [node name="Row4" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
 layout_mode = 2
@@ -1215,6 +1221,8 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row3/Zacoal" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row3/Kohai" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row3/Kohai" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row3/Nantaca" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row3/Nantaca" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Shafathi" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row4/Shafathi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row4/Khenui" to="." method="_on_char_hover"]
