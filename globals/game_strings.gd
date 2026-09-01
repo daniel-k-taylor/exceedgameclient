@@ -913,6 +913,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.DiscardContinuousBoost:
 			if 'destination' in effect and effect['destination'] == "owner_hand":
 				effect_str += "Return a continuous boost to its owner's hand."
+			elif 'destination' in effect and effect['destination'] == "gauge":
+				if 'limitation' in effect and effect['limitation'] == 'mine':
+					effect_str += "Add one of your continuous boosts to gauge."
+				else:
+					effect_str += "Add a continuous boost to gauge."
 			else:
 				if 'limitation' in effect and effect['limitation'] == 'mine' and 'overall_effect' in effect:
 					effect_str += "You may discard one of your continuous boosts for %s" % [get_effect_text(effect['overall_effect'])]
@@ -1414,6 +1419,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Push to range %s" % effect['amount']
 		StrikeEffects.PushDamageDealt:
 			effect_str += "Push equal to damage dealt"
+		StrikeEffects.RangeIncludesBoostSpace:
+			effect_str += "Your range includes this boost's space"
 		StrikeEffects.RangeIncludesIfMovedPast:
 			effect_str += "If you move past the opponent, your range includes them"
 		StrikeEffects.Rangeup:

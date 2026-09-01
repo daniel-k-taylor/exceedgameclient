@@ -26,6 +26,7 @@ class StrikeStatBoosts:
 	var range_includes_opponent : bool = false
 	var range_includes_if_moved_past : bool = false
 	var range_includes_lightningrods : bool = false
+	var range_includes_boost_spaces : Array = []
 	var attack_includes_ranges : Array = []
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
@@ -145,6 +146,7 @@ class StrikeStatBoosts:
 		range_includes_opponent = false
 		range_includes_if_moved_past = false
 		range_includes_lightningrods = false
+		range_includes_boost_spaces = []
 		attack_includes_ranges = []
 		ignore_armor = false
 		ignore_guard = false
@@ -1386,6 +1388,9 @@ func get_cards_in_hand_matching_types(types : Array):
 func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0):
 	return get_cards_in_zone_of_type(hand, limitation, limitation_amount)
 
+func get_cards_in_gauge_of_type(limitation : String):
+	return get_cards_in_zone_of_type(gauge, limitation)
+
 func get_cards_in_boosts_of_type(limitation : String):
 	return get_cards_in_zone_of_type(continuous_boosts, limitation)
 	
@@ -2086,6 +2091,8 @@ func can_do_character_action(action_index : int) -> bool:
 		if used >= limit:
 			return false
 			
+	if 'requires_infused' in action and action['requires_infused']:
+		if not is_infused(): return false
 	if 'requires_not_infused' in action and action['requires_not_infused']:
 		if is_infused(): return false
 

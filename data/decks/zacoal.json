@@ -1,7 +1,7 @@
 {
 	"id": "zacoal",
 	"season": 8,
-	"display_name": "Zacoal (8/28 test)",
+	"display_name": "Zacoal (9/1 test)",
 	"exceed_cost": 3,
 	"has_sealed_area": true,
 	"delayed_wild_strike": true,
@@ -96,11 +96,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/CdGShrJ.png",
+			"url": "https://i.imgur.com/EcucBpQ.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/uPi8H91.png",
+			"url": "https://i.imgur.com/UKGmen8.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -108,7 +108,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/znEQVWd.jpeg",
+			"url": "https://i.imgur.com/FFUyQst.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

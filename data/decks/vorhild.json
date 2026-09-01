@@ -1,7 +1,7 @@
 {
 	"id": "vorhild",
 	"season": 8,
-	"display_name": "Vorhild (8/30 test)",
+	"display_name": "Vorhild (9/1 test)",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "strike"
@@ -98,11 +98,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/k9Psh1A.png",
+			"url": "https://i.imgur.com/XL0fKgR.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/WeM3M5P.png",
+			"url": "https://i.imgur.com/mxKcxKi.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -110,7 +110,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/OH9t2sR.jpeg",
+			"url": "https://i.imgur.com/ZMaaZpl.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

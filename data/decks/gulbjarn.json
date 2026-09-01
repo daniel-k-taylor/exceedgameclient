@@ -1,7 +1,7 @@
 {
 	"id": "gulbjarn",
 	"season": 8,
-	"display_name": "Gulbjarn (8/28 test)",
+	"display_name": "Gulbjarn (9/1 test)",
 	"exceed_cost": 2,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -93,11 +93,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/6DV2c9X.png",
+			"url": "https://i.imgur.com/lKw3tSW.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/MBpJHg8.png",
+			"url": "https://i.imgur.com/E1wHGO7.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -105,7 +105,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/7F4rDib.jpeg",
+			"url": "https://i.imgur.com/H2bzC3g.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

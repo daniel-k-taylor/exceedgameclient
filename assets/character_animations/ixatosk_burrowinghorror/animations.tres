@@ -1,0 +1,18 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://b21dnybpf6nob"]
+
+[ext_resource type="Texture2D" uid="uid://bgx1ggwusx0my" path="res://assets/character_animations/ixatosk_burrowinghorror/ixa_burrow.png" id="1_q0cb2"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_q0cb2")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+metadata/flip = false
+metadata/scaling = 1.5
+metadata/vertical_offset = 0.0
+metadata/horizontal_offset_buddy = 15.0

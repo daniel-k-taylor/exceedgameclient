@@ -926,6 +926,8 @@ func determine_choose_to_discard_options(to_discard_count : int, limitation : St
 	var source_zone = game_player.hand
 	if source == "boosts":
 		source_zone = game_player.continuous_boosts
+	elif source == "hand/gauge":
+		source_zone = game_player.hand + game_player.gauge
 		
 	if to_discard_count == -1:
 		min_count = 0

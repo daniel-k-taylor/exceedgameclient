@@ -815,3 +815,9 @@ func test_shaidrus_100():
 
 func test_doomies_100():
 	run_iterations_with_deck("doomies")
+
+func test_ixatosk_100():
+	run_iterations_with_deck("ixatosk")
+
+func test_nantaca_100():
+	run_iterations_with_deck("nantaca")

@@ -2328,6 +2328,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.always_add_to_overdrive = true
 			handle_strike_attack_immediate_removal(performing_player)
 		StrikeEffects.AddToGaugeBoostPlayCleanup:
+			if active_boost.card.definition['boost']['boost_type'] == "continuous":
+				active_boost.discard_on_cleanup = true
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
 		StrikeEffects.AddToGaugeImmediately:
 			var card = card_db.get_card(card_id)
@@ -2928,7 +2930,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 						card_name = card_db.get_card_name(choice_player.discards[0].id)
 					choice['card_name'] = card_name
 
-			decision_info.choice = effect[StrikeEffects.Choice]
+			decision_info.choice = []
+			for c_eff in effect[StrikeEffects.Choice]:
+				var choice_effect = c_eff.duplicate()
+				if 'card_id' in effect and 'card_id' not in choice_effect:
+					choice_effect['card_id'] = effect['card_id']
+				decision_info.choice.append(choice_effect)
+			
 			decision_info.choice_card_id = card_id
 			decision_info.multiple_choice_amount = multiple
 			create_event(Enums.EventType.EventType_Strike_EffectChoice, choice_player.my_id, 0, "EffectOption")
@@ -3453,14 +3461,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var boost_name = _get_boost_and_card_name(card)
 				# Default destination is to discard.
 				var destination = "discard"
+				var log_prefix = "discards"
+				var log_suffix = "."
 				if decision_info.destination == "owner_hand":
 					destination = "hand"
+				elif decision_info.destination == "gauge":
+					destination = "gauge"
+					log_prefix = "adds"
+					log_suffix = " to gauge"
+					
 				if performing_player.is_card_in_continuous_boosts(boost_to_discard_id):
 					performing_player.remove_from_continuous_boosts(card, destination)
-					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their boost %s." % boost_name)
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "%s their boost %s%s" % [log_prefix, boost_name, log_suffix])
 				elif opposing_player.is_card_in_continuous_boosts(boost_to_discard_id):
 					opposing_player.remove_from_continuous_boosts(card, destination)
-					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards %s's boost %s." % [opposing_player.name, boost_name])
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "%s %s's boost %s%s" % [log_prefix, opposing_player.name, boost_name, log_suffix])
 
 				# Do any bonus effect
 				if decision_info.effect:
@@ -5900,6 +5915,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					"amount": damage_dealt
 				}
 				handle_strike_effect(card_id, push_effect, performing_player)
+		StrikeEffects.RangeIncludesBoostSpace:
+			performing_player.strike_stat_boosts.range_includes_boost_spaces.append(effect['card_id'])
 		StrikeEffects.RangeIncludesIfMovedPast:
 			performing_player.strike_stat_boosts.range_includes_if_moved_past = true
 		StrikeEffects.RangeIncludesLightningrods:
@@ -6263,6 +6280,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var cards_available = 0
 			if source == "hand":
 				cards_available = performing_player.get_cards_in_hand_of_type(limitation, limitation_amount)
+			elif source == "hand/gauge":
+				cards_available = performing_player.get_cards_in_hand_of_type(limitation)
+				cards_available += performing_player.get_cards_in_gauge_of_type(limitation)
 			elif source == "boosts":
 				cards_available = performing_player.get_cards_in_boosts_of_type(limitation)
 			else:
@@ -6384,6 +6404,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					if card_ids.size() == 1:
 						begin_extra_attack(performing_player, card_ids[0])
 				elif effect['destination'] == "replacement_boost":
+					var replacement_boost = performing_player.get_replacement_boost_definition()
+					performing_player.play_replacement_boosts(card_ids, replacement_boost)
+				else:
+					# Nothing else implemented.
+					assert(false)
+			elif effect['discard_source'] == "hand/gauge":
+				if effect['destination'] == "replacement_boost":
 					var replacement_boost = performing_player.get_replacement_boost_definition()
 					performing_player.play_replacement_boosts(card_ids, replacement_boost)
 				else:
@@ -8228,7 +8255,7 @@ func is_location_in_range(attacking_player, card, test_location : int):
 			return in_range_return_value
 	return not in_range_return_value
 
-func in_range(attacking_player, defending_player, card, combat_logging=false):
+func in_range(attacking_player : Player, defending_player : Player, card, combat_logging=false):
 	if attacking_player.strike_stat_boosts.attack_does_not_hit or attacking_player.strike_stat_boosts.overwrite_range_to_invalid:
 		return false
 	if active_strike and active_strike.extra_attack_in_progress:
@@ -8272,33 +8299,42 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 	var defender_location = defending_player.arena_location
 	var defender_width = defending_player.extra_width
 	var opponent_in_range = false
-	if attacking_player.strike_stat_boosts.range_includes_lightningrods and attacking_player.is_opponent_on_lightningrod():
-		opponent_in_range = true
-		_append_log_full(Enums.LogType.LogType_Strike, defending_player, "is on a Lightning Rod.")
-	elif attacking_player.strike_stat_boosts.range_includes_opponent:
-		opponent_in_range = true
-	else:
-		for defender_space_offset in range(-defender_width, defender_width+1):
-			var defender_space = defender_location + defender_space_offset
-			if is_location_in_range(attacking_player, card, defender_space):
-				opponent_in_range = true
-				break
+	
+	for boost_id in attacking_player.strike_stat_boosts.range_includes_boost_spaces:
+		var boost_location = attacking_player.get_boost_location(boost_id)
+		if boost_location != -1 and defending_player.is_in_location(boost_location):
+			_append_log_full(Enums.LogType.LogType_Strike, defending_player, "is on a boost the attack's range includes.")
+			opponent_in_range = true
+			break
+	
+	if not opponent_in_range:
+		if attacking_player.strike_stat_boosts.range_includes_lightningrods and attacking_player.is_opponent_on_lightningrod():
+			opponent_in_range = true
+			_append_log_full(Enums.LogType.LogType_Strike, defending_player, "is on a Lightning Rod.")
+		elif attacking_player.strike_stat_boosts.range_includes_opponent:
+			opponent_in_range = true
+		else:
+			for defender_space_offset in range(-defender_width, defender_width+1):
+				var defender_space = defender_location + defender_space_offset
+				if is_location_in_range(attacking_player, card, defender_space):
+					opponent_in_range = true
+					break
 
-		var min_range = get_total_min_range(attacking_player)
-		var max_range = get_total_max_range(attacking_player)
-		if active_strike.extra_attack_in_progress:
-			min_range -= attacking_player.get_total_min_range_bonus(card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
-			max_range -= attacking_player.get_total_max_range_bonus(card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
-		var range_string = str(min_range)
-		if min_range != max_range:
-			range_string += "-%s" % str(max_range)
-		var include_str = ""
-		if attacking_player.strike_stat_boosts.attack_includes_ranges:
-			include_str = " (including range(s) %s)" % ", ".join(attacking_player.strike_stat_boosts.attack_includes_ranges)
-		var invert_str = ""
-		if attacking_player.strike_stat_boosts.invert_range:
-			invert_str = ", but inverted"
-		_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s%s%s." % [range_string, include_str, invert_str])
+			var min_range = get_total_min_range(attacking_player)
+			var max_range = get_total_max_range(attacking_player)
+			if active_strike.extra_attack_in_progress:
+				min_range -= attacking_player.get_total_min_range_bonus(card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
+				max_range -= attacking_player.get_total_max_range_bonus(card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
+			var range_string = str(min_range)
+			if min_range != max_range:
+				range_string += "-%s" % str(max_range)
+			var include_str = ""
+			if attacking_player.strike_stat_boosts.attack_includes_ranges:
+				include_str = " (including range(s) %s)" % ", ".join(attacking_player.strike_stat_boosts.attack_includes_ranges)
+			var invert_str = ""
+			if attacking_player.strike_stat_boosts.invert_range:
+				invert_str = ", but inverted"
+			_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s%s%s." % [range_string, include_str, invert_str])
 
 	# Apply special late calculation range dodges
 	if defending_player.strike_stat_boosts.dodge_at_range_late_calculate_with == "OVERDRIVE_COUNT":
@@ -12440,12 +12476,18 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 			if source == "hand" and not performing_player.is_card_in_hand(card_id):
 				printlog("ERROR: Tried to choose to discard with card not in hand.")
 				return false
+			if source == "hand/gauge" and not (performing_player.is_card_in_hand(card_id) or performing_player.is_card_in_gauge(card_id)):
+				printlog("ERROR: Tried to choose to discard with card not in hand/gauge.")
+				return false
 			if source == "boosts" and not performing_player.is_card_in_continuous_boosts(card_id):
 				printlog("ERROR: Tried to choose to discard with card not in boosts.")
 				return false
 		else:
 			if source == "hand" and not other_player.is_card_in_hand(card_id):
 				printlog("ERROR: Tried to discard opponent card not in their hand.")
+				return false
+			if source == "hand/gauge" and not (other_player.is_card_in_hand(card_id) or other_player.is_card_in_gauge(card_id)):
+				printlog("ERROR: Tried to discard opponent card not in their hand/gauge.")
 				return false
 			if source == "boosts" and not other_player.is_card_in_continuous_boosts(card_id):
 				printlog("ERROR: Tried to discard opponent card not in their boosts.")

@@ -1926,6 +1926,8 @@ func can_select_card(card):
 			match source:
 				"boosts":
 					correct_source = in_player_boosts
+				"hand/gauge":
+					correct_source = in_hand or in_gauge
 				_:
 					correct_source = in_hand
 			match limitation:
@@ -2562,6 +2564,9 @@ func _on_discard_continuous_boost_begin(event):
 			"owner_hand":
 				action_word = "Return"
 				extra_info = " to its owner's hand."
+			"gauge":
+				action_word = "Add"
+				extra_info = " to gauge."
 			_:
 				action_word = "Discard"
 		var instruction_text = "%s %s continuous boost%s." % [action_word, instruction_qualifier, extra_info]
@@ -3376,6 +3381,8 @@ func _on_choose_to_discard(event, informative_only : bool):
 					min_amount = 0
 					if source == "hand":
 						max_amount = game_wrapper.get_player_hand_size(player)
+					elif source == "hand/gauge":
+						max_amount = game_wrapper.get_player_hand_size(player) + game_wrapper.get_player_gauge_size(player)
 					elif source == "boosts":
 						max_amount = game_wrapper.get_player_discardable_boost_count(player)
 				elif allow_fewer:
@@ -3746,8 +3753,10 @@ func begin_discard_cards_selection(
 	restricted_to_card_ids = [],
 	show_restriction_list_ui = false
 ):
-	# show boost zone if needed
-	if game_wrapper.get_decision_info().source == "boosts":
+	# show additional zone if needed
+	if game_wrapper.get_decision_info().source == "hand/gauge":
+		_on_player_gauge_gauge_clicked()
+	elif game_wrapper.get_decision_info().source == "boosts":
 		_on_player_boost_zone_clicked_zone()
 		
 	selected_cards = []
