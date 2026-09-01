@@ -1,6 +1,6 @@
 [gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://wid576vkbpbl"]
 
-[ext_resource type="Texture2D" uid="uid://wk1v3cihsj4x" path="res://assets/character_animations/nantaca_xotlanianpillar/nantaca_pillar_placeholder.png" id="1_yktjt"]
+[ext_resource type="Texture2D" uid="uid://bnqmf38n73ado" path="res://assets/character_animations/nantaca_xotlanianpillar/nantaca_pillar.png" id="1_yktjt"]
 
 [resource]
 animations = [{
@@ -12,7 +12,7 @@ animations = [{
 "name": &"idle",
 "speed": 8.0
 }]
-metadata/flip = false
-metadata/scaling = 1.5
-metadata/vertical_offset = 0.0
-metadata/horizontal_offset_buddy = 50.0
+metadata/flip = true
+metadata/scaling = 2.0
+metadata/vertical_offset = -5.0
+metadata/horizontal_offset_buddy = 0.0

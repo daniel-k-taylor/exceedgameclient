@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://wk1v3cihsj4x"
-path="res://.godot/imported/nantaca_pillar_placeholder.png-35ccf11c0ae91df0f16ce49d6a68a934.ctex"
+uid="uid://bgx1ggwusx0my"
+path="res://.godot/imported/ixa_burrow.png-518085eae0b25dc92d79bc16891d5cb7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/nantaca_xotlanianpillar/nantaca_pillar_placeholder.png"
-dest_files=["res://.godot/imported/nantaca_pillar_placeholder.png-35ccf11c0ae91df0f16ce49d6a68a934.ctex"]
+source_file="res://assets/character_animations/ixatosk_burrowinghorror/ixa_burrow.png"
+dest_files=["res://.godot/imported/ixa_burrow.png-518085eae0b25dc92d79bc16891d5cb7.ctex"]
 
 [params]
 
