@@ -31,23 +31,15 @@ func test_shafathi_dematerialize_character_after():
 	assert_true(player1.is_card_in_hand(ultra2))
 
 	advance_turn(player2)
-	
-## Walk The Worlds (Dematerialize boost): (2F) When you would draw at the end of your turn,
-##			you may instead return an Ultra from your discard pile to hand.
-##			After: Advance or Retreat 1.
 
-# Case where no cards can be, primarily testing dematerialize interaction
+# using scheme to move 1 on before
 
 func test_shafathi_dematerialize_boost_after():
 	position_players(player1, 3, player2, 6)
-	var walkworld_boost = give_player_specific_card(player1, "shafathi_dematerialize")
-	var forcecard_1 = give_player_specific_card(player1, "standard_normal_grasp")
-	var forcecard_2 = give_player_specific_card(player1, "standard_normal_grasp")
+	var scheme_boost = give_player_specific_card(player1, "shafathi_penumbra")
 	
-	var p1_handsize = len(player1.hand)
-	assert_true(game_logic.do_boost(player1, walkworld_boost, [forcecard_1, forcecard_2]))
-	# Draw choice is skipped because there are no ultras in discard
-	assert_eq(len(player1.hand), p1_handsize - 2) # spent 3 cards from hand, then drew for end of turn
+	assert_true(game_logic.do_boost(player1, scheme_boost, []))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6)))
 	advance_turn(player2)
 	
 	
@@ -55,13 +47,33 @@ func test_shafathi_dematerialize_boost_after():
 		false, false, [
 			0, 					# Choose to duplicate boost's after effect
 			0,					# On before, advance 1 to hit opponent
-			0,					# Resolve boost on after
-			1,					# Retreat 1
-			[]])					# Decline to pay for ability
+			0,					# Resolve boost on after; does nothing since it's no longer at range 3
+			[]])				# Decline to pay for ability
 		
-	validate_positions(player1, 3, player2, 6)
+	validate_positions(player1, 4, player2, 6)
 	validate_life(player1, 30, player2, 27)
 
+	advance_turn(player2)
+	
+## Walk The Worlds (Dematerialize boost): (2F) When you would draw at the end of your turn,
+##			you may instead return an Ultra from your discard pile to hand.
+##			Now: Advance up to 3.
+
+# Case where no cards can be returned
+
+func test_shafathi_walk_the_world_no_ultras():
+	position_players(player1, 3, player2, 6)
+	var walkworld_boost = give_player_specific_card(player1, "shafathi_dematerialize")
+	var forcecard_1 = give_player_specific_card(player1, "standard_normal_grasp")
+	var forcecard_2 = give_player_specific_card(player1, "standard_normal_grasp")
+	
+	var p1_handsize = len(player1.hand)
+	assert_true(game_logic.do_boost(player1, walkworld_boost, [forcecard_1, forcecard_2]))
+	assert_true(game_logic.do_choice(player1, 1)) # advance 2
+	# Draw choice is skipped because there are no ultras in discard
+	assert_eq(len(player1.hand), p1_handsize - 2) # spent 3 cards from hand, then drew for end of turn
+	
+	validate_positions(player1, 5, player2, 6)
 	advance_turn(player2)
 
 func test_shafathi_walk_the_world_decline():
@@ -72,12 +84,14 @@ func test_shafathi_walk_the_world_decline():
 	
 	var p1_handsize = len(player1.hand)
 	assert_true(game_logic.do_boost(player1, walkworld_boost, [player1.hand[0].id, player1.hand[1].id]))
+	assert_true(game_logic.do_choice(player1, 3)) # don't move
 	# Choose to do normal end of turn draw
 	assert_true(game_logic.do_choice(player1, 1))
 	
 	assert_true(player1.is_card_in_discards(test_ultra))
 	assert_eq(len(player1.hand), p1_handsize - 2) # spent 3 cards from hand, then drew for end of turn
 	
+	validate_positions(player1, 3, player2, 6)
 	advance_turn(player2)
 
 func test_shafathi_walk_the_world_return():
@@ -88,6 +102,7 @@ func test_shafathi_walk_the_world_return():
 	
 	var p1_handsize = len(player1.hand)
 	assert_true(game_logic.do_boost(player1, walkworld_boost, [player1.hand[0].id, player1.hand[1].id]))
+	assert_true(game_logic.do_choice(player1, 2)) # advance 3
 	# Choose to do return the ultra
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_true(game_logic.do_choose_from_discard(player1, [test_ultra]))
@@ -95,6 +110,7 @@ func test_shafathi_walk_the_world_return():
 	assert_true(player1.is_card_in_hand(test_ultra))
 	assert_eq(len(player1.hand), p1_handsize - 2) # spent 3 cards from hand, then drew for end of turn
 	
+	validate_positions(player1, 7, player2, 6)
 	advance_turn(player2)
 
 ## Scheme (Penumbra boost): Now: Place this in any space. Draw 1.
@@ -347,7 +363,7 @@ func test_shafathi_flashback_some_boosts():
 	advance_turn(player2)
 
 ## Shadow Over Space (Flashback boost) - (1F) Now: Place this in any space. Draw 1.
-##		Infused, After: If this is unoccupied, you may Move here or return this to your hand.
+##		After: If this is unoccupied, you may Move here. You may spend 1 Gauge to return this to your hand.
 
 func test_shafathi_shadow_over_space_occupied():
 	position_players(player1, 3, player2, 6)
@@ -358,15 +374,17 @@ func test_shafathi_shadow_over_space_occupied():
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
 	advance_turn(player2)
 	
-	var strike_cards = execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
+	var strike_cards = execute_strike(player1, player2, "standard_normal_assault", "standard_normal_focus",
 		false, false, [
-			gauge_ids,			# Infuse
-			0, 					# Choose to resolve boost after first; should fail
-			[]], [[]])			# Decline to pay for ability (for both players)
+			[],					# Decline to infuse
+			0, 					# Choose to resolve boost after first
+			0,					# Choose to move to boost space; should fail
+			gauge_ids,			# Spend gauge to pick boost back up
+			[]], [0, []])			# Decline to pay for ability (for both players)
 		
 	validate_positions(player1, 5, player2, 6)
-	validate_life(player1, 24, player2, 26)
-	assert_true(player1.is_card_in_discards(shadow_boost))
+	validate_life(player1, 26, player2, 28)
+	assert_true(player1.is_card_in_hand(shadow_boost))
 	
 	advance_turn(player1)
 
@@ -381,9 +399,10 @@ func test_shafathi_shadow_over_space_move_there():
 	
 	var strike_cards = execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
 		false, false, [
-			gauge_ids,			# Infuse
+			[],					# Decline Infuse
 			0, 					# Choose to resolve boost after first
 			0,					# Choose to move to its space
+			[],					# Decline to pick boost back up
 			[]], [[]])			# Decline to pay for ability (for both players)
 		
 	validate_positions(player1, 1, player2, 6)
@@ -403,9 +422,10 @@ func test_shafathi_shadow_over_space_return_to_hand():
 	
 	var strike_cards = execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault",
 		false, false, [
-			gauge_ids,			# Infuse
+			[],					# Decline Infuse
 			0, 					# Choose to resolve boost after first
-			1,					# Choose to return to hand
+			1,					# Decline to move to its space
+			gauge_ids,			# Choose to return to hand
 			[]])				# Decline to pay for ability
 		
 	validate_positions(player1, 5, player2, 6)

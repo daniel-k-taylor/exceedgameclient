@@ -2930,7 +2930,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 						card_name = card_db.get_card_name(choice_player.discards[0].id)
 					choice['card_name'] = card_name
 
-			decision_info.choice = effect[StrikeEffects.Choice]
+			decision_info.choice = []
+			for c_eff in effect[StrikeEffects.Choice]:
+				var choice_effect = c_eff.duplicate()
+				if 'card_id' in effect and 'card_id' not in choice_effect:
+					choice_effect['card_id'] = effect['card_id']
+				decision_info.choice.append(choice_effect)
+			
 			decision_info.choice_card_id = card_id
 			decision_info.multiple_choice_amount = multiple
 			create_event(Enums.EventType.EventType_Strike_EffectChoice, choice_player.my_id, 0, "EffectOption")

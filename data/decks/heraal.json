@@ -1,7 +1,7 @@
 {
 	"id": "heraal",
 	"season": 8,
-	"display_name": "Heraal (8/28 test)",
+	"display_name": "Heraal (9/1 test)",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "strike"
@@ -104,7 +104,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/0j2pjpn.jpeg",
+			"url": "https://i.imgur.com/4QwqIsT.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

@@ -15,7 +15,7 @@ func test_doomies_legion_huge_hand():
 	execute_strike(player1, player2, "doomies_legion", "standard_normal_dive",
 		false, false, [[], gauge_cards]) # decline infusion and pay gauge
 
-	validate_life(player1, 26, player2, 29 - hand_size)
+	validate_life(player1, 27, player2, 29 - hand_size)
 	validate_positions(player1, 2, player2, 3)
 	
 	advance_turn(player2)

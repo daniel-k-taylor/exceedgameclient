@@ -1,7 +1,7 @@
 {
 	"id": "khepiax",
 	"season": 8,
-	"display_name": "Khepiax (8/30 test)",
+	"display_name": "Khepiax (9/1 test)",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "add_hand_to_gauge",
@@ -103,7 +103,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/DXeq1UX.jpeg",
+			"url": "https://i.imgur.com/IhCxZ83.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

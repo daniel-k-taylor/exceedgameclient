@@ -1,7 +1,7 @@
 {
 	"id": "shafathi",
 	"season": 8,
-	"display_name": "Shafathi (8/28 test)",
+	"display_name": "Shafathi (9/1 test)",
 	"exceed_cost": 2,
 	"buddy_cards": [
 		"scheme1",
@@ -149,7 +149,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/VKuQm1m.jpeg",
+			"url": "https://i.imgur.com/6VLdDw1.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

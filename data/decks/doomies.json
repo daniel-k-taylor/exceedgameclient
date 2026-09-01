@@ -1,7 +1,7 @@
 {
 	"id": "doomies",
 	"season": 8,
-	"display_name": "Doomies (8/28 test)",
+	"display_name": "Doomies (9/1 test)",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "draw",
@@ -118,7 +118,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/guecWUM.jpeg",
+			"url": "https://i.imgur.com/pdUU92t.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
