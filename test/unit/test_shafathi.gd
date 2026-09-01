@@ -55,8 +55,8 @@ func test_shafathi_dematerialize_boost_after():
 
 	advance_turn(player2)
 	
-## Walk The Worlds (Dematerialize boost): (2F) When you would draw at the end of your turn,
-##			you may instead return an Ultra from your discard pile to hand.
+## Walk The Worlds (Dematerialize boost): (1F) At the start of your turn,
+##			discard this and return an Ultra from your discard pile to your hand.
 ##			Now: Advance up to 3.
 
 # Case where no cards can be returned
@@ -64,54 +64,33 @@ func test_shafathi_dematerialize_boost_after():
 func test_shafathi_walk_the_world_no_ultras():
 	position_players(player1, 3, player2, 6)
 	var walkworld_boost = give_player_specific_card(player1, "shafathi_dematerialize")
-	var forcecard_1 = give_player_specific_card(player1, "standard_normal_grasp")
-	var forcecard_2 = give_player_specific_card(player1, "standard_normal_grasp")
+	var forcecard = give_player_specific_card(player1, "standard_normal_grasp")
 	
-	var p1_handsize = len(player1.hand)
-	assert_true(game_logic.do_boost(player1, walkworld_boost, [forcecard_1, forcecard_2]))
+	assert_true(game_logic.do_boost(player1, walkworld_boost, [forcecard]))
 	assert_true(game_logic.do_choice(player1, 1)) # advance 2
-	# Draw choice is skipped because there are no ultras in discard
-	assert_eq(len(player1.hand), p1_handsize - 2) # spent 3 cards from hand, then drew for end of turn
-	
-	validate_positions(player1, 5, player2, 6)
 	advance_turn(player2)
+	
+	# Choice is skipped because there are no ultras in discard
+	assert_true(player1.is_card_in_discards(walkworld_boost))
+	validate_positions(player1, 5, player2, 6)
+	advance_turn(player1)
 
 func test_shafathi_walk_the_world_decline():
 	position_players(player1, 3, player2, 6)
 	var walkworld_boost = give_player_specific_card(player1, "shafathi_dematerialize")
 	var test_ultra = give_player_specific_card(player1, "shafathi_flashback")
-	player1.discard([test_ultra])
 	
-	var p1_handsize = len(player1.hand)
-	assert_true(game_logic.do_boost(player1, walkworld_boost, [player1.hand[0].id, player1.hand[1].id]))
+	assert_true(game_logic.do_boost(player1, walkworld_boost, [test_ultra]))
 	assert_true(game_logic.do_choice(player1, 3)) # don't move
-	# Choose to do normal end of turn draw
-	assert_true(game_logic.do_choice(player1, 1))
-	
 	assert_true(player1.is_card_in_discards(test_ultra))
-	assert_eq(len(player1.hand), p1_handsize - 2) # spent 3 cards from hand, then drew for end of turn
+	advance_turn(player2)
+	
+	# start of turn; choose ultra to return
+	assert_true(game_logic.do_choose_from_discard(player1, [test_ultra]))
+	assert_true(player1.is_card_in_hand(test_ultra))
 	
 	validate_positions(player1, 3, player2, 6)
-	advance_turn(player2)
-
-func test_shafathi_walk_the_world_return():
-	position_players(player1, 3, player2, 6)
-	var walkworld_boost = give_player_specific_card(player1, "shafathi_dematerialize")
-	var test_ultra = give_player_specific_card(player1, "shafathi_flashback")
-	player1.discard([test_ultra])
-	
-	var p1_handsize = len(player1.hand)
-	assert_true(game_logic.do_boost(player1, walkworld_boost, [player1.hand[0].id, player1.hand[1].id]))
-	assert_true(game_logic.do_choice(player1, 2)) # advance 3
-	# Choose to do return the ultra
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_choose_from_discard(player1, [test_ultra]))
-	
-	assert_true(player1.is_card_in_hand(test_ultra))
-	assert_eq(len(player1.hand), p1_handsize - 2) # spent 3 cards from hand, then drew for end of turn
-	
-	validate_positions(player1, 7, player2, 6)
-	advance_turn(player2)
+	advance_turn(player1)
 
 ## Scheme (Penumbra boost): Now: Place this in any space. Draw 1.
 ##		After: If this is at exactly Range 3 from you, Draw 1, then Move up to 1.

@@ -1,7 +1,7 @@
 {
 	"id": "shaidrus",
 	"season": 8,
-	"display_name": "Shaidrus (8/28 test)",
+	"display_name": "Shaidrus (9/1 test)",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "choose_discard",
@@ -87,11 +87,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/pLdQzjs.png",
+			"url": "https://i.imgur.com/NGjftIW.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/Hm5Wj5r.png",
+			"url": "https://i.imgur.com/XxKG5Fc.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -99,7 +99,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/OET47Ak.jpeg",
+			"url": "https://i.imgur.com/ZT8S6kC.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

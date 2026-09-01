@@ -92,11 +92,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/sb8HB1Z.png",
+			"url": "https://i.imgur.com/Z7Ad78N.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/gxJ15xP.png",
+			"url": "https://i.imgur.com/UwnkPpH.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -104,7 +104,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/4QwqIsT.jpeg",
+			"url": "https://i.imgur.com/tbri0cU.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

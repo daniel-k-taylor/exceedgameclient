@@ -1,7 +1,7 @@
 {
 	"id": "akimo",
 	"season": 8,
-	"display_name": "Akimo (8/28 test)",
+	"display_name": "Akimo (9/1 test)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,
@@ -139,11 +139,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/TeU4ajR.png",
+			"url": "https://i.imgur.com/0m4yOfB.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/wzJ1RiT.png",
+			"url": "https://i.imgur.com/upmXVMn.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -151,7 +151,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/XaexnHV.jpeg",
+			"url": "https://i.imgur.com/LBIHFKf.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

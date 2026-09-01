@@ -1,7 +1,7 @@
 {
 	"id": "miyuki",
 	"season": 8,
-	"display_name": "Miyuki (8/28 test)",
+	"display_name": "Miyuki (9/1 test)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -85,11 +85,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/UtqxDdJ.jpeg",
+			"url": "https://i.imgur.com/9mhFimC.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/EyHWOwe.jpeg",
+			"url": "https://i.imgur.com/ePnW2uI.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -97,7 +97,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/Vy5C3fJ.jpeg",
+			"url": "https://i.imgur.com/voTcxCV.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
@@ -109,22 +109,22 @@
 		{
 			"definition_id": "miyuki_uncagedsoul",
 			"image_name": "specials",
-			"image_index": 6
+			"image_index": 5
 		},
 		{
 			"definition_id": "miyuki_uncagedsoul",
 			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "miyuki_spiritheal",
+			"image_name": "specials",
 			"image_index": 6
 		},
 		{
 			"definition_id": "miyuki_spiritheal",
 			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "miyuki_spiritheal",
-			"image_name": "specials",
-			"image_index": 5
+			"image_index": 6
 		},
 		{
 			"definition_id": "miyuki_cripplingsparks",

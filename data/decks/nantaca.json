@@ -1,7 +1,7 @@
 {
 	"id": "nantaca",
 	"season": 8,
-	"display_name": "Nantaca (8/30 test)",
+	"display_name": "Nantaca (9/1 test)",
 	"exceed_cost": 2,
 	"has_sealed_area": true,
 	"buddy_cards": [
@@ -154,11 +154,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/ld11rBd.png",
+			"url": "https://i.imgur.com/Ad62hCy.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/pxAmkR5.png",
+			"url": "https://i.imgur.com/8xsgSef.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -166,7 +166,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/KWTq5Tp.jpeg",
+			"url": "https://i.imgur.com/mcAaPof.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
@@ -178,72 +178,72 @@
 		{
 			"definition_id": "nantaca_preparatoryrite",
 			"image_name": "specials",
-			"image_index": 4
+			"image_index": 5
 		},
 		{
 			"definition_id": "nantaca_preparatoryrite",
 			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "nantaca_obeythemonarch",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "nantaca_obeythemonarch",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "nantaca_deathbloom",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "nantaca_deathbloom",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "nantaca_sinkhole",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "nantaca_sinkhole",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "nantaca_callofthequeen",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "nantaca_callofthequeen",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "nantaca_wither",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "nantaca_wither",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "nantaca_deathhaunt",
+			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "nantaca_obeythemonarch",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "nantaca_obeythemonarch",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "nantaca_deathbloom",
-			"image_name": "specials",
-			"image_index": 0
-		},
-		{
-			"definition_id": "nantaca_deathbloom",
-			"image_name": "specials",
-			"image_index": 0
-		},
-		{
-			"definition_id": "nantaca_sinkhole",
-			"image_name": "specials",
-			"image_index": 1
-		},
-		{
-			"definition_id": "nantaca_sinkhole",
-			"image_name": "specials",
-			"image_index": 1
-		},
-		{
-			"definition_id": "nantaca_callofthequeen",
-			"image_name": "specials",
-			"image_index": 2
-		},
-		{
-			"definition_id": "nantaca_callofthequeen",
-			"image_name": "specials",
-			"image_index": 2
-		},
-		{
-			"definition_id": "nantaca_wither",
-			"image_name": "specials",
-			"image_index": 3
-		},
-		{
-			"definition_id": "nantaca_wither",
-			"image_name": "specials",
-			"image_index": 3
-		},
-		{
 			"definition_id": "nantaca_deathhaunt",
 			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "nantaca_deathhaunt",
-			"image_name": "specials",
-			"image_index": 6
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",

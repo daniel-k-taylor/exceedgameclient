@@ -1,7 +1,7 @@
 {
 	"id": "yami",
 	"season": 8,
-	"display_name": "Yami (8/28 test)",
+	"display_name": "Yami (9/1 test)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,
@@ -85,11 +85,11 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/Udj6WLn.png",
+			"url": "https://i.imgur.com/QAIXWcA.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/z8bsV1b.png",
+			"url": "https://i.imgur.com/o9JLVmf.png",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -97,7 +97,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/unDgOPV.jpeg",
+			"url": "https://i.imgur.com/HJJgrc6.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

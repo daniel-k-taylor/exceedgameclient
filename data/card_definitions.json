@@ -19412,14 +19412,10 @@
 			{
 				"timing": "hit",
 				"condition": "is_infused",
-				"effect_type": "draw",
+				"effect_type": "discard_opponent_gauge",
+				"opponent_chooses": true,
 				"amount": 1,
-				"and": {
-					"effect_type": "discard_opponent_gauge",
-					"opponent_chooses": true,
-					"amount": 1,
-					"amount2": 1
-				}
+				"amount2": 1
 			}
 		],
 		"boost": {
@@ -20351,14 +20347,14 @@
 			},
 			{
 				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 },
-					{ "effect_type": "pull", "amount": 3 },
-					{ "effect_type": "pull", "amount": 4 },
-					{ "effect_type": "pass" }
-				]
+				"effect_type": "pull",
+				"amount": 3,
+				"use_semicolon_for_and": true,
+				"and": {
+					"condition": "pulled_past",
+					"effect_type": "draw",
+					"amount": 1
+				}
 			}
 		],
 		"boost": {
@@ -35834,16 +35830,18 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 2,
+			"force_cost": 1,
 			"cancel_cost": -1,
 			"display_name": "Walk The Worlds",
 			"effects": [
 				{
-					"timing": "after_non_strike_action",
-					"effect_type": "minato_one_more_ride",
-					"source": "discard",
+					"timing": "start_of_next_turn",
+					"effect_type": "choose_discard",
 					"limitation": "ultra",
-					"override_description": "At the end of your turn, instead of drawing you may return an Ultra from discard to hand."
+					"destination": "hand",
+					"and": {
+						"effect_type": "discard_this"
+					}
 				},
 				{
 					"timing": "now",
@@ -36368,7 +36366,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Boost",
+			"display_name": "Deflect",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -45478,13 +45476,13 @@
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "draw",
-					"amount": 3
+					"effect_type": "close",
+					"amount": 1
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "close",
-					"amount": 1
+					"effect_type": "draw",
+					"amount": 3
 				}
 			]
 		}
