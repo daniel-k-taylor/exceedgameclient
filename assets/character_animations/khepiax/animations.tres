@@ -1,0 +1,17 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://b6e3yqxpokgrw"]
+
+[ext_resource type="Texture2D" uid="uid://dxmbie1dv5hc5" path="res://assets/character_animations/khepiax/idle/khepiax_model.png" id="1_gs7y0"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_gs7y0")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.38
+metadata/vertical_offset = -8.0

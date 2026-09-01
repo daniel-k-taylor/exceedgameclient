@@ -5427,7 +5427,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount_per_hand = effect['amount']
 			var hand_size = performing_player.hand.size()
 			var total_powerup = amount_per_hand * hand_size
-			total_powerup = min(total_powerup, effect['amount_max'])
+			if 'amount_max' in effect:
+				total_powerup = min(total_powerup, effect['amount_max'])
 			if total_powerup > 0:
 				performing_player.add_power_bonus(total_powerup)
 				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)
@@ -5889,6 +5890,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.push(push_needed)
 			var new_location = opposing_player.arena_location
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed to range %s, moving from space %s to %s." % [str(target_range), str(previous_location), str(new_location)])
+		StrikeEffects.PushDamageDealt:
+			var damage_dealt = active_strike.get_damage_taken(opposing_player)
+			if damage_dealt > 0:
+				# Cleaner to make a standard push effect to handle other things that influence pushes
+				# May need to forward more effect parameters in the future if needed
+				var push_effect = {
+					"effect_type": StrikeEffects.Push,
+					"amount": damage_dealt
+				}
+				handle_strike_effect(card_id, push_effect, performing_player)
 		StrikeEffects.RangeIncludesIfMovedPast:
 			performing_player.strike_stat_boosts.range_includes_if_moved_past = true
 		StrikeEffects.RangeIncludesLightningrods:
@@ -12202,10 +12213,10 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 				# This will work on a single nested "and" that has an amount.
 				# If it doesn't have an amount, this won't work as expected.
 				decision_effect = decision_effect.duplicate(true)
-				decision_effect['amount'] = effect_times * decision_effect['amount']
+				decision_effect['amount'] = int(effect_times * decision_effect['amount'])
 				var and_effect = decision_effect.get('and')
 				if and_effect and and_effect.get("amount"):
-					and_effect['amount'] = effect_times * and_effect['amount']
+					and_effect['amount'] = int(effect_times * and_effect['amount'])
 				effect_times = 1
 		elif decision_info.effect.get('overall_effect'):
 			decision_effect = decision_info.effect['overall_effect']

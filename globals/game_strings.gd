@@ -1082,7 +1082,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				destination = effect['destination_name']
 			if effect.get("from_last_cards"):
 				last_cards_req = " from the last %s drawn cards" % effect['from_last_cards']
-			effect_str += "Add a card from hand to %s%s" % [destination, last_cards_req]
+			var amount_string = "a card"
+			if effect.get("max_amount", 1) > 1:
+				amount_string = "%s-%s card(s)" % [effect.get("min_amount", 1), effect.get("max_amount", 1)]
+			effect_str += "Add %s from hand to %s%s" % [amount_string, destination, last_cards_req]
 		StrikeEffects.GenerateFreeForce:
 			effect_str += "Generate %s force for free" % effect['amount']
 		StrikeEffects.Guardup:
@@ -1305,7 +1308,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.PowerupPerBoostInPlay:
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
 		StrikeEffects.PowerupPerCardInHand:
-			effect_str += "+" + str(effect['amount']) + " Power per card in hand up to " + str(effect['amount_max']) + "."
+			effect_str += "+" + str(effect['amount']) + " Power per card in hand"
+			if 'amount_max' in effect:
+				effect_str += " up to " + str(effect['amount_max'])
+			effect_str += "."
 		StrikeEffects.PowerupPerCardInOpponentHand:
 			var every_str = "card"
 			if 'per_card' in effect:
@@ -1406,6 +1412,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Push to attack's max range"
 		StrikeEffects.PushToRange:
 			effect_str += "Push to range %s" % effect['amount']
+		StrikeEffects.PushDamageDealt:
+			effect_str += "Push equal to damage dealt"
 		StrikeEffects.RangeIncludesIfMovedPast:
 			effect_str += "If you move past the opponent, your range includes them"
 		StrikeEffects.Rangeup:

@@ -240,7 +240,9 @@ func handle_decisions(game: LocalGame):
 					chooseaction = decision_ai.pick_choose_opponent_card_to_discard(card_ids)
 				else:
 					var amount = game.decision_info.effect['amount']
-					var source = game.decision_info.source
+					var source = 'hand'
+					if game.decision_info.source:
+						source = game.decision_info.source
 					var limitation = game.decision_info.limitation
 					var can_pass = game.decision_info.can_pass
 					var allow_fewer = 'allow_fewer' in game.decision_info.effect and game.decision_info.effect['allow_fewer']
@@ -804,3 +806,12 @@ func test_gulbjarn_100():
 
 func test_khenui_100():
 	run_iterations_with_deck("khenui")
+
+func test_khepiax_100():
+	run_iterations_with_deck("khepiax")
+
+func test_shaidrus_100():
+	run_iterations_with_deck("shaidrus")
+
+func test_doomies_100():
+	run_iterations_with_deck("doomies")
