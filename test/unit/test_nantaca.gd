@@ -32,7 +32,7 @@ func test_nantaca_ability():
 	
 	advance_turn(player1)
 
-## 2G Exceed - Infused Action: Draw 3. Put up to 2 cards from your Gauge or hand into play face-down as Continuous Boosts
+## 2G Exceed - Infused Action: Draw 2. Put up to 3 cards from your Gauge or hand into play face-down as Continuous Boosts
 ##		that read "Hit: +1 Power. Add this to your Gauge."
 
 func test_nantaca_exceed_ability():

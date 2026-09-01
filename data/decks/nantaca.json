@@ -44,10 +44,6 @@
 		],
 		"description": "Facedown continuous boost: Hit: +1 Power. Add this to Gauge."
 	},
-	"on_exceed": {
-		"effect_type": "enable_boost_from_gauge",
-		"limitation": "replacement"
-	},
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,

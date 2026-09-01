@@ -2328,7 +2328,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.always_add_to_overdrive = true
 			handle_strike_attack_immediate_removal(performing_player)
 		StrikeEffects.AddToGaugeBoostPlayCleanup:
-			active_boost.discard_on_cleanup = true
+			if active_boost.card.definition['boost']['boost_type'] == "continuous":
+				active_boost.discard_on_cleanup = true
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
 		StrikeEffects.AddToGaugeImmediately:
 			var card = card_db.get_card(card_id)
@@ -3458,7 +3459,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var log_suffix = "."
 				if decision_info.destination == "owner_hand":
 					destination = "hand"
-				if decision_info.destination == "gauge":
+				elif decision_info.destination == "gauge":
 					destination = "gauge"
 					log_prefix = "adds"
 					log_suffix = " to gauge"
@@ -8295,7 +8296,7 @@ func in_range(attacking_player : Player, defending_player : Player, card, combat
 	
 	for boost_id in attacking_player.strike_stat_boosts.range_includes_boost_spaces:
 		var boost_location = attacking_player.get_boost_location(boost_id)
-		if defending_player.is_in_location(boost_location):
+		if boost_location != -1 and defending_player.is_in_location(boost_location):
 			_append_log_full(Enums.LogType.LogType_Strike, defending_player, "is on a boost the attack's range includes.")
 			opponent_in_range = true
 			break
