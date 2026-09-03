@@ -440,14 +440,17 @@ func test_seijun_meddlesome_negate_gg_normal():
 	give_player_specific_card(player1, "seijun_yokaibanishing")
 	player1.add_to_transforms(player1.hand[-1])
 	player1.discard_hand()
-	give_gauge(player2, 1)
+	player2.discard_hand()
+	var gauge_card = give_gauge(player2, 1)
 
 	var p1_spike_id = give_player_specific_card(player1, "standard_normal_spike")
 	var p2_spike_id = give_player_specific_card(player2, "gg_normal_dust")
 	assert_true(game_logic.do_boost(player2, p2_spike_id, []))
 	# p1 has a copy of spike; counts despite different card name
 	assert_true(game_logic.do_choice(player1, 0)) # discard, preventing p2 from using effect
-	# p2 also is not given an opportunity to cancel
+	# p2 also is given an opportunity to cancel
+	assert_true(game_logic.do_boost_cancel(player2, gauge_card, true))
+	assert_true(game_logic.do_prepare(player2))
 
 	validate_positions(player1, 3, player2, 7)
 	assert_true(player1.is_card_in_discards(p1_spike_id))
