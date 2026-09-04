@@ -4250,9 +4250,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, active_boost.playing_player, "'s boost effect is negated.")
 			active_boost.boost_negated = true
 			active_boost.discard_on_cleanup = true
-			# Ensure counter resolution doesn't get stuck when a boost is negated
-			# (e.g. via a network race or a decision mid-counter).
-			active_boost.checked_counter = true
 			if effect.get('allow_cancel_after_negate', false):
 				active_boost.allow_cancel_after_negate = true
 		StrikeEffects.OnlyHitsIfOpponentOnAnyBuddy:
