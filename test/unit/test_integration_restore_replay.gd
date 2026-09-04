@@ -77,13 +77,19 @@ func test_empty_restore_log_resumes_live_immediately():
 
 func test_begin_delay_is_zeroed_while_fast_forwarding():
 	var game = _make_game_with_queue(1)
-	# Non-web runtime returns the raw delay unless fast-forwarding zeroes it.
-	assert_eq(Game.get_runtime_animation_delay(0.5, 1, false), 0.5)
+	# change_ui_state() early-returns on GameOver, so begin_delay's delay logic
+	# runs without touching UI nodes that don't exist in this bare harness.
+	game.ui_state = Game.UIState.UIState_GameOver
 	game.restore_fast_forwarding = true
-	# The guard inside begin_delay forces the per-event delay to 0. We assert the
-	# guard's precondition here (get_runtime_animation_delay is a pure helper); the
-	# begin_delay override itself is covered by the full-scene playback path.
-	assert_true(game.restore_fast_forwarding)
+	game.begin_delay(0.5, [])
+	assert_eq(game.remaining_delay, 0.0)
+
+func test_begin_delay_uses_raw_delay_when_not_fast_forwarding():
+	var game = _make_game_with_queue(1)
+	game.ui_state = Game.UIState.UIState_GameOver
+	game.restore_fast_forwarding = false
+	game.begin_delay(0.5, [])
+	assert_eq(game.remaining_delay, 0.5)
 
 func test_emote_spawn_is_suppressed_during_fast_forward():
 	var game = _make_game_with_queue(1)

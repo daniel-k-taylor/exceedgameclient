@@ -80,9 +80,6 @@ const BoostDelay : float = 2.0
 const SmallNoticeDelay : float = 1.0
 
 # --- Web-runtime health governor tuning (all no-op when not running on web) ---
-const WebRuntimeAnimationBacklogThreshold : int = 8
-const WebRuntimeAnimationBacklogScale : float = 0.25
-const WebRuntimeAnimationMinimumDelay : float = 0.1
 const WebRuntimeLoadYieldBatchSize : int = 4
 const WebRuntimeArenaVisualYieldFrames : int = 1
 const WebRuntimeEventYieldBatchSize : int = 6
@@ -1223,7 +1220,7 @@ func begin_delay(delay : float, remaining_events : Array):
 		previous_ui_state = ui_state
 		previous_ui_sub_state = ui_sub_state
 	change_ui_state(UIState.UIState_PlayingAnimation, UISubState.UISubState_None)
-	remaining_delay = get_runtime_animation_delay(delay, remaining_events.size(), _is_web_runtime())
+	remaining_delay = delay
 	if restore_fast_forwarding:
 		# While replaying a reconnect restore log, apply everything with no delay.
 		remaining_delay = 0
@@ -1252,11 +1249,6 @@ func _is_mobile_web_runtime() -> bool:
 	)
 
 # --- Web-runtime health governor (pure helpers; safe to unit test) -----------
-
-static func get_runtime_animation_delay(delay : float, pending_event_count : int, web_runtime : bool) -> float:
-	if not web_runtime or pending_event_count <= WebRuntimeAnimationBacklogThreshold:
-		return delay
-	return maxf(WebRuntimeAnimationMinimumDelay, delay * WebRuntimeAnimationBacklogScale)
 
 static func get_runtime_backlog_level(pending_event_count : int, web_runtime : bool) -> int:
 	if not web_runtime or pending_event_count < WebRuntimeBacklogThresholdModerate:

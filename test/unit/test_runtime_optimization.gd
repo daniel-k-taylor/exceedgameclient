@@ -73,11 +73,13 @@ func _make_reference_source_card(card_id: int, label: String = "") -> CardBase:
 		card.set_remaining_count(card_id)
 	return card
 
-func test_web_runtime_animation_delay_only_shrinks_for_backlog():
-	assert_eq(Game.get_runtime_animation_delay(1.0, 20, false), 1.0)
-	assert_eq(Game.get_runtime_animation_delay(1.0, 8, true), 1.0)
-	assert_eq(Game.get_runtime_animation_delay(1.0, 9, true), 0.25)
-	assert_eq(Game.get_runtime_animation_delay(0.2, 20, true), 0.1)
+func test_web_runtime_animation_delay_is_never_throttled():
+	# Animation pacing is deliberately uniform across platforms; there is no
+	# web-runtime backlog throttle. Delays come straight from the constants.
+	assert_eq(Game.SmallNoticeDelay, 1.0)
+	assert_eq(Game.MoveDelay, 1.0)
+	assert_eq(Game.BoostDelay, 2.0)
+	assert_eq(Game.StrikeRevealDelay, 2.0)
 
 func test_runtime_batch_yield_only_on_web_runtime_thresholds():
 	assert_false(Game.should_yield_runtime_batch(4, Game.WebRuntimeLoadYieldBatchSize, false))

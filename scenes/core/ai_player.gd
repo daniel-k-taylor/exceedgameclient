@@ -755,7 +755,6 @@ func get_character_action_actions():
 func get_bonus_action_actions():
 	var possible_actions = []
 	for action_idx in range(len(game_player.get_bonus_actions())):
-		var action = game_player.get_bonus_actions()[action_idx]
 		possible_actions.append(BonusActionAction.new(action_idx))
 	return possible_actions
 
