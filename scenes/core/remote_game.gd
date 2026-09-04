@@ -101,10 +101,18 @@ func initialize_game(player_info,
 	NetworkManager.connect("disconnected_from_server", _on_disconnected)
 
 func _on_remote_game_message(game_message):
-	if _observer_mode:
+	# A live message must never jump ahead of queued ones. On reconnect the queue
+	# is preloaded with the server's restore log, which is drained a message per
+	# frame; applying a freshly arrived opponent action against that partially
+	# rebuilt state gets it rejected and silently dropped, so this client never
+	# sees the action while the opponent waits on us. Both sides then hang.
+	if _observer_mode or not _game_message_queue.is_empty():
 		_game_message_queue.append(game_message)
 	else:
 		_process_game_message(game_message)
+
+func has_pending_queued_messages() -> bool:
+	return not _game_message_queue.is_empty()
 
 func observer_process_next_message_from_queue():
 	if _game_message_queue.size() > 0:

@@ -67,7 +67,14 @@ func do_clock_ran_out():
 	current_game.do_clock_ran_out()
 
 func observer_process_next_message_from_queue():
-	return current_game.observer_process_next_message_from_queue()
+	if current_game.has_method("observer_process_next_message_from_queue"):
+		return current_game.observer_process_next_message_from_queue()
+	return false
+
+func has_pending_queued_messages() -> bool:
+	if current_game.has_method("has_pending_queued_messages"):
+		return current_game.has_pending_queued_messages()
+	return false
 
 func _test_add_to_gauge(amount):
 	current_game._test_add_to_gauge(amount)

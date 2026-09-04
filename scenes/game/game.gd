@@ -1236,7 +1236,7 @@ func _advance_restore_fast_forward():
 		restore_fast_forward_pending = false
 		restore_fast_forwarding = true
 	var processed_something = game_wrapper.observer_process_next_message_from_queue()
-	if not processed_something:
+	if not processed_something and not game_wrapper.has_pending_queued_messages():
 		restore_fast_forwarding = false
 
 # --- Web-runtime detection --------------------------------------------------
