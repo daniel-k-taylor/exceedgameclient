@@ -228,6 +228,89 @@ func test_beheaded_exceed_no_more_traits():
 	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
 	advance_turn(player2)
 
+func _find_trait(player, trait_id : String) -> int:
+	for card in player.set_aside_cards:
+		if card.definition['id'] == trait_id:
+			return card.id
+	return -1
+
+func test_beheaded_cannot_boost_trait_as_turn_action_without_exceeding():
+	# Traits may only be boosted through the forced on-exceed effect. Boosting one
+	# as a normal turn action must be rejected outright.
+	position_players(player1, 3, player2, 7)
+	var trait_id = _find_trait(player1, "beheaded_trait_tactics")
+	assert_ne(trait_id, -1)
+
+	assert_false(game_logic.do_boost(player1, trait_id, []))
+	assert_false(player1.is_card_in_continuous_boosts(trait_id))
+	assert_true(player1.is_card_in_set_aside(trait_id))
+
+func test_beheaded_cannot_boost_extra_trait_after_exceed_boost():
+	# After spending the on-exceed boost on one trait, the remaining traits must not
+	# stay boostable as ordinary turn actions -- including after he reverts.
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 2)
+	var first_trait = _find_trait(player1, "beheaded_trait_tactics")
+	var second_trait = _find_trait(player1, "beheaded_trait_survival")
+	assert_ne(first_trait, -1)
+	assert_ne(second_trait, -1)
+
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	assert_true(game_logic.do_boost(player1, first_trait, []))
+	assert_true(player1.is_card_in_continuous_boosts(first_trait))
+
+	if game_logic.game_state == Enums.GameState.GameState_DiscardDownToMax:
+		var cards = []
+		for i in range(player1.hand.size() - 7):
+			cards.append(player1.hand[i].id)
+		assert_true(game_logic.do_discard_to_max(player1, cards))
+	advance_turn(player2)
+
+	# Back on player1's turn (still exceeded): the second trait is off limits.
+	assert_false(game_logic.do_boost(player1, second_trait, []))
+	assert_false(player1.is_card_in_continuous_boosts(second_trait))
+
+	# Strike so the exceed ability reverts, then confirm it is still off limits.
+	execute_strike(player1, player2, "beheaded_wrenchingwhip", "standard_normal_cross", [1], [], false, false)
+	assert_false(player1.exceeded)
+	advance_turn(player2)
+	assert_false(game_logic.do_boost(player1, second_trait, []))
+	assert_false(player1.is_card_in_continuous_boosts(second_trait))
+	# The trait boosted on exceed is permanent and stays put.
+	assert_true(player1.is_card_in_continuous_boosts(first_trait))
+
+func test_beheaded_traits_are_not_selectable_in_the_ui():
+	# can_select_card() in game.gd, for a set-aside card at UIState_PickTurnAction,
+	# returns can_player_boost_from_extra() -> else can_strike_with_set_aside_card().
+	# Both must stay false for Beheaded so his traits never highlight outside the
+	# forced on-exceed boost decision -- before exceeding, while exceeded, and after
+	# reverting.
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 2)
+	var first_trait = _find_trait(player1, "beheaded_trait_tactics")
+	var second_trait = _find_trait(player1, "beheaded_trait_survival")
+
+	assert_false(player1.can_boost_from_extra)
+	assert_false(player1.can_strike_with_set_aside_card(second_trait))
+	# No named stored zone, so set-aside is staging for effects, not a strike zone.
+	assert_true(player1.get_stored_zone_info().is_empty())
+
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	assert_true(game_logic.do_boost(player1, first_trait, []))
+	assert_false(player1.can_boost_from_extra)
+	assert_false(player1.can_strike_with_set_aside_card(second_trait))
+
+	if game_logic.game_state == Enums.GameState.GameState_DiscardDownToMax:
+		var cards = []
+		for i in range(player1.hand.size() - 7):
+			cards.append(player1.hand[i].id)
+		assert_true(game_logic.do_discard_to_max(player1, cards))
+	advance_turn(player2)
+	execute_strike(player1, player2, "beheaded_wrenchingwhip", "standard_normal_cross", [1], [], false, false)
+	assert_false(player1.exceeded)
+	assert_false(player1.can_boost_from_extra)
+	assert_false(player1.can_strike_with_set_aside_card(second_trait))
+
 func test_beheaded_assault_shield_not_hit():
 	position_players(player1, 3, player2, 6)
 

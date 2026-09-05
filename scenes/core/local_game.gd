@@ -10733,6 +10733,16 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 				card.definition['boost']['boost_type'], performing_player.boost_from_gauge_limitation])
 			return false
 
+	# Boosting out of the set aside ("extra") zone as a turn action is only unlocked
+	# for characters that declare can_boost_from_extra (Renea's Briefcase, King).
+	# Characters like The Beheaded boost from this zone solely via a forced effect
+	# (his on_exceed boost_from_extra), which resolves in a decision state rather
+	# than GameState_PickAction, so it is unaffected by this guard.
+	if game_state == Enums.GameState.GameState_PickAction and performing_player.is_card_in_set_aside(card_id):
+		if not performing_player.can_boost_from_extra:
+			printlog("ERROR: Tried to boost from set aside without being allowed to.")
+			return false
+
 	if not decision_info.ignore_costs:
 		if 'gauge_cost' in card.definition['boost']:
 			var gauge_cost = card.definition['boost']['gauge_cost']
