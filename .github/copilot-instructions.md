@@ -18,14 +18,14 @@ Running all tests takes a long time (~8 min)! So only run individual tests when 
 
 **Raw GUT invocation** (no script-error gate):
 ```powershell
-.\godotexe\Godot_v4.4.1-stable_win64_console.exe -s addons/gut/gut_cmdln.gd -gdir=res://test/unit -gexit "-gselect=test_ryu.gd"
+.\godotexe\Godot_v4.7.2-stable_win64_console.exe -s addons/gut/gut_cmdln.gd -gdir=res://test/unit -gexit "-gselect=test_ryu.gd"
 ```
 
 Note: the filter flag is `-gselect` (a filename glob) - `-gtest` does **not** filter by file. In PowerShell the flag must be quoted.
 
 **Run the game:**
 ```powershell
-.\godotexe\Godot_v4.4.1-stable_win64.exe
+.\godotexe\Godot_v4.7.2-stable_win64.exe
 ```
 
 Tests use the [GUT (Godot Unit Test)](https://github.com/bitwes/Gut) framework. Test output is verbose - pipe through `Select-String` to filter.

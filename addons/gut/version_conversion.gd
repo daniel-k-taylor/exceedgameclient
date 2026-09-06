@@ -1,11 +1,13 @@
-class ConfigurationUpdater:
+class GutConfigurationUpdater:
 	var EditorGlobals = load("res://addons/gut/gui/editor_globals.gd")
 
 	func warn(message):
 		print('GUT Warning:  ', message)
 
+
 	func info(message):
 		print("GUT Info:  ", message)
+
 
 	func moved_file(from, to):
 		if(FileAccess.file_exists(from) and !FileAccess.file_exists(to)):
@@ -45,8 +47,8 @@ class ConfigurationUpdater:
 			else:
 				info(str('    ', 'Deleted ', which))
 
-class v9_2_0:
-	extends ConfigurationUpdater
+class Gutv9_2_0:
+	extends GutConfigurationUpdater
 
 	func validate():
 		moved_file('res://.gut_editor_config.json', EditorGlobals.editor_run_gut_config_path)
@@ -54,7 +56,65 @@ class v9_2_0:
 		remove_user_file('user://.gut_editor.bbcode')
 		remove_user_file('user://.gut_editor.json')
 
+# list=Array[Dictionary]([{
+# "base": &"RefCounted",
+# "class": &"DynamicGutTest",
+# "icon": "",
+# "language": &"GDScript",
+# "path": "res://test/resources/tools/dynamic_gut_test.gd"
+# }, {
+# "base": &"RefCounted",
+# "class": &"GutDoubleTestInnerClasses",
+# "icon": "",
+# "language": &"GDScript",
+# "path": "res://test/resources/doubler_test_objects/inner_classes.gd"
+# }, ... ])
+static func get_missing_gut_class_names() -> Array:
+	var gut_class_names = [
+		"GutErrorTracker",
+		"GutHookScript",
+		"GutInputFactory",
+		"GutInputSender",
+		"GutMain",
+		"GutStringUtils",
+		"GutTest",
+		"GutTrackedError",
+		"GutUtils",
+	]
+
+	var class_cach_path = 'res://.godot/global_script_class_cache.cfg'
+	var cfg = ConfigFile.new()
+	cfg.load(class_cach_path)
+
+	var all_class_names = {}
+	var missing  = []
+	var class_cache_entries = cfg.get_value('', 'list', [])
+
+	for entry in class_cache_entries:
+		if(entry.path.begins_with(&"res://addons/gut/")):
+			# print(entry["class"], ':  ', entry["path"])
+			all_class_names[entry["class"]] = entry
+
+	for cn in gut_class_names:
+		if(!all_class_names.has(cn)):
+			missing.append(cn)
+
+	return missing
+
+
+static func error_if_not_all_classes_imported() -> bool:
+	var missing_class_names = get_missing_gut_class_names()
+	if(missing_class_names.size() > 0):
+		push_error(str("Some GUT class_names have not been imported.  Please restart the Editor or run godot --headless --import\n",
+			"Missing class_names:  ",
+			missing_class_names))
+		return true
+	else:
+		return false
+
+
+
 
 static func convert():
-	var inst = v9_2_0.new()
+	var inst = Gutv9_2_0.new()
 	inst.validate()

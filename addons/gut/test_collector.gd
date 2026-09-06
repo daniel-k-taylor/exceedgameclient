@@ -45,6 +45,7 @@ func _populate_tests(test_script):
 			t.name = name
 			t.arg_count = methods[i]['args'].size()
 			test_script.tests.append(t)
+			t.collected_script = weakref(test_script)
 
 
 func _get_inner_test_class_names(loaded):
@@ -76,6 +77,7 @@ func _parse_script(test_script):
 		test_script.path,
 		GutUtils.warnings_when_loading_test_scripts)
 
+	GutUtils.inner_class_registry.register(loaded)
 	if(_does_inherit_from_test(loaded)):
 		_populate_tests(test_script)
 		scripts_found.append(test_script.path)

@@ -16,7 +16,7 @@ Both characters are also wired into the AI stress test `test_randomai.gd` via
 Run the whole unit suite (slow — runs everything):
 
 ```powershell
-.\godotexe\Godot_v4.4.1-stable_win64_console.exe -s addons/gut/gut_cmdln.gd "-gdir=res://test/unit" -gexit
+.\godotexe\Godot_v4.7.2-stable_win64_console.exe -s addons/gut/gut_cmdln.gd "-gdir=res://test/unit" -gexit
 ```
 
 ### Running a SINGLE test file (important)
@@ -25,11 +25,11 @@ Use **`-gselect=<substring>`** (no `.gd` extension). This is the correct way to
 run one file:
 
 ```powershell
-.\godotexe\Godot_v4.4.1-stable_win64_console.exe -s addons/gut/gut_cmdln.gd "-gdir=res://test/unit" -gexit "-gselect=test_eugenia"
+.\godotexe\Godot_v4.7.2-stable_win64_console.exe -s addons/gut/gut_cmdln.gd "-gdir=res://test/unit" -gexit "-gselect=test_eugenia"
 ```
 
 ```powershell
-.\godotexe\Godot_v4.4.1-stable_win64_console.exe -s addons/gut/gut_cmdln.gd "-gdir=res://test/unit" -gexit "-gselect=test_zsolt"
+.\godotexe\Godot_v4.7.2-stable_win64_console.exe -s addons/gut/gut_cmdln.gd "-gdir=res://test/unit" -gexit "-gselect=test_zsolt"
 ```
 
 > **Gotcha:** `-gtest=<file>.gd` combined with `-gdir` does **not** limit the
@@ -37,7 +37,7 @@ run one file:
 > source of earlier confusion where "one test file" appeared to run globally.
 > Always use `-gselect` to scope to a single file.
 
-The console build (`Godot_v4.4.1-stable_win64_console.exe`) prints test output
+The console build (`Godot_v4.7.2-stable_win64_console.exe`) prints test output
 to stdout; the non-console build does not. Filter noisy output, e.g.:
 
 ```powershell
@@ -176,7 +176,7 @@ useful for surfacing engine crashes and AI-policy gaps.
 Combine `-gselect` (file) with `-gunit_test_name` (test-method substring):
 
 ```powershell
-.\godotexe\Godot_v4.4.1-stable_win64_console.exe -s addons/gut/gut_cmdln.gd `
+.\godotexe\Godot_v4.7.2-stable_win64_console.exe -s addons/gut/gut_cmdln.gd `
   "-gdir=res://test/unit" -gexit "-gselect=test_randomai" "-gunit_test_name=test_eugenia_100"
 ```
 

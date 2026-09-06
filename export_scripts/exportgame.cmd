@@ -6,7 +6,7 @@ for %%I in ("%ScriptDirectory%..") do set "ProjectDirectory=%%~fI"
 
 if not "%~1"=="" set "GodotExecutable=%~f1"
 if not defined GodotExecutable if defined GODOT_EXE set "GodotExecutable=%GODOT_EXE%"
-if not defined GodotExecutable if exist "%ProjectDirectory%\godotexe\Godot_v4.4.1-stable_win64.exe" set "GodotExecutable=%ProjectDirectory%\godotexe\Godot_v4.4.1-stable_win64.exe"
+if not defined GodotExecutable if exist "%ProjectDirectory%\godotexe\Godot_v4.7.2-stable_win64.exe" set "GodotExecutable=%ProjectDirectory%\godotexe\Godot_v4.7.2-stable_win64.exe"
 if not defined GodotExecutable where godot.exe >nul 2>&1 && set "GodotExecutable=godot.exe"
 if not defined GodotExecutable where godot4.exe >nul 2>&1 && set "GodotExecutable=godot4.exe"
 

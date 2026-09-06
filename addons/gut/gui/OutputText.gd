@@ -89,6 +89,18 @@ var _user_prefs = GutEditorGlobals.user_prefs
 var _font_name_pctrl = null
 var _font_size_pctrl = null
 
+var keywords = [
+	['Failed', Color.RED],
+	['Passed', Color.GREEN],
+	['Pending', Color.YELLOW],
+	['Risky', Color.YELLOW],
+	['Orphans', Color.YELLOW],
+	['WARNING', Color.YELLOW],
+	['ERROR', Color.RED],
+	['ExpectedError', Color.LIGHT_BLUE],
+]
+
+
 # Automatically used when running the OutputText scene from the editor.  Changes
 # to this method only affect test-running the control through the editor.
 func _test_running_setup():
@@ -110,6 +122,9 @@ func _test_running_setup():
 
 
 func _ready():
+	if(get_parent() is SubViewport):
+		return
+
 	_sr.set_text_edit(_ctrls.output)
 	_ctrls.use_colors.icon = get_theme_icon('RichTextEffect', 'EditorIcons')
 	_ctrls.show_search.icon = get_theme_icon('Search', 'EditorIcons')
@@ -127,10 +142,10 @@ func _ready():
 
 
 func _add_other_ctrls():
-	var fname = 'CourierNew'
+	var fname = GutUtils.gut_fonts.DEFAULT_CUSTOM_FONT_NAME
 	if(_user_prefs != null):
 		fname = _user_prefs.output_font_name.value
-	_font_name_pctrl = PanelControls.SelectControl.new('Font', fname, GutUtils.avail_fonts,
+	_font_name_pctrl = PanelControls.GpcSelect.new('Font', fname, GutUtils.avail_fonts,
 		"The font, you know, for the text below.  Change it, see what it does.")
 	_font_name_pctrl.changed.connect(_on_font_name_changed)
 	_font_name_pctrl.label.size_flags_horizontal = SIZE_SHRINK_BEGIN
@@ -140,7 +155,7 @@ func _add_other_ctrls():
 	var fsize = 30
 	if(_user_prefs != null):
 		fsize = _user_prefs.output_font_size.value
-	_font_size_pctrl = PanelControls.NumberControl.new('Font Size', fsize , 5, 100,
+	_font_size_pctrl = PanelControls.GpcNumber.new('Font Size', fsize , 5, 100,
 		"The size of 'The Font'.")
 	_font_size_pctrl.changed.connect(_on_font_size_changed)
 	_font_size_pctrl.label.size_flags_horizontal = SIZE_SHRINK_BEGIN
@@ -170,15 +185,6 @@ func _create_highlighter(default_color=Color(1, 1, 1, 1)):
 	to_return.symbol_color = default_color
 	to_return.member_variable_color = default_color
 
-	var keywords = [
-		['Failed', Color.RED],
-		['Passed', Color.GREEN],
-		['Pending', Color.YELLOW],
-		['Orphans', Color.YELLOW],
-		['WARNING', Color.YELLOW],
-		['ERROR', Color.RED]
-	]
-
 	for keyword in keywords:
 		to_return.add_keyword_color(keyword[0], keyword[1])
 
@@ -187,13 +193,6 @@ func _create_highlighter(default_color=Color(1, 1, 1, 1)):
 
 func _setup_colors():
 	_ctrls.output.clear()
-
-	var f_color = null
-	if (_ctrls.output.theme == null) :
-		f_color = get_theme_color("font_color")
-	else :
-		f_color = _ctrls.output.theme.font_color
-
 	_highlighter = _create_highlighter()
 	_ctrls.output.queue_redraw()
 
@@ -300,31 +299,19 @@ func clear():
 	_ctrls.output.text = ''
 
 
-func _set_font(font_name, custom_name):
-	var rtl = _ctrls.output
-	if(font_name == null):
-		rtl.remove_theme_font_override(custom_name)
-	else:
-		var dyn_font = FontFile.new()
-		dyn_font.load_dynamic_font('res://addons/gut/fonts/' + font_name + '.ttf')
-		rtl.add_theme_font_override(custom_name, dyn_font)
+func _set_font(custom_name, theme_font_name):
+	var font = GutUtils.gut_fonts.get_font_for_theme_font_name(theme_font_name, custom_name)
+	_ctrls.output.add_theme_font_override(theme_font_name, font)
 
 
 func set_all_fonts(base_name):
 	_font_name = GutUtils.nvl(base_name, 'Default')
 
-	if(base_name == 'Default'):
-		_set_font(null, 'font')
-		_set_font(null, 'normal_font')
-		_set_font(null, 'bold_font')
-		_set_font(null, 'italics_font')
-		_set_font(null, 'bold_italics_font')
-	else:
-		_set_font(base_name + '-Regular', 'font')
-		_set_font(base_name + '-Regular', 'normal_font')
-		_set_font(base_name + '-Bold', 'bold_font')
-		_set_font(base_name + '-Italic', 'italics_font')
-		_set_font(base_name + '-BoldItalic', 'bold_italics_font')
+	_set_font(base_name, 'font')
+	_set_font(base_name, 'normal_font')
+	_set_font(base_name, 'bold_font')
+	_set_font(base_name, 'italics_font')
+	_set_font(base_name, 'bold_italics_font')
 
 
 func set_font_size(new_size):

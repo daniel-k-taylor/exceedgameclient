@@ -15,7 +15,7 @@
 [CmdletBinding()]
 param(
 	[string] $Select = "",
-	[string] $Godot = ".\godotexe\Godot_v4.4.1-stable_win64_console.exe",
+	[string] $Godot = ".\godotexe\Godot_v4.7.2-stable_win64_console.exe",
 	[string] $Dir = "res://test/unit",
 	[string] $LogPath = ""
 )

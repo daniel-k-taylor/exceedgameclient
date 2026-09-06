@@ -16,7 +16,7 @@
 
 [CmdletBinding()]
 param(
-	[string] $Godot = ".\godotexe\Godot_v4.4.1-stable_win64_console.exe",
+	[string] $Godot = ".\godotexe\Godot_v4.7.2-stable_win64_console.exe",
 	[string] $ServerRepo = "..\exceedgameserver",
 	[switch] $Release,
 	[switch] $NoDeploy
