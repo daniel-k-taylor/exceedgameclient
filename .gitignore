@@ -5,3 +5,5 @@
 .gut_editor_config.json
 /godotexe/
 /python/
+export_credentials.cfg
+/android/

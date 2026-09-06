@@ -17,14 +17,17 @@ if not defined GodotExecutable (
 )
 
 echo Exporting HTML5...
+if not exist "%ProjectDirectory%\export" mkdir "%ProjectDirectory%\export"
 "%GodotExecutable%" --headless --path "%ProjectDirectory%" --export-release "HTML5Export"
 if errorlevel 1 goto :export_failed
 
 echo Exporting Windows...
+if not exist "%ProjectDirectory%\export_native\windows" mkdir "%ProjectDirectory%\export_native\windows"
 "%GodotExecutable%" --headless --path "%ProjectDirectory%" --export-release "Windows Desktop"
 if errorlevel 1 goto :export_failed
 
 echo Exporting Android...
+if not exist "%ProjectDirectory%\export_native\android" mkdir "%ProjectDirectory%\export_native\android"
 "%GodotExecutable%" --headless --path "%ProjectDirectory%" --export-release "Android"
 if errorlevel 1 goto :export_failed
 
