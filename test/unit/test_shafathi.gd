@@ -9,7 +9,7 @@ func who_am_i():
 
 ## Dematerialize - 1-2/3/4; Ignore Guard. Before: Activate one of your After effects.
 
-## Shafathi Ability: After: You may spend 1 Force to return an Ultra from discard to hand.
+## Shafathi Ability: After: If you hit, you may spend 1 Force to return an Ultra from discard to hand.
 
 func test_shafathi_dematerialize_character_after():
 	position_players(player1, 3, player2, 5)
@@ -19,15 +19,13 @@ func test_shafathi_dematerialize_character_after():
 	
 	var strike_cards = execute_strike(player1, player2, "shafathi_dematerialize", "standard_normal_sweep",
 		false, false, [
-			0, 					# Choose to duplicate character ability
-			[player1.hand[0].id],	# On before, pay 1 Force
-			ultra1,			# to return first ultra to hand
+			0, 					# Choose to duplicate character ability; no longer does anything because you haven't hit yet
 			[player1.hand[1].id],	# On after, pay 1 Force
 			ultra2])			# To return second ultra to hand
 		
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 30, player2, 27)
-	assert_true(player1.is_card_in_hand(ultra1))
+	assert_true(player1.is_card_in_discards(ultra1))
 	assert_true(player1.is_card_in_hand(ultra2))
 
 	advance_turn(player2)
@@ -64,9 +62,10 @@ func test_shafathi_dematerialize_boost_after():
 func test_shafathi_walk_the_world_no_ultras():
 	position_players(player1, 3, player2, 6)
 	var walkworld_boost = give_player_specific_card(player1, "shafathi_dematerialize")
-	var forcecard = give_player_specific_card(player1, "standard_normal_grasp")
+	var forcecard1 = give_player_specific_card(player1, "standard_normal_grasp")
+	var forcecard2 = give_player_specific_card(player1, "standard_normal_grasp")
 	
-	assert_true(game_logic.do_boost(player1, walkworld_boost, [forcecard]))
+	assert_true(game_logic.do_boost(player1, walkworld_boost, [forcecard1, forcecard2]))
 	assert_true(game_logic.do_choice(player1, 1)) # advance 2
 	advance_turn(player2)
 	
@@ -109,7 +108,7 @@ func test_shafathi_scheme_range_3():
 		false, false, [
 			0, 					# Choose to resolve boost after first
 			1,					# Retreat 1
-			[]], [[]])			# Decline to pay for ability (for both players)
+			[]])			# Decline to pay for ability (for both players)
 		
 	assert_eq(len(player1.hand), p1_handsize + 1)
 	validate_positions(player1, 8, player2, 6)
@@ -129,8 +128,8 @@ func test_shafathi_scheme_not_range_3():
 	var p1_handsize = len(player1.hand)
 	var strike_cards = execute_strike(player1, player2, "standard_normal_dive", "standard_normal_sweep",
 		false, false, [
-			0, 					# Choose to resolve boost after first; should fail
-			[]], [[]])			# Decline to pay for ability (for both players)
+			0, 				# Choose to resolve boost after first; should fail
+			[]])			# Decline to pay for ability (for both players)
 		
 	assert_eq(len(player1.hand), p1_handsize)
 	validate_positions(player1, 7, player2, 6)
@@ -147,9 +146,8 @@ func test_shafathi_stasis_no_reveal():
 	
 	var strike_cards = execute_strike(player1, player2, "shafathi_stasis", "standard_normal_focus",
 		false, false, [
-			[], 				# Do not reveal a card
-			0,					# Resolve Gauge to Move first; skips since gauge is empty
-			[]], [0, []])		# Decline to pay for ability (for both players)
+			[] 				# Do not reveal a card
+			], [0, []])			# Decline to pay for ability (for both players; p1 has no choice b/c didn't hit)
 		
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 26, player2, 30)
@@ -166,7 +164,7 @@ func test_shafathi_stasis_reveal_attack():
 			[reveal_card], 		# Reveal Cross
 			0,					# Resolve After: Retreat 3
 			0,					# Resolve Gauge to Move; skips since gauge is empty
-			[]], [0, []])		# Decline to pay for ability (for both players)
+			[]])			# Decline to pay for ability (for both players; p2 has no choice b/c didn't hit)
 		
 	validate_positions(player1, 1, player2, 5)
 	validate_life(player1, 30, player2, 29)
@@ -205,8 +203,6 @@ func test_shafathi_stasis_reveal_block():
 		false, false, [
 			[reveal_card], 		# Reveal Block
 			0,					# Resolve After: Add to Gauge thing
-			0,					# Resolve Gauge to Move; skips since gauge is empty
-			[],					# Decline to pay for ability
 			[force_card]		# When hit, spend to block
 			], [0, []])
 		
@@ -229,8 +225,9 @@ func test_shafathi_stasis_reveal_timetwist():
 			[reveal_card], 		# Reveal Time Twist
 			0,					# Choose to resolve Stasis After on Before, skips because no gauge
 			0,					# Resolve Gauge to Move; skips since gauge is empty
+			0,					# Resolve Time Twist R4 thing, skips
 			[]					# Decline to pay for ability
-			], [0, []])
+			])
 		
 	validate_positions(player1, 3, player2, 8)
 	validate_life(player1, 30, player2, 27)
@@ -342,7 +339,7 @@ func test_shafathi_flashback_some_boosts():
 	advance_turn(player2)
 
 ## Shadow Over Space (Flashback boost) - (1F) Now: Place this in any space. Draw 1.
-##		After: If this is unoccupied, you may Move here. You may spend 1 Gauge to return this to your hand.
+##		After: If this is unoccupied, you may Move here or you may spend 1 Gauge to return this to your hand.
 
 func test_shafathi_shadow_over_space_occupied():
 	position_players(player1, 3, player2, 6)
@@ -356,14 +353,12 @@ func test_shafathi_shadow_over_space_occupied():
 	var strike_cards = execute_strike(player1, player2, "standard_normal_assault", "standard_normal_focus",
 		false, false, [
 			[],					# Decline to infuse
-			0, 					# Choose to resolve boost after first
-			0,					# Choose to move to boost space; should fail
-			gauge_ids,			# Spend gauge to pick boost back up
-			[]], [0, []])			# Decline to pay for ability (for both players)
+			0, 					# Choose to resolve boost after first, but should give no choices because it's occupied
+			[]], [0, []])		# Decline to pay for ability (for both players)
 		
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 26, player2, 28)
-	assert_true(player1.is_card_in_hand(shadow_boost))
+	assert_true(player1.is_card_in_discards(shadow_boost))
 	
 	advance_turn(player1)
 
@@ -381,8 +376,7 @@ func test_shafathi_shadow_over_space_move_there():
 			[],					# Decline Infuse
 			0, 					# Choose to resolve boost after first
 			0,					# Choose to move to its space
-			[],					# Decline to pick boost back up
-			[]], [[]])			# Decline to pay for ability (for both players)
+			[]])			# Decline to pay for ability (for both players)
 		
 	validate_positions(player1, 1, player2, 6)
 	validate_life(player1, 30, player2, 26)
@@ -403,8 +397,8 @@ func test_shafathi_shadow_over_space_return_to_hand():
 		false, false, [
 			[],					# Decline Infuse
 			0, 					# Choose to resolve boost after first
-			1,					# Decline to move to its space
-			gauge_ids,			# Choose to return to hand
+			1,					# Choose to return to hand
+			gauge_ids,			# Spend to do so
 			[]])				# Decline to pay for ability
 		
 	validate_positions(player1, 5, player2, 6)

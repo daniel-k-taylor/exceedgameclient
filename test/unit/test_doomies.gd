@@ -3,7 +3,7 @@ extends ExceedGutTest
 func who_am_i():
 	return "doomies"
 	
-## Legion - [2G] 1-3/1/1/1/6; Hit: +1 Power per card in your hand.
+## Legion - [2G] 1-3/1/1/0/6; Infused: +2 Armor. Hit: +1 Power per card in your hand.
 # Primarily tested because this hit effect existed but previously expected a maximum value.
 
 func test_doomies_legion_huge_hand():
@@ -15,7 +15,7 @@ func test_doomies_legion_huge_hand():
 	execute_strike(player1, player2, "doomies_legion", "standard_normal_dive",
 		false, false, [[], gauge_cards]) # decline infusion and pay gauge
 
-	validate_life(player1, 27, player2, 29 - hand_size)
+	validate_life(player1, 25, player2, 29 - hand_size)
 	validate_positions(player1, 2, player2, 3)
 	
 	advance_turn(player2)

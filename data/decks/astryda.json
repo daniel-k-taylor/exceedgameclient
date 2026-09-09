@@ -1,7 +1,7 @@
 {
 	"id": "astryda",
 	"season": 8,
-	"display_name": "Astryda (9/1 test)",
+	"display_name": "Astryda (9/8 test)",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "zero_vector",
@@ -89,23 +89,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/tFYCgjL.png",
+			"url": "https://i.imgur.com/mRMHCEz.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/tjJlzoK.png",
+			"url": "https://i.imgur.com/7Pe1PQh.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/uLntpXp.png",
+			"url": "https://i.imgur.com/bBRXb4r.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/uZB5nrn.jpeg",
+			"url": "https://i.imgur.com/YKdXHXP.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"url": "https://i.imgur.com/nMH6tAa.jpeg",
 			"multiple_cards": true
 		}
 	},

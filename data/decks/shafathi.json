@@ -1,7 +1,7 @@
 {
 	"id": "shafathi",
 	"season": 8,
-	"display_name": "Shafathi (9/1 test)",
+	"display_name": "Shafathi (9/8 test)",
 	"exceed_cost": 2,
 	"buddy_cards": [
 		"scheme1",
@@ -100,6 +100,7 @@
 		},
 		{
 			"timing": "after",
+			"condition": "hit_opponent",
 			"effect_type": "force_for_effect",
 			"per_force_effect": null,
 			"overall_effect": {
@@ -137,23 +138,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/HNRogG1.png",
+			"url": "https://i.imgur.com/Z2ltET6.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/RhO4lF0.png",
+			"url": "https://i.imgur.com/US8TPRj.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/uLntpXp.png",
+			"url": "https://i.imgur.com/8tDcfFp.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/B6mpGzB.jpeg",
+			"url": "https://i.imgur.com/319Wsfg.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"url": "https://i.imgur.com/nMH6tAa.jpeg",
 			"multiple_cards": true
 		}
 	},

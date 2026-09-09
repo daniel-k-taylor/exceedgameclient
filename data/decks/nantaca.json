@@ -1,7 +1,7 @@
 {
 	"id": "nantaca",
 	"season": 8,
-	"display_name": "Nantaca (9/1 test)",
+	"display_name": "Nantaca (9/8 test)",
 	"exceed_cost": 2,
 	"has_sealed_area": true,
 	"buddy_cards": [
@@ -154,23 +154,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/Ad62hCy.png",
+			"url": "https://i.imgur.com/W4gxiZg.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/8xsgSef.png",
+			"url": "https://i.imgur.com/DgBMWNX.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/uLntpXp.png",
+			"url": "https://i.imgur.com/UC5cJ9C.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/mcAaPof.jpeg",
+			"url": "https://i.imgur.com/5x2OH9r.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"url": "https://i.imgur.com/nMH6tAa.jpeg",
 			"multiple_cards": true
 		}
 	},
