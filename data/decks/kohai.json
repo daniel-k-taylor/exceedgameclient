@@ -1,7 +1,7 @@
 {
 	"id": "kohai",
 	"season": 8,
-	"display_name": "Kohai (9/1 test)",
+	"display_name": "Kohai (9/8 test)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,
@@ -87,23 +87,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/PUIqag3.png",
+			"url": "https://i.imgur.com/UIhEq6k.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/d0H8CPe.png",
+			"url": "https://i.imgur.com/7DIgoCm.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/uLntpXp.png",
+			"url": "https://i.imgur.com/OUvMon7.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/DUsfwzI.jpeg",
+			"url": "https://i.imgur.com/tJl87jC.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"url": "https://i.imgur.com/nMH6tAa.jpeg",
 			"multiple_cards": true
 		}
 	},

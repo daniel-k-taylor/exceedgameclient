@@ -8824,9 +8824,15 @@
 		"range_max": 3,
 		"power": 1,
 		"speed": 1,
-		"armor": 2,
-		"guard": 5,
+		"armor": 0,
+		"guard": 6,
 		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_infused",
+				"effect_type": "armorup",
+				"amount": 2
+			},
 			{
 				"timing": "hit",
 				"effect_type": "powerup_per_card_in_hand",
@@ -8955,39 +8961,53 @@
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
-		"power": 5,
-		"speed": 4,
-		"armor": 0,
-		"guard": 0,
+		"power": 3,
+		"speed": 3,
+		"armor": 3,
+		"guard": 2,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "advance",
+				"timing": "hit",
+				"condition": "is_infused",
+				"effect_type": "powerup",
 				"amount": 1,
 				"and": {
-					"condition": "advanced_through",
-					"effect_type": "ignore_armor"
+					"effect_type": "push",
+					"amount": 1
 				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "lose_all_armor"
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Maniacal",
+			"display_name": "Kaenite Innovation",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup_opponent",
-					"amount": 3
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "pass" }
+					]
 				},
 				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 3,
-					"and": {
+					"timing": "immediate",
+					"effect_type": "add_top_deck_to_gauge"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
 						"effect_type": "strike"
-					}
+					},
+					"force_max": 1
 				}
 			]
 		}
@@ -9018,32 +9038,32 @@
 				"choice": [
 					{ "effect_type": "push", "amount": 2 },
 					{ "effect_type": "pull", "amount": 2 }
-				]
+				],
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "All Together Now!",
+			"display_name": "Maniacal",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
+					"timing": "immediate",
+					"effect_type": "discard_random",
 					"amount": 1
 				},
 				{
-					"timing": "now",
+					"timing": "immediate",
 					"effect_type": "draw",
-					"amount": 1,
-					"and": {
-						"effect_type": "force_for_effect",
-						"per_force_effect": null,
-						"overall_effect": {
-							"effect_type": "strike"
-						},
-						"force_max": 1
-					}
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
 				}
 			]
 		}
@@ -9086,17 +9106,15 @@
 			"effects": [
 				{
 					"timing": "now",
-					"condition": "is_infused",
-					"effect_type": "strike"
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "strike"
+					}
 				},
 				{
 					"timing": "before",
 					"effect_type": "close",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "draw",
 					"amount": 1
 				}
 			]
@@ -9131,30 +9149,28 @@
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Kaenite Innovation",
+			"display_name": "All Together Now!",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 },
-						{ "effect_type": "pass" }
-					]
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "strike"
+					}
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "gauge_from_hand",
-					"min_amount": 0,
-					"max_amount": 1
-				},
-				{
-					"timing": "immediate",
-					"condition": "is_infused",
-					"effect_type": "bonus_action"
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 2
 				}
 			]
 		}
@@ -13405,9 +13421,9 @@
 		}
 	},
 	{
-		"id": "heraal_hoarfrost",
+		"id": "heraal_wyrdingward",
 		"type": "special",
-		"display_name": "Hoarfrost",
+		"display_name": "Wyrding Ward",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -13566,9 +13582,9 @@
 	},
 	{
 		"NOTE": "HERAAL CARDS END",
-		"id": "heraal_hornofthehunt",
+		"id": "heraal_hoarfrost",
 		"type": "special",
-		"display_name": "Horn Of The Hunt",
+		"display_name": "Hoarfrost",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -20248,7 +20264,7 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Hunting Grounds",
 			"effects": [
@@ -20301,18 +20317,28 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
 			"display_name": "Apex Predator",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "attack_is_ex"
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
 				},
 				{
 					"timing": "now",
 					"condition": "is_infused",
 					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 2
 				}
 			]
 		}
@@ -20351,8 +20377,9 @@
 				"amount": 3,
 				"use_semicolon_for_and": true,
 				"and": {
-					"condition": "pulled_past",
-					"effect_type": "draw",
+					"condition": "range",
+					"condition_amount": 2,
+					"effect_type": "opponent_discard_random",
 					"amount": 1
 				}
 			}
@@ -20413,11 +20440,14 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 2
+					"amount": 1,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 1
+					}
 				},
 				{
 					"timing": "now",
-					"condition": "is_infused",
 					"effect_type": "draw",
 					"amount": 2
 				}
@@ -35741,24 +35771,24 @@
 				},
 				{
 					"timing": "after",
+					"condition": "boost_space_unoccupied",
+					"condition_detail": "Shadow Over Space",
 					"effect_type": "choice",
 					"choice": [
-						{ 
-							"condition": "boost_space_unoccupied",
-							"condition_detail": "Shadow Over Space",
+						{
 							"effect_type": "move_to_boost_space"
 						},
-						{ "effect_type": "pass" }
-					],
-					"and": {
-						"effect_type": "gauge_for_effect",
-						"per_gauge_effect": null,
-						"overall_effect": {
-							"effect_type": "return_this_boost_to_hand_strike_effect",
-							"card_name": "Flashback"
+						{
+							"effect_type": "gauge_for_effect",
+							"per_gauge_effect": null,
+							"overall_effect": {
+								"effect_type": "return_this_boost_to_hand_strike_effect",
+								"card_name": "Flashback"
+							},
+							"gauge_max": 1
 						},
-						"gauge_max": 1
-					}
+						{ "effect_type": "pass" }
+					]
 				}
 			]
 		}
@@ -35779,6 +35809,13 @@
 			{
 				"timing": "before",
 				"effect_type": "copy_other_after_effect"
+			},
+			{
+				"timing": "after",
+				"condition": "range",
+				"condition_amount": 4,
+				"effect_type": "draw",
+				"amount": 1
 			}
 		],
 		"boost": {
@@ -35830,7 +35867,7 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 2,
 			"cancel_cost": -1,
 			"display_name": "Walk The Worlds",
 			"effects": [
@@ -35864,7 +35901,7 @@
 		"gauge_cost": 0,
 		"range_min": 2,
 		"range_max": 3,
-		"power": 4,
+		"power": 5,
 		"speed": 4,
 		"armor": 0,
 		"guard": 0,
@@ -44625,7 +44662,7 @@
 		"range_min": 1,
 		"range_max": 1,
 		"power": 7,
-		"speed": 3,
+		"speed": 2,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
@@ -44760,7 +44797,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
+					{ "effect_type": "advance", "amount": 2 },
 					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "retreat", "amount": 2 },
 					{ "effect_type": "retreat", "amount": 3 }
 				]
 			}
@@ -44791,7 +44830,7 @@
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
-		"power": 3,
+		"power": 4,
 		"speed": 6,
 		"armor": 0,
 		"guard": 0,
@@ -44898,7 +44937,7 @@
 		],
 		"boost": {
 			"boost_type": "immediate",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
 			"display_name": "Ghost Walk",
 			"effects": [
@@ -44908,18 +44947,17 @@
 					"choice": [
 						{
 							"effect_type": "advance",
-							"amount": 2,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "bonus_action"
-							}
+							"amount": 2
 						},
 						{
 							"effect_type": "retreat",
 							"amount": 2
 						}
 					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
 				}
 			]
 		},

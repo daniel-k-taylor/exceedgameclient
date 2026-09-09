@@ -1,7 +1,7 @@
 {
 	"id": "doomies",
 	"season": 8,
-	"display_name": "Doomies (9/1 test)",
+	"display_name": "Doomies (9/8 test)",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "draw",
@@ -106,23 +106,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/rWu15v6.png",
+			"url": "https://i.imgur.com/e0a74qJ.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/sZKJpYk.png",
+			"url": "https://i.imgur.com/bannHlg.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/uLntpXp.png",
+			"url": "https://i.imgur.com/PhyLRih.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/QkvDfs3.jpeg",
+			"url": "https://i.imgur.com/FFvOzRt.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"url": "https://i.imgur.com/nMH6tAa.jpeg",
 			"multiple_cards": true
 		}
 	},

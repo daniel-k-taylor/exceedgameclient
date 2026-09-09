@@ -1,7 +1,7 @@
 {
 	"id": "heraal",
 	"season": 8,
-	"display_name": "Heraal (9/1 test)",
+	"display_name": "Heraal (9/8 test)",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "strike"
@@ -92,23 +92,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/Z7Ad78N.png",
+			"url": "https://i.imgur.com/g8e2BZE.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/UwnkPpH.png",
+			"url": "https://i.imgur.com/TTKas20.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/uLntpXp.png",
+			"url": "https://i.imgur.com/bcYTYXW.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/tbri0cU.jpeg",
+			"url": "https://i.imgur.com/C6Q0uSp.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"url": "https://i.imgur.com/nMH6tAa.jpeg",
 			"multiple_cards": true
 		}
 	},
@@ -144,12 +144,12 @@
 			"image_index": 0
 		},
 		{
-			"definition_id": "heraal_hoarfrost",
+			"definition_id": "heraal_wyrdingward",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "heraal_hoarfrost",
+			"definition_id": "heraal_wyrdingward",
 			"image_name": "specials",
 			"image_index": 1
 		},
@@ -174,12 +174,12 @@
 			"image_index": 3
 		},
 		{
-			"definition_id": "heraal_hornofthehunt",
+			"definition_id": "heraal_hoarfrost",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "heraal_hornofthehunt",
+			"definition_id": "heraal_hoarfrost",
 			"image_name": "specials",
 			"image_index": 4
 		},

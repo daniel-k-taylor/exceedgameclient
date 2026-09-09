@@ -1,7 +1,7 @@
 {
 	"id": "ixatosk",
 	"season": 8,
-	"display_name": "Ixatosk (9/1 test)",
+	"display_name": "Ixatosk (9/8 test)",
 	"exceed_cost": 2,
 	"has_sealed_area": true,
 	"buddy_cards": [
@@ -98,23 +98,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/cziCUUz.png",
+			"url": "https://i.imgur.com/GyRu4Sn.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/a6gLNNb.png",
+			"url": "https://i.imgur.com/Po0XtCv.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/uLntpXp.png",
+			"url": "https://i.imgur.com/R0a6KNg.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/Vi8Jn6k.jpeg",
+			"url": "https://i.imgur.com/8tMZnY6.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"url": "https://i.imgur.com/nMH6tAa.jpeg",
 			"multiple_cards": true
 		}
 	},

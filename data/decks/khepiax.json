@@ -1,7 +1,7 @@
 {
 	"id": "khepiax",
 	"season": 8,
-	"display_name": "Khepiax (9/1 test)",
+	"display_name": "Khepiax (9/8 test)",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "add_hand_to_gauge",
@@ -91,23 +91,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/3hZK8Ft.png",
+			"url": "https://i.imgur.com/hA7eVDP.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/YFtDNyU.png",
+			"url": "https://i.imgur.com/YiuOYV4.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/uLntpXp.png",
+			"url": "https://i.imgur.com/udo24qC.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/5xaP7Hw.jpeg",
+			"url": "https://i.imgur.com/VSzGg3H.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/Re2Hdn9.jpeg",
+			"url": "https://i.imgur.com/nMH6tAa.jpeg",
 			"multiple_cards": true
 		}
 	},
