@@ -1029,6 +1029,7 @@ func _renea_reveal_facedown(renea_player : Player):
 						renea_fd_had_choice = true
 						break
 		renea_bc.definition["boost"].erase("facedown")
+		renea_player.on_facedown_boost_revealed(renea_bc.id)
 		_append_log_full(Enums.LogType.LogType_CardInfo, renea_player, "reveals their face-down boost.")
 		create_event(Enums.EventType.EventType_RevealCard, renea_player.my_id, renea_bc.id)
 		if renea_fd_had_choice:
@@ -1038,6 +1039,7 @@ func _renea_reveal_facedown(renea_player : Player):
 	for renea_bc in renea_facedown_boosts:
 		if renea_bc.definition.get("boost") and renea_bc.definition["boost"].get("facedown"):
 			renea_bc.definition["boost"].erase("facedown")
+			renea_player.on_facedown_boost_revealed(renea_bc.id)
 			_append_log_full(Enums.LogType.LogType_CardInfo, renea_player, "reveals their face-down boost.")
 			create_event(Enums.EventType.EventType_RevealCard, renea_player.my_id, renea_bc.id)
 	if not renea_player.renea_facedown_revealed:
@@ -1103,6 +1105,7 @@ func _renea_reveal_all_facedown_boosts(renea_player : Player) -> void:
 	for boost_card in renea_player.continuous_boosts:
 		if boost_card.definition.get("boost", {}).get("facedown", false):
 			boost_card.definition["boost"].erase("facedown")
+			renea_player.on_facedown_boost_revealed(boost_card.id)
 			_append_log_full(Enums.LogType.LogType_Effect, renea_player, "reveals face-down boost.")
 			create_event(Enums.EventType.EventType_RevealCard, renea_player.my_id, boost_card.id)
 
@@ -1130,6 +1133,7 @@ func _renea_process_next(renea_player : Player):
 				break
 		if bc and bc.definition.get("boost", {}).get("facedown", false):
 			bc.definition["boost"].erase("facedown")
+			renea_player.on_facedown_boost_revealed(bc.id)
 			_append_log_full(Enums.LogType.LogType_Effect, renea_player, "reveals face-down boost.")
 			create_event(Enums.EventType.EventType_RevealCard, renea_player.my_id, bc.id)
 		# Process the effect
@@ -9667,7 +9671,10 @@ func begin_resolve_boost(performing_player : Player, card_id : int, additional_b
 		active_boost.boosted_from_gauge = performing_player.is_card_in_gauge(card_id)
 
 		var secret = active_boost.card.definition["boost"].get("facedown", false)
+		var boosted_from_hand = performing_player.is_card_in_hand(card_id)
 		performing_player.remove_card_from_hand(card_id, not secret, false)
+		if secret and boosted_from_hand:
+			performing_player.on_hand_boost_facedown(card_id)
 		performing_player.remove_card_from_gauge(card_id)
 		performing_player.remove_card_from_discards(card_id)
 		# Renea exceed: track briefcase boost usage (check before removal)

@@ -369,6 +369,7 @@ var plague_knight_discard_names : Array[String]
 var public_hand : Array[String]
 var public_hand_questionable : Array[String]
 var public_hand_tracked_topdeck : Array[int]
+var public_hand_facedown_boost_ids : Array[int]
 var public_topdeck_id : int
 var skip_end_of_turn_draw : bool
 var reduce_opponent_prepare_draw : bool
@@ -541,6 +542,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	public_hand = []
 	public_hand_questionable = []
 	public_hand_tracked_topdeck = []
+	public_hand_facedown_boost_ids = []
 	public_topdeck_id = -1
 	skip_end_of_turn_draw = false
 	eugenia_normal_passive_used_this_turn = false
@@ -957,10 +959,24 @@ func on_hand_removed_topdeck(card_id : int):
 		if card_id not in get_card_ids_in_hand():
 			on_hand_remove_public_card(card_id)
 
+func on_hand_boost_facedown(card_id : int):
+	# The card left the hand without revealing its identity, so all previously
+	# known cards became questionable. Remember this card so that when it is
+	# eventually revealed we can drop the stale entry it left behind instead of
+	# showing a card that has no copies left but still has a hand icon.
+	if card_id not in public_hand_facedown_boost_ids:
+		public_hand_facedown_boost_ids.append(card_id)
+
+func on_facedown_boost_revealed(card_id : int):
+	if card_id in public_hand_facedown_boost_ids:
+		public_hand_facedown_boost_ids.erase(card_id)
+		on_hand_remove_public_card(card_id)
+
 func reset_public_hand_knowledge():
 	public_hand = []
 	public_hand_questionable = []
 	public_hand_tracked_topdeck = []
+	public_hand_facedown_boost_ids = []
 
 func get_public_hand_info():
 	var public_hand_info = {
@@ -3534,7 +3550,10 @@ func _revert_strike_bonus_effect(effect, card_id : int, check_and_effects : bool
 func remove_from_continuous_boosts(card : GameCard, destination : String = "discard"):
 	if card not in continuous_boosts:
 		return
-		
+
+	if card.definition['boost'].get("facedown", false):
+		on_facedown_boost_revealed(card.id)
+
 	disable_boost_effects(card)
 	
 	for effect in card.definition['boost']['effects']:
@@ -3695,6 +3714,8 @@ func cleanup_continuous_boosts():
 			if card_idx != -1 and boost_card.id not in sustained_boosts:
 				boost_array.remove_at(card_idx)
 		if not sustained:
+			if boost_card.definition['boost'].get("facedown", false):
+				on_facedown_boost_revealed(boost_card.id)
 			disable_boost_effects(boost_card)
 			do_discarded_effects_for_boost(boost_card)
 	continuous_boosts = sustained_cards

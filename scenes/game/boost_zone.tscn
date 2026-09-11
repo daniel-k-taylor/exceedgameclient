@@ -40,8 +40,6 @@ Multiline summary of th
 Next line
 One more
 Last line"
-fit_content = true
-scroll_active = false
 
 [node name="Focus" type="TextureButton" parent="OuterMargin"]
 layout_mode = 2
@@ -49,4 +47,5 @@ texture_pressed = ExtResource("2_j5kdi")
 texture_hover = ExtResource("3_vyivb")
 stretch_mode = 0
 
+[connection signal="gui_input" from="OuterMargin/Focus" to="." method="_on_focus_gui_input"]
 [connection signal="pressed" from="OuterMargin/Focus" to="." method="_on_focus_pressed"]

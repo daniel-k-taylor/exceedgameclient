@@ -291,6 +291,41 @@ func test_facedown_override_is_per_card_and_does_not_leak_to_copies():
 	assert_false(card_db.get_card(second_id).definition["boost"].get("facedown", false),
 			"marking one copy face-down must not affect other copies")
 
+func _make_hand_fully_known(player):
+	player.reset_public_hand_knowledge()
+	for card in player.hand:
+		player.on_hand_add_public_card(card.id)
+
+func test_facedown_boost_hides_which_card_left_the_hand():
+	player1.hand.clear()
+	var boost_id = give_player_specific_card(player1, "renea_called_shot")
+	give_player_specific_card(player1, "standard_normal_grasp")
+	_make_hand_fully_known(player1)
+
+	var info = player1.get_public_hand_info()
+	assert_eq(info['known'].get("renea_called_shot", 0), 1)
+
+	assert_true(game_logic.do_boost(player1, boost_id, [], false, 0, [], true))
+
+	info = player1.get_public_hand_info()
+	assert_eq(info['known'].size(), 0, "a face-down boost must make all hand knowledge questionable")
+	assert_eq(info['questionable'].get("renea_called_shot", 0), 1)
+	assert_eq(info['questionable'].get("standard_normal_grasp", 0), 1)
+
+func test_revealing_a_facedown_boost_clears_its_stale_hand_knowledge():
+	player1.hand.clear()
+	var boost_id = give_player_specific_card(player1, "renea_called_shot")
+	give_player_specific_card(player1, "standard_normal_grasp")
+	_make_hand_fully_known(player1)
+
+	assert_true(game_logic.do_boost(player1, boost_id, [], false, 0, [], true))
+	game_logic._renea_reveal_all_facedown_boosts(player1)
+
+	var info = player1.get_public_hand_info()
+	assert_eq(info['questionable'].get("renea_called_shot", 0), 0,
+			"a revealed boost is no longer in hand and must not keep a hand icon")
+	assert_eq(info['questionable'].get("standard_normal_grasp", 0), 1)
+
 func test_exceeded_renea_places_boosts_faceup():
 	player1.exceeded = true
 	var boost_id = give_player_specific_card(player1, "renea_called_shot")
