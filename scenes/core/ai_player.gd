@@ -1125,6 +1125,29 @@ func pick_choose_from_discard(choose_count : int) -> ChooseFromDiscardAction:
 		source_cards = game_player.overdrive
 	elif source == "gauge":
 		source_cards = game_player.gauge
+	elif source == "outrun_seal":
+		# Minato's Outrun the Past seals any number (0 to choose_count) of cards
+		# from discard and/or gauge. Enumerating every subset of a large discard
+		# pile is far too slow, so only offer "seal the top N discards" and
+		# "seal N gauge cards".
+		var outrun_discards = game_player.discards.duplicate()
+		outrun_discards.reverse()
+		var outrun_options = [[]]
+		var outrun_running = []
+		for card in outrun_discards:
+			if outrun_running.size() >= choose_count:
+				break
+			outrun_running.append(card.id)
+			outrun_options.append(outrun_running.duplicate())
+		outrun_running = []
+		for card in game_player.gauge:
+			if outrun_running.size() >= choose_count:
+				break
+			outrun_running.append(card.id)
+			outrun_options.append(outrun_running.duplicate())
+		for outrun_option in outrun_options:
+			possible_actions.append(ChooseFromDiscardAction.new(outrun_option))
+		return ai_policy.pick_choose_from_discard(possible_actions, game_state)
 	for card in source_cards:
 		var can_choose = false
 		match limitation:

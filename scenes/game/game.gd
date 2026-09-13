@@ -2122,6 +2122,9 @@ func can_select_card(card):
 					in_correct_source = in_sealed
 				"overdrive":
 					in_correct_source = in_overdrive
+				"outrun_seal":
+					# Minato's Outrun the Past seals from discard and/or gauge.
+					in_correct_source = in_discard or in_gauge
 				_:
 					in_correct_source = false
 			return in_correct_source and len(selected_cards) < select_card_require_max and meets_limitation
@@ -2475,6 +2478,18 @@ func _on_advance_turn():
 	spawn_damage_popup("Ready!", active_player)
 	return SmallNoticeDelay
 
+# A decision was backed out of without any game state change (e.g. Minato's
+# Outrun the Past trigger, which fires before the attack is even chosen).
+func _on_cancel_decision(event):
+	var player = event['event_player']
+	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		deselect_all_cards()
+		close_popout()
+		popout_instruction_info = null
+		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+	else:
+		change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
+
 func _on_post_boost_action(event):
 	var player = event['event_player']
 	spawn_damage_popup("Bonus Action", player)
@@ -2764,6 +2779,12 @@ func _on_choose_from_discard(event):
 			popout_type = CardPopoutType.CardPopoutType_OverdrivePlayer
 		elif source == "gauge":
 			popout_type = CardPopoutType.CardPopoutType_GaugePlayer
+		var outrun_cancel = false
+		if source == "outrun_seal":
+			instruction = "Outrun the Past:\nSeal up to %s cards from your discard and/or gauge.\nDraw 1 card for every 2 cards sealed." % select_card_require_max
+			# Triggered before the attack is chosen, so cancelling has to also
+			# back out of the decision to strike.
+			outrun_cancel = _is_minato_outrun_pre_strike_decision()
 		var action = game_wrapper.get_decision_info().action
 		if action and action == "overdrive_action":
 			# Special text instruction fo rthe overdrive effect.
@@ -2772,12 +2793,12 @@ func _on_choose_from_discard(event):
 			"popout_type": popout_type,
 			"instruction_text": instruction,
 			"ok_text": "OK",
-			"cancel_text": "",
+			"cancel_text": "Cancel Strike" if outrun_cancel else "",
 			"ok_enabled": true,
-			"cancel_visible": false,
+			"cancel_visible": outrun_cancel,
 		}
 		var cancel_allowed = false
-		if select_card_require_min == 0:
+		if select_card_require_min == 0 or outrun_cancel:
 			cancel_allowed = true
 
 		enable_instructions_ui(instruction, true, cancel_allowed)
@@ -4699,6 +4720,8 @@ func _handle_events(events):
 				delay = _on_become_wide(event)
 			Enums.EventType.EventType_BlockMovement:
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_CancelDecision:
+				_on_cancel_decision(event)
 			Enums.EventType.EventType_Boost_ActionAfterBoost:
 				delay = _on_post_boost_action(event)
 			Enums.EventType.EventType_Boost_CancelDecision:
@@ -5987,20 +6010,42 @@ func _renea_process_facedown_boosts(strike_response : bool = false):
 
 func _on_strike_button_pressed():
 	# Minato: "Outrun the Past" (from the Flight transform) triggers before attack
-	# selection, letting the player seal a discard to draw a card.
-	var minato_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
-	if minato_p.deck_flag("can_seal_discards_for_resources") and not minato_p.minato_outrun_triggered_before_strike:
-		for minato_tf in minato_p.transforms:
-			if minato_tf.definition.get("id") == "minato_flight_13":
-				minato_p.minato_outrun_triggered_before_strike = true
-				game_wrapper.current_game.handle_strike_effect(-1, {"effect_type": "minato_outrun_the_past", "minato_otp_sealed": 0}, minato_p)
-				return
+	# selection, letting him seal discard/gauge cards to draw.
+	if _minato_has_pre_strike_outrun():
+		_minato_process_pre_strike_outrun()
+		return
 	# Renea reveals her face-down boosts (and resolves their Now effects) before
 	# choosing an attack; the strike UI opens once that finishes.
 	if _renea_has_facedown_boosts():
 		_renea_process_facedown_boosts()
 		return
 	begin_strike_choosing(false, true)
+
+func _minato_has_pre_strike_outrun() -> bool:
+	var minato_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if minato_p == null or minato_p.minato_outrun_triggered_before_strike:
+		return false
+	if not game_wrapper.player_has_outrun_the_past(Enums.PlayerId.PlayerId_Player):
+		return false
+	# Nothing to seal means there is no decision to make.
+	return minato_p.discards.size() + minato_p.gauge.size() > 0
+
+func _minato_process_pre_strike_outrun():
+	deselect_all_cards()
+	# Sent as its own action in online games so both engines resolve the seal
+	# before the attack card is chosen.
+	if game_wrapper.submit_minato_pre_strike_outrun(Enums.PlayerId.PlayerId_Player):
+		change_ui_state(UIState.UIState_WaitForGameServer)
+
+# True while the live decision is the Outrun seal that fired from pressing
+# Strike (not the defensive trigger, which happens inside an active strike).
+func _is_minato_outrun_pre_strike_decision() -> bool:
+	var decision_info = game_wrapper.get_decision_info()
+	if decision_info.source != "outrun_seal":
+		return false
+	if decision_info.player != Enums.PlayerId.PlayerId_Player:
+		return false
+	return not game_wrapper.has_active_strike()
 
 # Re-opens the correct local interaction UI after a reconnect restore, when the
 # game is sitting in a decision but the UI is parked in a wait state.
@@ -6579,7 +6624,10 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, [])
+			if _is_minato_outrun_pre_strike_decision():
+				success = game_wrapper.submit_cancel_minato_outrun(Enums.PlayerId.PlayerId_Player)
+			else:
+				success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
 			select_card_name_boost_restriction = ""
 			deselect_all_cards()
@@ -7710,7 +7758,9 @@ func _on_observer_play_to_live_pressed():
 		observer_play_to_live_button.text = "Pause"
 
 func _on_action_menu_number_picker_updated(_new_value: int) -> void:
-	if can_spend_life_for_force or can_spend_life_for_gauge:
+	# Minato pays costs by sealing discards, which the number picker controls, so
+	# the OK button has to be re-evaluated when it changes.
+	if can_spend_life_for_force or can_spend_life_for_gauge or can_seal_for_force or can_seal_for_gauge:
 		_update_buttons(true)
 
 func get_spent_life_for_force() -> int:

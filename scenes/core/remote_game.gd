@@ -563,6 +563,30 @@ func process_renea_pre_strike_reveal(action_message) -> void:
 	var strike_response = action_message.get('strike_response', false)
 	local_game._renea_begin_pre_strike_reveal(game_player, not strike_response, strike_response)
 
+func do_minato_pre_strike_outrun(player : Player) -> bool:
+	var action_message = {
+		'action_type': 'action_minato_pre_strike_outrun',
+		'player_id': _get_player_remote_id(player),
+	}
+	_submit_game_message(action_message)
+	return true
+
+func process_minato_pre_strike_outrun(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	local_game.minato_begin_pre_strike_outrun(game_player)
+
+func do_cancel_minato_outrun(player : Player) -> bool:
+	var action_message = {
+		'action_type': 'action_cancel_minato_outrun',
+		'player_id': _get_player_remote_id(player),
+	}
+	_submit_game_message(action_message)
+	return true
+
+func process_cancel_minato_outrun(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	local_game.do_cancel_minato_outrun(game_player)
+
 func do_choose_from_boosts(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_choose_from_boosts',

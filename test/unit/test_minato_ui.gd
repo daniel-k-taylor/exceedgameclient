@@ -242,3 +242,109 @@ func test_exceed_pending_power_bonus_text_shows_in_boost_box():
 	game_ui._update_buttons(true)
 	var boost_text = game_ui.get_node("PlayerBoostZone/OuterMargin/BoostPanel/InnerMargin/BoostVBox/BoostEffects").text
 	assert_true(boost_text.find("gains +4 Power on next attack") != -1)
+
+class FakeCard extends RefCounted:
+	var card_id : int
+	func _init(id : int):
+		card_id = id
+
+func _begin_outrun_from_strike_button() -> Player:
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	add_transform(player, "minato_flight_13")
+	game_ui._on_strike_button_pressed()
+	return player
+
+func test_outrun_allows_selecting_discard_and_gauge_cards():
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	var discard_id = give_player_specific_card(player, "standard_normal_grasp")
+	player.discard([discard_id])
+	var gauge_id = give_player_specific_card(player, "standard_normal_cross")
+	var gauge_card = player.hand[player.hand.size() - 1]
+	player.add_to_gauge(gauge_card)
+	player.hand.remove_at(player.hand.size() - 1)
+	var hand_id = give_player_specific_card(player, "standard_normal_sweep")
+
+	_begin_outrun_from_strike_button()
+	game_ui._on_choose_from_discard({
+		"event_player": Enums.PlayerId.PlayerId_Player,
+		"number": 0,
+		"extra_info": null,
+		"extra_info2": null,
+	})
+
+	assert_eq(game_ui.ui_sub_state, game_ui.UISubState.UISubState_SelectCards_ChooseDiscardToDestination)
+	assert_true(game_ui.can_select_card(FakeCard.new(discard_id)))
+	assert_true(game_ui.can_select_card(FakeCard.new(gauge_id)))
+	assert_false(game_ui.can_select_card(FakeCard.new(hand_id)))
+
+func test_outrun_pre_strike_offers_cancel_that_backs_out_of_the_strike():
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	var discard_id = give_player_specific_card(player, "standard_normal_grasp")
+	player.discard([discard_id])
+	var game_logic = game_ui.game_wrapper.current_game
+
+	_begin_outrun_from_strike_button()
+	game_ui._on_choose_from_discard({
+		"event_player": Enums.PlayerId.PlayerId_Player,
+		"number": 0,
+		"extra_info": null,
+		"extra_info2": null,
+	})
+
+	assert_true(game_ui.instructions_cancel_allowed)
+	assert_true(game_ui.popout_instruction_info["cancel_visible"])
+
+	game_ui._on_instructions_cancel_button_pressed()
+
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_false(player.minato_outrun_triggered_before_strike)
+	assert_eq(player.sealed.size(), 0)
+	assert_true(player.is_card_in_discards(discard_id))
+
+	# The trigger is available again if the player chooses to strike after all.
+	assert_true(game_ui._minato_has_pre_strike_outrun())
+
+func test_outrun_pre_strike_not_offered_without_anything_to_seal():
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	add_transform(player, "minato_flight_13")
+	player.discards.clear()
+	player.gauge.clear()
+
+	assert_false(game_ui._minato_has_pre_strike_outrun())
+
+func test_number_picker_refreshes_ok_when_only_sealing_pays_the_cost():
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	player.hand.clear()
+	player.gauge.clear()
+	player.free_force = 0
+	var discard_id = give_player_specific_card(player, "standard_normal_grasp")
+	player.discard([discard_id])
+
+	game_ui._on_shortcut_change_pressed()
+	assert_true(game_ui.can_seal_for_force)
+	assert_eq(game_ui.action_menu.number_panel_current_number, 0)
+	assert_false(game_ui.can_press_ok())
+
+	var ok_states = []
+	game_ui.action_menu.number_picker_updated.connect(
+		func(_value): ok_states.append(_ok_button_disabled()))
+
+	# Bumping the seal counter alone must re-enable OK without touching the hand.
+	game_ui.action_menu._on_plus_button_pressed()
+
+	assert_eq(game_ui.action_menu.number_panel_current_number, 1)
+	assert_true(game_ui.can_press_ok())
+	# _update_buttons() must have run off the picker change, so the actual OK
+	# button is live rather than stuck in its stale disabled state.
+	assert_eq(ok_states, [false])
+	assert_false(_ok_button_disabled())
+	assert_eq(game_ui.action_menu.number_panel_current_number, 1)
+
+func _ok_button_disabled() -> bool:
+	for container in game_ui.action_menu.choice_buttons_grid.get_children():
+		if not container.visible:
+			continue
+		var label = container.get_child(1).get_child(0)
+		if label.text.find("OK") != -1:
+			return container.get_child(0).disabled
+	return true

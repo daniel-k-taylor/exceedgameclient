@@ -803,3 +803,77 @@ func test_hellraiser_handles_a_deck_shorter_than_four_cards():
 	# Running the deck out mid-effect must reshuffle rather than error out.
 	assert_lt(player1.reshuffle_remaining, reshuffles_before)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_outrun_pre_strike_trigger_seals_discard_and_gauge():
+	add_transform(player1, "minato_flight_13")
+	var discard_id = spawn_card_to_zone(player1, "standard_normal_grasp", "discard")
+	var gauge_id = spawn_card_to_zone(player1, "standard_normal_cross", "gauge")
+	var hand_before = player1.hand.size()
+
+	assert_true(game_logic.minato_begin_pre_strike_outrun(player1))
+	assert_eq(game_logic.decision_info.source, "outrun_seal")
+	assert_eq(game_logic.decision_info.amount, 4)
+
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_id, gauge_id]))
+
+	assert_true(player1.is_card_in_sealed(discard_id))
+	assert_true(player1.is_card_in_sealed(gauge_id))
+	assert_eq(player1.hand.size(), hand_before + 1, "2 sealed cards draw 1")
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_outrun_pre_strike_trigger_can_be_cancelled():
+	add_transform(player1, "minato_flight_13")
+	var discard_id = spawn_card_to_zone(player1, "standard_normal_grasp", "discard")
+	var hand_before = player1.hand.size()
+
+	assert_true(game_logic.minato_begin_pre_strike_outrun(player1))
+	assert_true(game_logic.do_cancel_minato_outrun(player1))
+
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_true(player1.is_card_in_discards(discard_id))
+	assert_eq(player1.sealed.size(), 0)
+	assert_eq(player1.hand.size(), hand_before)
+	assert_false(player1.minato_outrun_triggered_before_strike, "the trigger is available again")
+
+	# And the player can still go through with the strike afterwards.
+	assert_true(game_logic.minato_begin_pre_strike_outrun(player1))
+	assert_eq(game_logic.decision_info.source, "outrun_seal")
+
+func test_outrun_cannot_be_cancelled_once_it_triggers_on_defense():
+	add_transform(player1, "minato_flight_13")
+	spawn_card_to_zone(player1, "standard_normal_grasp", "discard")
+	var attack_id = give_player_specific_card(player2, "standard_normal_cross")
+	advance_turn(player1)
+
+	assert_true(game_logic.do_strike(player2, attack_id, false, -1))
+	assert_eq(game_logic.decision_info.source, "outrun_seal")
+
+	assert_false(game_logic.do_cancel_minato_outrun(player1))
+	assert_eq(game_logic.decision_info.source, "outrun_seal")
+
+func test_sealing_the_deck_empty_makes_the_rest_of_the_hand_known():
+	player1.hand.clear()
+	player1.reset_public_hand_knowledge()
+	give_player_specific_card(player1, "standard_normal_grasp")
+	player1.deck.clear()
+	var deck_card_id = give_player_specific_card(player1, "standard_normal_cross")
+	player1.deck.append(player1.hand[player1.hand.size() - 1])
+	player1.hand.remove_at(player1.hand.size() - 1)
+
+	player1.seal_topdeck()
+
+	assert_true(player1.is_card_in_sealed(deck_card_id))
+	assert_eq(player1.deck.size(), 0)
+	var known = player1.get_public_hand_info()["known"]
+	assert_eq(known.get("standard_normal_grasp", 0), 1,
+		"an empty deck plus a public sealed area means the hand is fully known")
+
+func test_returning_a_card_from_the_public_sealed_area_is_a_known_card():
+	player1.hand.clear()
+	player1.reset_public_hand_knowledge()
+	var sealed_id = spawn_card_to_zone(player1, "standard_normal_grasp", "sealed")
+
+	player1.move_card_from_sealed_to_hand(sealed_id)
+
+	assert_true(player1.is_card_in_hand(sealed_id))
+	assert_eq(player1.get_public_hand_info()["known"].get("standard_normal_grasp", 0), 1)

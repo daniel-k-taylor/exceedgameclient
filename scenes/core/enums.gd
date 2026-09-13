@@ -189,7 +189,8 @@ enum EventType {
 	EventType_SustainBoost,
 	EventType_SwapSealedAndDeck,
 	EventType_SwapDeckAndDiscard,
-	EventType_Transform_Added
+	EventType_Transform_Added,
+	EventType_CancelDecision
 }
 
 enum LogType {

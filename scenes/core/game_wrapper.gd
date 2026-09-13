@@ -722,6 +722,24 @@ func submit_renea_pre_strike_reveal(player : Enums.PlayerId, strike_response : b
 		return true
 	return current_game.do_renea_pre_strike_reveal(_get_player(player), strike_response)
 
+# Minato's "Outrun the Past" (Flight 13 transform) resolves before he sets his
+# attack, so like Renea's reveal it travels as its own action online.
+func player_has_outrun_the_past(player : Enums.PlayerId) -> bool:
+	var game_player = _get_player(player)
+	if game_player == null:
+		return false
+	if current_game is LocalGame:
+		return current_game.player_has_outrun_the_past(game_player)
+	return current_game.local_game.player_has_outrun_the_past(game_player)
+
+func submit_minato_pre_strike_outrun(player : Enums.PlayerId) -> bool:
+	if current_game is LocalGame:
+		return current_game.minato_begin_pre_strike_outrun(_get_player(player))
+	return current_game.do_minato_pre_strike_outrun(_get_player(player))
+
+func submit_cancel_minato_outrun(player : Enums.PlayerId) -> bool:
+	return current_game.do_cancel_minato_outrun(_get_player(player))
+
 func submit_choose_from_boosts(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_boosts(game_player, card_ids)

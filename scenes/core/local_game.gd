@@ -1346,16 +1346,57 @@ func _minato_check_defender_outrun() -> bool:
 		return false
 	if minato_otp_defender.minato_outrun_triggered_before_strike:
 		return false
-	var minato_otp_has_outrun = false
-	for minato_otp_tf in minato_otp_defender.transforms:
-		if minato_otp_tf.definition.get("id") == "minato_flight_13":
-			minato_otp_has_outrun = true
-			break
-	if not minato_otp_has_outrun:
+	if not player_has_outrun_the_past(minato_otp_defender):
 		return false
 	minato_otp_defender.minato_outrun_triggered_before_strike = true
 	handle_strike_effect(-1, {"effect_type": "minato_outrun_the_past", "minato_otp_sealed": 0}, minato_otp_defender)
 	return game_state == Enums.GameState.GameState_PlayerDecision
+
+func player_has_outrun_the_past(check_player : Player) -> bool:
+	if not check_player.deck_flag("can_seal_discards_for_resources"):
+		return false
+	for minato_otp_tf in check_player.transforms:
+		if minato_otp_tf.definition.get("id") == "minato_flight_13":
+			return true
+	return false
+
+# Minato's Outrun the Past (Flight 13 transform) triggers before he sets his
+# attack. Returns true if the trigger fired (the caller should then wait for the
+# decision instead of opening the strike UI).
+func minato_begin_pre_strike_outrun(minato_otp_player : Player) -> bool:
+	if minato_otp_player.minato_outrun_triggered_before_strike:
+		return false
+	if not player_has_outrun_the_past(minato_otp_player):
+		return false
+	minato_otp_player.minato_outrun_triggered_before_strike = true
+	handle_strike_effect(-1, {"effect_type": "minato_outrun_the_past", "minato_otp_sealed": 0}, minato_otp_player)
+	return game_state == Enums.GameState.GameState_PlayerDecision
+
+# The Outrun trigger happens before the attack is chosen, so backing out of it
+# must also back out of the decision to strike at all.
+func do_cancel_minato_outrun(performing_player : Player) -> bool:
+	printlog("SubAction: CANCEL MINATO OUTRUN by %s" % performing_player.name)
+	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ChooseFromDiscard:
+		printlog("ERROR: Tried to cancel Outrun but not in the Outrun decision.")
+		return false
+	if decision_info.source != "outrun_seal":
+		printlog("ERROR: Tried to cancel Outrun but the decision is not an Outrun seal.")
+		return false
+	if decision_info.player != performing_player.my_id:
+		printlog("ERROR: Tried to cancel Outrun for the wrong player.")
+		return false
+	if active_strike or not active_character_action:
+		printlog("ERROR: Tried to cancel Outrun after the strike already started.")
+		return false
+
+	# Let the player trigger it again when they next choose to strike this turn.
+	performing_player.minato_outrun_triggered_before_strike = false
+	active_character_action = false
+	decision_info.clear()
+	change_game_state(Enums.GameState.GameState_PickAction)
+	_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cancels Outrun the Past.")
+	create_event(Enums.EventType.EventType_CancelDecision, performing_player.my_id, 0)
+	return true
 
 func _minato_apply_seal_power_bonus() -> void:
 	# Exceeded Minato: the pending +Power from the start-of-turn seal is applied

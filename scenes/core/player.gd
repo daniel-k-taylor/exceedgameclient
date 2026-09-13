@@ -2354,6 +2354,7 @@ func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false
 				add_to_discards(card, from_top)
 				if i == 0:
 					public_topdeck_id = -1
+				update_public_hand_if_deck_empty()
 				found_card = true
 				break
 
@@ -2457,6 +2458,10 @@ func seal_from_location(card_id : int, source : String, silent : bool = false):
 			sealed.append(card)
 			parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)
 			break
+	if source == "deck":
+		# Sealing off the deck can empty it, which makes the rest of the hand
+		# fully known (as long as no hidden zone is left).
+		update_public_hand_if_deck_empty()
 
 func seal_discard():
 	var card_ids = []
