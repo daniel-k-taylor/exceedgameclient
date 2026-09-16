@@ -75,6 +75,18 @@ These may be added to any effect:
   Keys are tracked per player and cleared at the start of each turn, so pick something
   unique like `"pooky_drunken_fury"`.
 
+### Cleanup Discard and Draw Replacement
+
+- `attack_discarded` runs after a main attack is actually discarded during normal
+  strike cleanup because it did not hit. It does not run for attacks sent to
+  gauge, sealed, transformed, or removed by other effects. Minato's Weight of
+  Regret uses this timing with `return_attack_to_hand` and `from_discard: true`.
+  An unstunned Block goes to gauge and cannot be returned; a stunned Block can.
+- `skip_end_of_turn_draw` accepts `check_hand_size: true` to replace only the
+  draw while retaining the discard-down check. One More Ride uses this option:
+  returning a sealed card does not exempt Minato from the maximum hand size.
+  Omitting the option preserves the existing skip-draw-and-discard behavior.
+
 ## Format
 
 Each effect documentation includes:

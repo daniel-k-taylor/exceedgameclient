@@ -3267,6 +3267,9 @@ func _on_force_start_boost(event):
 
 func _on_force_start_strike(event):
 	var player = event['event_player']
+	# A boost may already have opened Outrun after queuing this strike event.
+	if game_wrapper.get_decision_info().source == "outrun_seal":
+		return SmallNoticeDelay
 	var disable_wild_swing = false
 	var disable_ex = false
 	var require_ex = false
@@ -3894,6 +3897,9 @@ func begin_strike_choosing(
 	disable_ex : bool = false,
 	require_ex = false
 ):
+	if not strike_response and _minato_has_pre_strike_outrun():
+		_minato_process_pre_strike_outrun()
+		return
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
@@ -6045,7 +6051,7 @@ func _is_minato_outrun_pre_strike_decision() -> bool:
 		return false
 	if decision_info.player != Enums.PlayerId.PlayerId_Player:
 		return false
-	return not game_wrapper.has_active_strike()
+	return not game_wrapper.has_active_strike() and decision_info.can_pass
 
 # Re-opens the correct local interaction UI after a reconnect restore, when the
 # game is sitting in a decision but the UI is parked in a wait state.
@@ -6755,6 +6761,9 @@ func _on_face_attack_button_pressed():
 	_update_buttons()
 
 func _on_shortcut_strike_pressed():
+	if _minato_has_pre_strike_outrun():
+		_minato_process_pre_strike_outrun()
+		return
 	# Renea must reveal her face-down boosts before an attack is set; the player
 	# re-picks their card once those resolve.
 	if _renea_has_facedown_boosts():

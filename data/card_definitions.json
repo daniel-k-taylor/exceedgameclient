@@ -25487,19 +25487,19 @@
 			"display_name": "Weight of Regret",
 			"effects": [
 				{
-					"timing": "cleanup",
+					"timing": "attack_discarded",
 					"condition": "not_hit_opponent",
 					"effect_type": "choice",
 					"choice": [
 						{
 							"effect_type": "return_attack_to_hand",
-							"not_immediate": true
+							"from_discard": true
 						},
 						{
 							"effect_type": "pass"
 						}
 					],
-					"override_description": "At the end of each strike, if your attack did not hit the opponent, you may return it to your hand instead of discarding it."
+					"override_description": "When you discard your attack during Cleanup because it didn't hit, you may then return it to your hand."
 				}
 			]
 		}

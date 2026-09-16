@@ -96,6 +96,42 @@ func test_strike_button_triggers_outrun_before_attack_selection():
 	assert_eq(game_logic.decision_info.source, "outrun_seal")
 	assert_true(player.minato_outrun_triggered_before_strike)
 
+func test_strike_shortcut_triggers_outrun_before_setting_selected_card():
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	add_transform(player, "minato_flight_13")
+	player.discard([player.hand[0].id])
+	var attack_id = give_player_specific_card(player, "standard_normal_sweep")
+	game_ui.selected_cards = [FakeCard.new(attack_id)]
+
+	game_ui._on_shortcut_strike_pressed()
+
+	var game_logic = game_ui.game_wrapper.current_game
+	assert_eq(game_logic.decision_info.source, "outrun_seal")
+	assert_true(player.is_card_in_hand(attack_id))
+	assert_null(game_logic.active_strike)
+	assert_eq(game_ui.selected_cards.size(), 0)
+
+func test_reading_queued_strike_event_does_not_replace_outrun_decision():
+	var game_logic = game_ui.game_wrapper.current_game
+	var player = game_logic.player
+	var opponent = game_logic.opponent
+	add_transform(player, "minato_flight_13")
+	var reading = give_player_specific_card(player, "standard_normal_focus")
+	var named = give_player_specific_card(opponent, "standard_normal_sweep")
+	assert_true(game_logic.do_boost(player, reading, []))
+	assert_true(game_logic.do_boost_name_card_choice_effect(player, named))
+	assert_eq(game_logic.decision_info.source, "outrun_seal")
+
+	for event in game_logic.get_latest_events():
+		if event.event_type == Enums.EventType.EventType_ForceStartStrike:
+			game_ui._on_force_start_strike(event)
+		elif event.event_type == Enums.EventType.EventType_ChooseFromDiscard:
+			game_ui._on_choose_from_discard(event)
+
+	assert_eq(game_ui.ui_sub_state, game_ui.UISubState.UISubState_SelectCards_ChooseDiscardToDestination)
+	assert_false(game_ui._is_minato_outrun_pre_strike_decision())
+	assert_false(game_ui.popout_instruction_info["cancel_visible"])
+
 
 func test_restore_sync_reopens_player_decision_ui_from_wait_state():
 	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
@@ -247,6 +283,8 @@ class FakeCard extends RefCounted:
 	var card_id : int
 	func _init(id : int):
 		card_id = id
+	func set_selected(_selected : bool):
+		pass
 
 func _begin_outrun_from_strike_button() -> Player:
 	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)

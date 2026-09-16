@@ -372,6 +372,7 @@ var public_hand_tracked_topdeck : Array[int]
 var public_hand_facedown_boost_ids : Array[int]
 var public_topdeck_id : int
 var skip_end_of_turn_draw : bool
+var check_hand_size_when_skipping_draw : bool = false
 var reduce_opponent_prepare_draw : bool
 var eugenia_normal_passive_used_this_turn : bool
 var dan_draw_choice : bool
@@ -545,6 +546,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	public_hand_facedown_boost_ids = []
 	public_topdeck_id = -1
 	skip_end_of_turn_draw = false
+	check_hand_size_when_skipping_draw = false
 	eugenia_normal_passive_used_this_turn = false
 	dan_draw_choice = false
 	dan_draw_choice_from_bottom = false

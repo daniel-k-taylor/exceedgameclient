@@ -172,7 +172,7 @@ func test_silver_shadow_uses_move_to_space_with_range_3_limit():
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
 	validate_positions(player1, 8, player2, 5)
 
-func test_talon_only_boosts_immediate_from_gauge_and_seals_before_syrus_replay():
+func test_talon_only_boosts_immediate_from_gauge_and_seals_after_syrus_replay():
 	position_players(player1, 3, player2, 6)
 	add_transform(player1, "syrus_albatross_talon", true)
 
@@ -192,7 +192,40 @@ func test_talon_only_boosts_immediate_from_gauge_and_seals_before_syrus_replay()
 	assert_false(player1.is_card_in_continuous_boosts(immediate_boost_id))
 	assert_false(player1.is_card_in_discards(immediate_boost_id))
 	assert_false(boosted_card.definition.has("replaced_boost"))
+	var events = game_logic.get_latest_events()
+	var replay = validate_has_event(events, Enums.EventType.EventType_Boost_Continuous_Added, player1, immediate_boost_id)[0]
+	assert_true(replay.extra_info, "The boost enters play facedown before being sealed")
 	validate_positions(player1, 4, player2, 6)
+
+func test_exceeded_memories_boost_moves_as_facedown_boost_before_sealing():
+	position_players(player1, 3, player2, 6)
+	player1.exceed()
+	add_transform(player1, "syrus_albatross_talon", true)
+	var boost_id = give_player_specific_card(player1, "syrus_tidal_whirl")
+	player1.move_card_from_hand_to_gauge(boost_id)
+
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_true(game_logic.do_choice(player1, 0))
+
+	var card = game_logic.get_card_database().get_card(boost_id)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(player1.is_card_in_continuous_boosts(boost_id))
+	assert_true(card.definition["boost"].get("facedown", false))
+	assert_false(player1.is_card_in_sealed(boost_id))
+	validate_positions(player1, 4, player2, 6)
+
+	assert_true(game_logic.do_choice(player1, 0))
+
+	validate_positions(player1, 5, player2, 6)
+	assert_true(player1.is_card_in_sealed(boost_id))
+	assert_false(player1.is_card_in_continuous_boosts(boost_id))
+	assert_false(player1.is_card_in_discards(boost_id))
+	assert_false(card.definition.has("replaced_boost"))
+	assert_null(game_logic.active_boost)
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_cross",
+		false, false, [0], [])
+	validate_life(player1, 30, player2, 27)
 
 func test_talon_rejects_boosting_a_continuous_boost_out_of_gauge():
 	position_players(player1, 3, player2, 6)
@@ -248,7 +281,7 @@ func test_talon_still_allows_the_same_continuous_boost_from_hand():
 #  even if they were turned face-down."
 # Albatross Talon's transform IS "Memories from the Deep". Syrus's character
 # ability would normally re-play an immediate boost as a face-down continuous
-# boost, but the Memories seal takes priority.
+# boost, but Memories still seals it after the replay's Now effects.
 func test_faq_s1_memories_from_the_deep_seals_boost_despite_character_ability():
 	position_players(player1, 3, player2, 6)
 	add_transform(player1, "syrus_albatross_talon", true)  # transform: Memories from the Deep

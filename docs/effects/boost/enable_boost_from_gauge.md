@@ -53,6 +53,10 @@
   (rejects an illegal boost outright)
 - Cards whose boost was replaced (transforms) are checked against their
   `replaced_boost` type
+- Syrus's Memories from the Deep seals an instant boost from gauge after his
+  character ability replays it as a facedown continuous boost. The replay's Now
+  effects resolve first, including his exceeded side's optional Move 1, but the
+  boost cannot remain in play.
 - This is a simple flag that enables gauge boosting capability
 - Once enabled, player can use gauge zone as a valid source for boosting
 - Persistent effect that lasts for the duration of the game

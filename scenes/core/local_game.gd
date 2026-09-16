@@ -243,7 +243,11 @@ enum StrikeState {
 	StrikeState_EndOfStrike_Player1Effects,
 	StrikeState_EndOfStrike_Player1EffectsComplete,
 	StrikeState_EndOfStrike_Player2Effects,
-	StrikeState_Cleanup_Complete
+	StrikeState_Cleanup_Complete,
+	StrikeState_AttackDiscarded_Player1Effects,
+	StrikeState_AttackDiscarded_Player1EffectsComplete,
+	StrikeState_AttackDiscarded_Player2Effects,
+	StrikeState_Cleanup_Finalize
 }
 
 func get_current_strike_timing():
@@ -265,7 +269,7 @@ func get_current_strike_timing():
 					return "hit"
 				StrikeState.StrikeState_Card1_After, StrikeState.StrikeState_Card2_After:
 					return "after"
-				StrikeState.StrikeState_Cleanup, StrikeState.StrikeState_Cleanup_Player1Effects, StrikeState.StrikeState_Cleanup_Player2Effects:
+				StrikeState.StrikeState_Cleanup, StrikeState.StrikeState_Cleanup_Player1Effects, StrikeState.StrikeState_Cleanup_Player2Effects, StrikeState.StrikeState_AttackDiscarded_Player1Effects, StrikeState.StrikeState_AttackDiscarded_Player2Effects:
 					return "cleanup"
 				_:
 					return "other"
@@ -290,9 +294,9 @@ func get_current_strike_timing_player_id():
 					return active_strike.get_player(1).my_id
 				StrikeState.StrikeState_Card2_Before, StrikeState.StrikeState_Card2_Hit, StrikeState.StrikeState_Card2_After:
 					return active_strike.get_player(2).my_id
-				StrikeState.StrikeState_Cleanup_Player1Effects:
+				StrikeState.StrikeState_Cleanup_Player1Effects, StrikeState.StrikeState_AttackDiscarded_Player1Effects:
 					return active_strike.initiator.my_id
-				StrikeState.StrikeState_Cleanup_Player2Effects:
+				StrikeState.StrikeState_Cleanup_Player2Effects, StrikeState.StrikeState_AttackDiscarded_Player2Effects:
 					return active_strike.defender.my_id
 				_:
 					assert(false, "Unexpected call to get_current_strike_timing_player_id, investigate further.")
@@ -386,6 +390,7 @@ class Strike:
 	var remaining_forced_boosts_sustaining = false
 	var cards_in_play: Array[GameCard] = []
 	var deferred_extra_attack_cards: Array[Dictionary] = []
+	var attack_discarded_effects : Dictionary = {}
 	var when_hit_effects_processed = []
 	var queued_stop_on_space_boosts = []
 	var cards_discarded_this_strike = 0
@@ -540,6 +545,7 @@ var next_turn_player : Enums.PlayerId
 
 var strike_happened_this_turn : bool = false
 var last_turn_was_strike : bool = false
+var minato_pre_strike_context : Dictionary = {}
 
 func get_active_player() -> Enums.PlayerId:
 	return active_turn_player
@@ -1364,12 +1370,28 @@ func player_has_outrun_the_past(check_player : Player) -> bool:
 # attack. Returns true if the trigger fired (the caller should then wait for the
 # decision instead of opening the strike UI).
 func minato_begin_pre_strike_outrun(minato_otp_player : Player) -> bool:
+	if game_state not in [Enums.GameState.GameState_PickAction, Enums.GameState.GameState_WaitForStrike]:
+		return false
+	if minato_otp_player.my_id != active_turn_player:
+		return false
 	if minato_otp_player.minato_outrun_triggered_before_strike:
 		return false
 	if not player_has_outrun_the_past(minato_otp_player):
 		return false
+	if minato_otp_player.discards.is_empty() and minato_otp_player.gauge.is_empty():
+		return false
+	var saved_decision = {}
+	for property in decision_info.get_property_list():
+		if property.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			saved_decision[property.name] = decision_info.get(property.name)
+	minato_pre_strike_context = {
+		"game_state": game_state,
+		"decision": saved_decision,
+		"active_character_action": active_character_action,
+	}
 	minato_otp_player.minato_outrun_triggered_before_strike = true
 	handle_strike_effect(-1, {"effect_type": "minato_outrun_the_past", "minato_otp_sealed": 0}, minato_otp_player)
+	decision_info.can_pass = not active_strike and minato_pre_strike_context.game_state == Enums.GameState.GameState_PickAction
 	return game_state == Enums.GameState.GameState_PlayerDecision
 
 # The Outrun trigger happens before the attack is chosen, so backing out of it
@@ -1385,12 +1407,13 @@ func do_cancel_minato_outrun(performing_player : Player) -> bool:
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to cancel Outrun for the wrong player.")
 		return false
-	if active_strike or not active_character_action:
+	if active_strike or not active_character_action or not decision_info.can_pass:
 		printlog("ERROR: Tried to cancel Outrun after the strike already started.")
 		return false
 
 	# Let the player trigger it again when they next choose to strike this turn.
 	performing_player.minato_outrun_triggered_before_strike = false
+	minato_pre_strike_context.clear()
 	active_character_action = false
 	decision_info.clear()
 	change_game_state(Enums.GameState.GameState_PickAction)
@@ -6192,9 +6215,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				card_names = card_names.substr(0, card_names.length() - 2)
 			performing_player.return_all_cards_gauge_to_hand()
 		StrikeEffects.ReturnAttackToHand:
-			performing_player.strike_stat_boosts.return_attack_to_hand = true
-			if 'not_immediate' not in effect or not effect['not_immediate']:
-				handle_strike_attack_immediate_removal(performing_player)
+			if effect.get("from_discard", false):
+				var attack = active_strike.get_player_card(performing_player)
+				if performing_player.is_card_in_discards(attack.id):
+					performing_player.move_card_from_discard_to_hand(attack.id)
+			else:
+				performing_player.strike_stat_boosts.return_attack_to_hand = true
+				if 'not_immediate' not in effect or not effect['not_immediate']:
+					handle_strike_attack_immediate_removal(performing_player)
 		StrikeEffects.ReturnSealedWithSameSpeed:
 			var sealed_card_id = decision_info.amount
 			var sealed_card = card_db.get_card(sealed_card_id)
@@ -6538,6 +6566,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			opposing_player.cards_that_will_not_hit.append(named_card.definition['id'])
 		StrikeEffects.SkipEndOfTurnDraw:
 			performing_player.skip_end_of_turn_draw = true
+			performing_player.check_hand_size_when_skipping_draw = effect.get("check_hand_size", false)
 		StrikeEffects.ReduceOpponentPrepareDraw:
 			performing_player.reduce_opponent_prepare_draw = true
 		StrikeEffects.SpecialsInvalid:
@@ -7127,7 +7156,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 							"amount": 1,
 							"amount_min": 0,
 							"limitation": limitation,
-							"and": { "effect_type": StrikeEffects.SkipEndOfTurnDraw }
+							"and": { "effect_type": StrikeEffects.SkipEndOfTurnDraw, "check_hand_size": true }
 						},
 						{ "effect_type": StrikeEffects.Pass }
 					],
@@ -9297,6 +9326,16 @@ func continue_resolve_strike():
 								", ".join(active_strike.cards_in_play.map(
 										func (card): return "%s" % card)))
 
+				active_strike.strike_state = StrikeState.StrikeState_AttackDiscarded_Player1Effects
+				active_strike.remaining_effect_list = active_strike.attack_discarded_effects.get(active_strike.initiator.my_id, [])
+			StrikeState.StrikeState_AttackDiscarded_Player1Effects:
+				do_remaining_effects(active_strike.initiator, StrikeState.StrikeState_AttackDiscarded_Player1EffectsComplete)
+			StrikeState.StrikeState_AttackDiscarded_Player1EffectsComplete:
+				active_strike.strike_state = StrikeState.StrikeState_AttackDiscarded_Player2Effects
+				active_strike.remaining_effect_list = active_strike.attack_discarded_effects.get(active_strike.defender.my_id, [])
+			StrikeState.StrikeState_AttackDiscarded_Player2Effects:
+				do_remaining_effects(active_strike.defender, StrikeState.StrikeState_Cleanup_Finalize)
+			StrikeState.StrikeState_Cleanup_Finalize:
 				# Remove all stat boosts.
 				player.strike_stat_boosts.clear()
 				opponent.strike_stat_boosts.clear()
@@ -9451,6 +9490,8 @@ func strike_send_attack_to_discard_or_gauge(performing_player : Player, card):
 	else:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % _log_card_name(card_name))
 		performing_player.add_to_discards(card)
+		if active_strike.strike_state == StrikeState.StrikeState_Cleanup_Complete and performing_player.is_card_in_discards(card.id):
+			active_strike.attack_discarded_effects[performing_player.my_id] = get_all_effects_for_timing("attack_discarded", performing_player, card)
 	active_strike.cards_in_play.erase(card)
 
 func begin_extra_attack(performing_player : Player, card_id : int):
@@ -9861,7 +9902,6 @@ func boost_finish_resolving_card(performing_player : Player):
 	if performing_player.deck_flag("immediate_boosts_become_replacement") \
 			and active_boost.card.definition['boost']['boost_type'] == "immediate" \
 			and not active_boost.discard_on_cleanup \
-			and not active_boost.seal_on_cleanup \
 			and not active_boost.discarded_already:
 		syrus_should_replace = true
 		syrus_boost_name = active_boost.card.definition['display_name']
@@ -9896,7 +9936,10 @@ func boost_finish_resolving_card(performing_player : Player):
 		else:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set %s as a continuous boost." % _get_boost_and_card_name(active_boost.card))
 	elif not active_boost.discarded_already:
-		if active_boost.seal_on_cleanup:
+		if active_boost.seal_on_cleanup and syrus_should_replace:
+			# Memories seals the replay only after its Now effects resolve.
+			pass
+		elif active_boost.seal_on_cleanup:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the boosted card %s." % active_boost.card.definition['display_name'])
 			do_seal_effect(performing_player, active_boost.card.id, "")
 		elif active_boost.strike_after_boost_auto_strike:
@@ -9948,6 +9991,9 @@ func boost_finish_resolving_card(performing_player : Player):
 			active_boost.strike_after_boost_auto_strike = true
 
 func boost_play_cleanup(performing_player : Player):
+	if active_boost.seal_on_cleanup and performing_player.is_card_in_continuous_boosts(active_boost.card.id):
+		handle_strike_effect(active_boost.card.id, {"effect_type": StrikeEffects.SealThisBoost}, performing_player)
+
 	# Account for boosts that played other boosts
 	if active_boost.parent_boost:
 		if active_strike:
@@ -10041,6 +10087,8 @@ func boost_play_cleanup(performing_player : Player):
 					create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
 		active_boost = null
 		preparing_strike = true
+		if game_state == Enums.GameState.GameState_WaitForStrike:
+			minato_begin_pre_strike_outrun(performing_player)
 	elif active_boost.action_after_boost and not active_strike:
 		if game_state == Enums.GameState.GameState_PlayerDecision:
 			# save the bonus action for later if there's more to resolve
@@ -10294,7 +10342,8 @@ func check_hand_size_advance_turn(performing_player : Player):
 		handle_strike_effect(-1, choice_effect, performing_player)
 		active_special_draw_effect = true
 	else:
-		var skip_eot_discard = performing_player.skip_end_of_turn_draw or performing_player.has_passive("skip_eot_draw_and_discard")
+		var skip_eot_discard = (performing_player.skip_end_of_turn_draw and not performing_player.check_hand_size_when_skipping_draw) or performing_player.has_passive("skip_eot_draw_and_discard")
+		performing_player.check_hand_size_when_skipping_draw = false
 		if performing_player.skip_end_of_turn_draw or performing_player.has_passive("skip_eot_draw_and_discard"):
 			performing_player.skip_end_of_turn_draw = false
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
@@ -10976,6 +11025,10 @@ func do_strike(
 		if performing_player.my_id != decision_info.player:
 			printlog("ERROR: Strike response from wrong player.")
 			return false
+
+	# All entry points, including AI and card shortcuts, must draw before setting.
+	if minato_begin_pre_strike_outrun(performing_player):
+		return true
 
 	# ex_card_id being non -1 means it is an extra strike option.
 	var ex_strike = not wild_strike and ex_card_id != -1
@@ -12176,6 +12229,20 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 		_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Outrun the Past: sealed %s card(s)." % minato_outrun_sealed_count)
 		if minato_otp_draw > 0:
 			do_effect_if_condition_met(performing_player, decision_info.choice_card_id, {"effect_type": StrikeEffects.Draw, "amount": minato_otp_draw, "discarded_card_ids": card_ids}, null)
+		if not minato_pre_strike_context.is_empty():
+			var context = minato_pre_strike_context
+			minato_pre_strike_context = {}
+			active_character_action = context.active_character_action
+			for property in context.decision:
+				decision_info.set(property, context.decision[property])
+			change_game_state(context.game_state)
+			var event_type = Enums.EventType.EventType_ForceStartStrike
+			if active_strike and active_strike.opponent_sets_first:
+				event_type = Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet
+			elif decision_info.source in ["gauge", "sealed"]:
+				event_type = Enums.EventType.EventType_Strike_FromGauge
+			create_event(event_type, performing_player.my_id, 0)
+			return true
 		if not active_strike and active_character_action:
 			active_character_action = false
 			create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)

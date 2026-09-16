@@ -48,6 +48,9 @@ This effect has no parameters when used directly. The specific card to "read" is
 - Sets up the game state to wait for opponent's response during their next strike opportunity
 - The effect is processed through [`ReadingNormalInternal`](reading_normal_internal.md) for the actual implementation
 - Forces the opponent to either strike with the named card (if they have it) or reveal their hand
+- Resolve the defender's "before choosing cards" effects before checking their
+  hand. If Minato draws the named Normal with Outrun the Past, he must respond
+  with it; do not reveal his hand before Outrun resolves.
 - The specific card being "read" is typically determined by game context or card selection
 - Creates appropriate game events for UI updates
 
