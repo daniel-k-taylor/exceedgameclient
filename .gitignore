@@ -6,4 +6,5 @@
 /godotexe/
 /python/
 export_credentials.cfg
+*.keystore
 /android/
