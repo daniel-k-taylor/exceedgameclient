@@ -210,6 +210,7 @@ var can_seal_for_gauge = false
 var current_pay_costs_is_ex = false
 var preparing_character_action = false
 var prepared_character_action_data = {}
+var stored_infusion_cost = null
 var choice_popout_title = ""
 
 var player_deck
@@ -5903,9 +5904,16 @@ func _show_skipped_character_action_confirmation(action: Callable) -> void:
 		false, -1, -1, false, false, false, 2
 	)
 	action_menu.visible = true
+	
+func _show_infusion_decision_before_action(action: Callable) -> void:
+	# TODO: set up gauge UI, offer choices to submit/pass/pay life
+	# also ideally have checkboxes to skip prompt for this action or rest of turn
 
 func _on_prepare_button_pressed():
-	var success = game_wrapper.submit_prepare(Enums.PlayerId.PlayerId_Player)
+	var infusion_cost = stored_infusion_cost
+	stored_infusion_cost = null
+	var success = game_wrapper.submit_prepare(Enums.PlayerId.PlayerId_Player, infusion_cost)
+	
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()

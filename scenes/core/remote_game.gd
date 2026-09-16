@@ -235,17 +235,19 @@ func clear_pending_minato_seal_payment() -> void:
 	_pending_minato_sealed_force = 0
 	_pending_minato_sealed_gauge = 0
 
-func do_prepare(player : Player) -> bool:
+func do_prepare(player : Player, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
 		'action_type': 'action_prepare',
 		'player_id': _get_player_remote_id(player),
+		'infusion_cost': infusion_cost
 	}
 	_submit_game_message(action_message)
 	return true
 
 func process_prepare(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
-	local_game.do_prepare(game_player)
+	var infusion_cost = action_message['infusion_cost']
+	local_game.do_prepare(game_player, infusion_cost)
 
 func do_reshuffle(player : Player) -> bool:
 	var action_message = {

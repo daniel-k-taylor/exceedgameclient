@@ -623,9 +623,9 @@ func can_do_character_action(player_id : Enums.PlayerId, action_idx : int = 0) -
 
 ### Action Functions ###
 
-func submit_prepare(player : Enums.PlayerId) -> bool:
+func submit_prepare(player : Enums.PlayerId, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_prepare(game_player)
+	return current_game.do_prepare(game_player, infusion_cost)
 
 func submit_reshuffle(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)

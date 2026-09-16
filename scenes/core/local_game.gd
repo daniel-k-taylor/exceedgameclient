@@ -10493,11 +10493,40 @@ func _on_player_discard(discarding_player, card_ids : Array):
 				}
 				handle_strike_effect(-1, choice_effect, other_player)
 
-func do_prepare(performing_player) -> bool:
+# non-blocking handling of infusion costs before actions
+func handle_infusion(performing_player : Player, infusion_cost : InfusionCost) -> bool:
+	if performing_player.is_infused():
+		printlog("ERROR: Tried to infuse while already infused")
+		return false
+		
+	if not infusion_cost.free_infuse:
+		if infusion_cost.paid_from_life():
+			if infusion_cost.life_spent > performing_player.life:
+				printlog("ERROR: Tried to spend more life for infusion than character had.")
+				return false
+			performing_player.spend_life(infusion_cost.life_spent)
+		else:
+			if not performing_player.is_card_in_gauge(infusion_cost.gauge_spent):
+				printlog("ERROR: Tried to spend gauge for infusion with card not in gauge.")
+				return false
+			performing_player.discard([infusion_cost.gauge_spent], 0, true)
+
+	performing_player.infused = true
+	_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is Infused!")
+	create_event(Enums.EventType.EventType_Strike_Infuse, performing_player.my_id, -1, "Infused")
+	return true
+	
+
+func do_prepare(performing_player, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: PREPARE by %s" % [performing_player.name])
 	if not can_do_prepare(performing_player):
 		printlog("ERROR: Tried to Prepare but can't.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	create_event(Enums.EventType.EventType_Prepare, performing_player.my_id, 0)
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Prepare")
