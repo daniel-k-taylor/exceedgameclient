@@ -144,6 +144,7 @@ func test_remote_move_processes_minato_sealed_force_before_validation():
 		'use_free_force': false,
 		'spent_life_for_force': 0,
 		'minato_sealed_force': 3,
+		'infusion_cost': null
 	})
 
 	assert_eq(player1.arena_location, 6)
