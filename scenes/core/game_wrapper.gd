@@ -690,9 +690,9 @@ func submit_exceed(player : Enums.PlayerId, card_ids : Array, spent_life_for_gau
 	return current_game.do_exceed(game_player, card_ids, spent_life_for_gauge)
 
 func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location : int,
-		use_free_force : bool, spent_life_for_force : int) -> bool:
+		use_free_force : bool, spent_life_for_force : int, infusion_cost : InfusionCost) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force)
+	return current_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force, infusion_cost)
 
 func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool,
 		use_free_force : bool, spent_life_for_force : int) -> bool:

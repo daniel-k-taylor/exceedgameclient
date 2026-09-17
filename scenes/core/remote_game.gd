@@ -386,7 +386,7 @@ func process_exceed(action_message) -> void:
 	var spent_life_for_gauge = action_message.get('spent_life_for_gauge', 0)
 	local_game.do_exceed(game_player, card_ids, spent_life_for_gauge)
 
-func do_move(player : Player, card_ids : Array, new_arena_location : int, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+func do_move(player : Player, card_ids : Array, new_arena_location : int, use_free_force : bool = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
 		'action_type': 'action_move',
 		'player_id': _get_player_remote_id(player),
@@ -395,6 +395,7 @@ func do_move(player : Player, card_ids : Array, new_arena_location : int, use_fr
 		'use_free_force': use_free_force,
 		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
+		'infusion_cost': infusion_cost
 	}
 	_submit_game_message(action_message)
 	return true
@@ -406,7 +407,8 @@ func process_move(action_message) -> void:
 	var use_free_force = action_message['use_free_force']
 	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
-	local_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force)
+	var infusion_cost = action_message['infusion_cost']
+	local_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force, infusion_cost)
 
 func do_change(player : Player, card_ids : Array, treat_ultras_as_single_force : bool,
 		use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:

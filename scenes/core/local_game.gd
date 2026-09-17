@@ -10624,11 +10624,16 @@ func do_reshuffle(performing_player : Player) -> bool:
 	check_hand_size_advance_turn(performing_player)
 	return true
 
-func do_move(performing_player : Player, card_ids, new_arena_location, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+func do_move(performing_player : Player, card_ids, new_arena_location, use_free_force : bool = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: MOVE by %s to %s" % [performing_player.name, str(new_arena_location)])
 	if not can_do_move(performing_player):
 		printlog("ERROR: Cannot perform the move action for this player.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	var ignore_force_req = false
 	if not performing_player.can_move_to(new_arena_location, ignore_force_req):

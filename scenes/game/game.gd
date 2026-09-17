@@ -4975,7 +4975,8 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_strike_options = {}
 			instructions_pay_alternative_life_cost = 0
 			instructions_face_attack_card = null
-			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
+			var move_action = _wrap_with_show_infusion_decision_before_action(_on_move_button_pressed, "Move")
+			button_choices.append({ "text": "Move", "action": move_action, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
 			var prepare_action = _wrap_with_show_infusion_decision_before_action(_wrap_with_confirmation("Prepare", _on_prepare_button_pressed), "Prepare")
 			button_choices.append({ "text": "Prepare", "action": prepare_action, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
@@ -5945,6 +5946,9 @@ func _show_infusion_decision_before_action(action: Callable, action_tag: String)
 func _on_prepare_button_pressed():
 	var infusion_cost = stored_infusion_cost
 	stored_infusion_cost = null
+	infusion_decision_return = null
+	infusion_decision_return_tag = null
+	
 	var success = game_wrapper.submit_prepare(Enums.PlayerId.PlayerId_Player, infusion_cost)
 	
 	if success:
@@ -5952,6 +5956,9 @@ func _on_prepare_button_pressed():
 	_update_buttons()
 
 func _on_move_button_pressed():
+	infusion_decision_return = null
+	infusion_decision_return_tag = null
+	
 	var valid_moves = []
 	for i in range(1, 10):
 		if game_wrapper.can_move_to(Enums.PlayerId.PlayerId_Player, i):
@@ -6497,7 +6504,9 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
-				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location, use_free_force, spent_life_for_force)
+				var infusion_cost = stored_infusion_cost
+				stored_infusion_cost = null
+				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location, use_free_force, spent_life_for_force, infusion_cost)
 			UISubState.UISubState_SelectCards_ForceForChange:
 				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force)
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge, UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
@@ -6996,7 +7005,7 @@ func ai_handle_move(action : AIPlayer.MoveAction):
 	var location = action.location
 	var card_ids = action.force_card_ids
 	var do_use_free_force = action.use_free_force
-	var success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Opponent, card_ids, location, do_use_free_force, 0)
+	var success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Opponent, card_ids, location, do_use_free_force, 0, null)
 	if not success:
 		printlog("FAILED AI MOVE")
 	return success

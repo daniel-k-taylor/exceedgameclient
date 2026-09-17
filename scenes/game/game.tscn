@@ -28,71 +28,58 @@
 [ext_resource type="PackedScene" uid="uid://i2fmgsopd4xp" path="res://scenes/game/emote_dialog.tscn" id="23_rqqoa"]
 [ext_resource type="AudioStream" uid="uid://bthgiipjqcob5" path="res://assets/sounds/turnstart.wav" id="27_aidi8"]
 
-[node name="GameScene" type="Node2D" unique_id=89560839]
+[node name="GameScene" type="Node2D" unique_id=615354129]
 script = ExtResource("1_4f5jr")
 
-[node name="Background" type="ColorRect" parent="." unique_id=2122714567]
+[node name="Background" type="ColorRect" parent="." unique_id=1669128039]
 offset_right = 1280.0
 offset_bottom = 720.0
 mouse_filter = 2
 color = Color(0.392157, 0.392157, 0.392157, 1)
 
-[node name="BackgroundImage" type="TextureRect" parent="." unique_id=791396093]
+[node name="BackgroundImage" type="TextureRect" parent="." unique_id=930279749]
 offset_right = 1280.0
 offset_bottom = 720.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="FriendTrackLayer" type="TextureRect" parent="." unique_id=1484783747]
+[node name="FriendTrackLayer" type="TextureRect" parent="." unique_id=1528159132]
 offset_right = 1280.0
 offset_bottom = 720.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="EnemyTrackLayer" type="TextureRect" parent="." unique_id=1985814294]
+[node name="EnemyTrackLayer" type="TextureRect" parent="." unique_id=2009571516]
 offset_right = 1280.0
 offset_bottom = 720.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="RotationLayoutOverlay" type="ColorRect" parent="." unique_id=1421192875]
+[node name="RotationLayoutOverlay" type="ColorRect" parent="." unique_id=1966279105]
 visible = false
 z_index = 100
 offset_right = 1280.0
 offset_bottom = 720.0
 color = Color(0.08, 0.08, 0.08, 1)
 
-[node name="ArenaNode" type="Node2D" parent="." unique_id=1331030795]
+[node name="ArenaNode" type="Node2D" parent="." unique_id=1470230385]
 position = Vector2(0, 325)
 
-[node name="RowButtons" type="HBoxContainer" parent="ArenaNode" unique_id=1521735456]
+[node name="RowButtons" type="HBoxContainer" parent="ArenaNode" unique_id=1698357875]
 offset_top = -15.0
 offset_right = 1280.0
 offset_bottom = 49.0
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="ArenaSquare1" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=2089489122]
+[node name="ArenaSquare1" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1174319860]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare1" unique_id=278548617]
-custom_minimum_size = Vector2(110, 48)
-layout_mode = 2
-texture_normal = ExtResource("4_koa6g")
-texture_pressed = ExtResource("5_j7n2t")
-texture_hover = ExtResource("6_3ysab")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="ArenaSquare2" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1058494220]
-custom_minimum_size = Vector2(110, 48)
-layout_mode = 2
-
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare2" unique_id=1710215263]
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare1" unique_id=1839309799]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 texture_normal = ExtResource("4_koa6g")
@@ -101,24 +88,11 @@ texture_hover = ExtResource("6_3ysab")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="ArenaSquare3" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1475263288]
+[node name="ArenaSquare2" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=2096244228]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare3" unique_id=662104309]
-custom_minimum_size = Vector2(110, 48)
-layout_mode = 2
-texture_normal = ExtResource("4_koa6g")
-texture_pressed = ExtResource("5_j7n2t")
-texture_hover = ExtResource("6_3ysab")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="ArenaSquare4" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=219946795]
-custom_minimum_size = Vector2(110, 48)
-layout_mode = 2
-
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare4" unique_id=2085136571]
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare2" unique_id=2127307062]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 texture_normal = ExtResource("4_koa6g")
@@ -127,24 +101,11 @@ texture_hover = ExtResource("6_3ysab")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="ArenaSquare5" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1519089996]
+[node name="ArenaSquare3" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1922548150]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare5" unique_id=539914156]
-custom_minimum_size = Vector2(110, 48)
-layout_mode = 2
-texture_normal = ExtResource("4_koa6g")
-texture_pressed = ExtResource("5_j7n2t")
-texture_hover = ExtResource("6_3ysab")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="ArenaSquare6" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=590141576]
-custom_minimum_size = Vector2(110, 48)
-layout_mode = 2
-
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare6" unique_id=1734698500]
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare3" unique_id=1722629588]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 texture_normal = ExtResource("4_koa6g")
@@ -153,24 +114,11 @@ texture_hover = ExtResource("6_3ysab")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="ArenaSquare7" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1818888940]
+[node name="ArenaSquare4" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1634532296]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare7" unique_id=214795284]
-custom_minimum_size = Vector2(110, 48)
-layout_mode = 2
-texture_normal = ExtResource("4_koa6g")
-texture_pressed = ExtResource("5_j7n2t")
-texture_hover = ExtResource("6_3ysab")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="ArenaSquare8" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1725841248]
-custom_minimum_size = Vector2(110, 48)
-layout_mode = 2
-
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare8" unique_id=799811638]
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare4" unique_id=409667694]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 texture_normal = ExtResource("4_koa6g")
@@ -179,11 +127,11 @@ texture_hover = ExtResource("6_3ysab")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="ArenaSquare9" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1139206661]
+[node name="ArenaSquare5" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=825248895]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 
-[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare9" unique_id=1345840251]
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare5" unique_id=388164688]
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
 texture_normal = ExtResource("4_koa6g")
@@ -192,7 +140,59 @@ texture_hover = ExtResource("6_3ysab")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="RowPlatforms" type="HBoxContainer" parent="ArenaNode" unique_id=1733220102]
+[node name="ArenaSquare6" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1058913597]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare6" unique_id=1432361044]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare7" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1809766004]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare7" unique_id=1725941397]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare8" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=1923380383]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare8" unique_id=1488162684]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare9" type="MarginContainer" parent="ArenaNode/RowButtons" unique_id=823974463]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare9" unique_id=700875087]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="RowPlatforms" type="HBoxContainer" parent="ArenaNode" unique_id=845642833]
 custom_minimum_size = Vector2(1280, 0)
 offset_right = 40.0
 offset_bottom = 40.0
@@ -200,157 +200,157 @@ mouse_filter = 2
 theme_override_constants/separation = 30
 alignment = 1
 
-[node name="ArenaSquare1" parent="ArenaNode/RowPlatforms" unique_id=636578632 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare1" parent="ArenaNode/RowPlatforms" unique_id=610334141 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="ArenaSquare2" parent="ArenaNode/RowPlatforms" unique_id=1352416010 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare2" parent="ArenaNode/RowPlatforms" unique_id=424604732 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="ArenaSquare3" parent="ArenaNode/RowPlatforms" unique_id=1424860291 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare3" parent="ArenaNode/RowPlatforms" unique_id=1555262969 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="ArenaSquare4" parent="ArenaNode/RowPlatforms" unique_id=1718183819 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare4" parent="ArenaNode/RowPlatforms" unique_id=1025967691 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="ArenaSquare5" parent="ArenaNode/RowPlatforms" unique_id=254284711 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare5" parent="ArenaNode/RowPlatforms" unique_id=35940184 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="ArenaSquare6" parent="ArenaNode/RowPlatforms" unique_id=245617068 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare6" parent="ArenaNode/RowPlatforms" unique_id=1729574743 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="ArenaSquare7" parent="ArenaNode/RowPlatforms" unique_id=946300952 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare7" parent="ArenaNode/RowPlatforms" unique_id=1962069358 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="ArenaSquare8" parent="ArenaNode/RowPlatforms" unique_id=1597387286 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare8" parent="ArenaNode/RowPlatforms" unique_id=1814144681 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="ArenaSquare9" parent="ArenaNode/RowPlatforms" unique_id=1397664278 instance=ExtResource("6_oqn7w")]
+[node name="ArenaSquare9" parent="ArenaNode/RowPlatforms" unique_id=1949095532 instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
-[node name="RowLightningInfoButtons" type="HBoxContainer" parent="ArenaNode" unique_id=1492588352]
+[node name="RowLightningInfoButtons" type="HBoxContainer" parent="ArenaNode" unique_id=1589316100]
 custom_minimum_size = Vector2(1280, 0)
 offset_right = 1280.0
 offset_bottom = 100.0
 mouse_filter = 2
 alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="ArenaNode/RowLightningInfoButtons" unique_id=605971310]
+[node name="MarginContainer" type="MarginContainer" parent="ArenaNode/RowLightningInfoButtons" unique_id=1862268631]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="LocationInfoPair1" parent="ArenaNode/RowLightningInfoButtons" unique_id=707601424 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair1" parent="ArenaNode/RowLightningInfoButtons" unique_id=2081590177 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="LocationInfoPair2" parent="ArenaNode/RowLightningInfoButtons" unique_id=729089067 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair2" parent="ArenaNode/RowLightningInfoButtons" unique_id=1709599143 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="LocationInfoPair3" parent="ArenaNode/RowLightningInfoButtons" unique_id=694072976 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair3" parent="ArenaNode/RowLightningInfoButtons" unique_id=514965522 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="LocationInfoPair4" parent="ArenaNode/RowLightningInfoButtons" unique_id=1363836704 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair4" parent="ArenaNode/RowLightningInfoButtons" unique_id=1058223796 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="LocationInfoPair5" parent="ArenaNode/RowLightningInfoButtons" unique_id=1266759257 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair5" parent="ArenaNode/RowLightningInfoButtons" unique_id=670035088 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="LocationInfoPair6" parent="ArenaNode/RowLightningInfoButtons" unique_id=447146656 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair6" parent="ArenaNode/RowLightningInfoButtons" unique_id=860460890 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="LocationInfoPair7" parent="ArenaNode/RowLightningInfoButtons" unique_id=625559739 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair7" parent="ArenaNode/RowLightningInfoButtons" unique_id=2107465180 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="LocationInfoPair8" parent="ArenaNode/RowLightningInfoButtons" unique_id=623833344 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair8" parent="ArenaNode/RowLightningInfoButtons" unique_id=891664296 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="LocationInfoPair9" parent="ArenaNode/RowLightningInfoButtons" unique_id=2056149776 instance=ExtResource("7_txkwl")]
+[node name="LocationInfoPair9" parent="ArenaNode/RowLightningInfoButtons" unique_id=465789650 instance=ExtResource("7_txkwl")]
 layout_mode = 2
 
-[node name="MarginContainer2" type="MarginContainer" parent="ArenaNode/RowLightningInfoButtons" unique_id=1053253852]
+[node name="MarginContainer2" type="MarginContainer" parent="ArenaNode/RowLightningInfoButtons" unique_id=1441923624]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="WideCharacterMarker" type="Node2D" parent="." unique_id=413645260]
+[node name="WideCharacterMarker" type="Node2D" parent="." unique_id=1235106662]
 visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
 
-[node name="PlayerLightningRods" type="Node2D" parent="." unique_id=1923169616]
+[node name="PlayerLightningRods" type="Node2D" parent="." unique_id=560719980]
 
-[node name="OpponentLightningRods" type="Node2D" parent="." unique_id=781926670]
+[node name="OpponentLightningRods" type="Node2D" parent="." unique_id=1942861181]
 
-[node name="BackgroundBuddies" type="Node2D" parent="." unique_id=389285821]
+[node name="BackgroundBuddies" type="Node2D" parent="." unique_id=111673516]
 
-[node name="PlayerBuddy" parent="." unique_id=1493800874 instance=ExtResource("9_rhsuv")]
+[node name="PlayerBuddy" parent="." unique_id=1977779729 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
 
-[node name="PlayerBuddy2" parent="." unique_id=160432512 instance=ExtResource("9_rhsuv")]
+[node name="PlayerBuddy2" parent="." unique_id=285609550 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
 
-[node name="PlayerBuddy3" parent="." unique_id=1817131836 instance=ExtResource("9_rhsuv")]
+[node name="PlayerBuddy3" parent="." unique_id=1547556010 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
 
-[node name="PlayerBuddy4" parent="." unique_id=660462632 instance=ExtResource("9_rhsuv")]
+[node name="PlayerBuddy4" parent="." unique_id=795209537 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
 
-[node name="PlayerBuddy5" parent="." unique_id=928025672 instance=ExtResource("9_rhsuv")]
+[node name="PlayerBuddy5" parent="." unique_id=1941328670 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
 
-[node name="PlayerBuddy6" parent="." unique_id=1464849855 instance=ExtResource("9_rhsuv")]
+[node name="PlayerBuddy6" parent="." unique_id=512285675 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
 
-[node name="OpponentBuddy" parent="." unique_id=1530998141 instance=ExtResource("9_rhsuv")]
+[node name="OpponentBuddy" parent="." unique_id=388565204 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(183.5, -119)
 scale = Vector2(0.25, 0.25)
 
-[node name="OpponentBuddy2" parent="." unique_id=480478907 instance=ExtResource("9_rhsuv")]
+[node name="OpponentBuddy2" parent="." unique_id=228198289 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(183.5, -119)
 scale = Vector2(0.25, 0.25)
 
-[node name="OpponentBuddy3" parent="." unique_id=626633207 instance=ExtResource("9_rhsuv")]
+[node name="OpponentBuddy3" parent="." unique_id=1550041563 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(183.5, -119)
 scale = Vector2(0.25, 0.25)
 
-[node name="OpponentBuddy4" parent="." unique_id=544080819 instance=ExtResource("9_rhsuv")]
+[node name="OpponentBuddy4" parent="." unique_id=1734773620 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(183.5, -119)
 scale = Vector2(0.25, 0.25)
 
-[node name="OpponentBuddy5" parent="." unique_id=1335028730 instance=ExtResource("9_rhsuv")]
+[node name="OpponentBuddy5" parent="." unique_id=1566525293 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(183.5, -119)
 scale = Vector2(0.25, 0.25)
 
-[node name="OpponentBuddy6" parent="." unique_id=58898046 instance=ExtResource("9_rhsuv")]
+[node name="OpponentBuddy6" parent="." unique_id=1160819504 instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(183.5, -119)
 scale = Vector2(0.25, 0.25)
 
-[node name="PlayerCharacter" parent="." unique_id=1648072300 instance=ExtResource("9_rhsuv")]
+[node name="PlayerCharacter" parent="." unique_id=1923199422 instance=ExtResource("9_rhsuv")]
 scale = Vector2(0.5, 0.5)
 
-[node name="OpponentCharacter" parent="." unique_id=1933488702 instance=ExtResource("9_rhsuv")]
+[node name="OpponentCharacter" parent="." unique_id=1070831685 instance=ExtResource("9_rhsuv")]
 scale = Vector2(0.5, 0.5)
 
-[node name="ForegroundBuddies" type="Node2D" parent="." unique_id=777361215]
+[node name="ForegroundBuddies" type="Node2D" parent="." unique_id=589034640]
 
-[node name="AIMoveButton" type="Button" parent="." unique_id=1930636214]
+[node name="AIMoveButton" type="Button" parent="." unique_id=980634660]
 visible = false
 offset_left = 922.0
 offset_top = 156.0
@@ -358,27 +358,27 @@ offset_right = 989.0
 offset_bottom = 185.0
 text = "AI Move"
 
-[node name="OpponentLife" parent="." unique_id=572802098 instance=ExtResource("8_mqi3u")]
+[node name="OpponentLife" parent="." unique_id=1261431626 instance=ExtResource("8_mqi3u")]
 offset_left = 1053.0
 offset_top = 156.0
 offset_right = 1053.0
 offset_bottom = 156.0
 
-[node name="PlayerLife" parent="." unique_id=1972220428 instance=ExtResource("8_mqi3u")]
+[node name="PlayerLife" parent="." unique_id=2112419682 instance=ExtResource("8_mqi3u")]
 offset_left = 1061.0
 offset_top = 526.0
 offset_right = 1061.0
 offset_bottom = 526.0
 flip = true
 
-[node name="PlayerDeck" type="Node2D" parent="." unique_id=178197348]
+[node name="PlayerDeck" type="Node2D" parent="." unique_id=1129593630]
 
-[node name="PlayerCharacterCard" parent="PlayerDeck" unique_id=393926715 instance=ExtResource("18_imast")]
+[node name="PlayerCharacterCard" parent="PlayerDeck" unique_id=1705307836 instance=ExtResource("18_imast")]
 position = Vector2(1056, 576)
 scale = Vector2(0.4, 0.4)
 anchor_top = false
 
-[node name="DeckButton" type="TextureButton" parent="PlayerDeck" unique_id=1050457438]
+[node name="DeckButton" type="TextureButton" parent="PlayerDeck" unique_id=1736665634]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -396,7 +396,7 @@ mouse_filter = 2
 ignore_texture_size = true
 stretch_mode = 4
 
-[node name="Discard" type="TextureButton" parent="PlayerDeck" unique_id=1565616085]
+[node name="Discard" type="TextureButton" parent="PlayerDeck" unique_id=160983768]
 offset_left = 1161.0
 offset_top = 576.0
 offset_right = 1411.0
@@ -406,18 +406,18 @@ texture_normal = ExtResource("9_dpbn3")
 texture_pressed = ExtResource("9_dpbn3")
 texture_hover = ExtResource("9_dpbn3")
 
-[node name="PlayerBuddyCharacterCard" parent="PlayerDeck" unique_id=871869227 instance=ExtResource("18_imast")]
+[node name="PlayerBuddyCharacterCard" parent="PlayerDeck" unique_id=1879966387 instance=ExtResource("18_imast")]
 position = Vector2(350, 375)
 scale = Vector2(0.4, 0.4)
 anchor_top = false
 
-[node name="OpponentDeck" type="Node2D" parent="." unique_id=528439196]
+[node name="OpponentDeck" type="Node2D" parent="." unique_id=1571273137]
 
-[node name="OpponentCharacterCard" parent="OpponentDeck" unique_id=787094462 instance=ExtResource("18_imast")]
+[node name="OpponentCharacterCard" parent="OpponentDeck" unique_id=919113666 instance=ExtResource("18_imast")]
 position = Vector2(1057, 1)
 scale = Vector2(0.4, 0.4)
 
-[node name="DeckButton" type="TextureButton" parent="OpponentDeck" unique_id=1565248635]
+[node name="DeckButton" type="TextureButton" parent="OpponentDeck" unique_id=172485375]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -434,7 +434,7 @@ mouse_filter = 2
 ignore_texture_size = true
 stretch_mode = 4
 
-[node name="Discard" type="TextureButton" parent="OpponentDeck" unique_id=663061582]
+[node name="Discard" type="TextureButton" parent="OpponentDeck" unique_id=1029402419]
 offset_left = 1161.0
 offset_top = 1.0
 offset_right = 1411.0
@@ -444,7 +444,7 @@ texture_normal = ExtResource("9_dpbn3")
 texture_pressed = ExtResource("9_dpbn3")
 texture_hover = ExtResource("9_dpbn3")
 
-[node name="OpponentName" type="Label" parent="OpponentDeck" unique_id=1253571165]
+[node name="OpponentName" type="Label" parent="OpponentDeck" unique_id=751119318]
 offset_left = 717.0
 offset_top = 90.0
 offset_right = 1045.0
@@ -453,7 +453,7 @@ theme_override_font_sizes/font_size = 30
 text = "OPPONENT NAME HERE"
 horizontal_alignment = 2
 
-[node name="ThinkingIndicator" type="TextureProgressBar" parent="OpponentDeck" unique_id=395919928]
+[node name="ThinkingIndicator" type="TextureProgressBar" parent="OpponentDeck" unique_id=1750128216]
 offset_left = 927.0
 offset_top = 139.0
 offset_right = 991.0
@@ -462,14 +462,14 @@ value = 30.0
 fill_mode = 4
 texture_progress = ExtResource("9_2vlik")
 
-[node name="OpponentBuddyCharacterCard" parent="OpponentDeck" unique_id=224748180 instance=ExtResource("18_imast")]
+[node name="OpponentBuddyCharacterCard" parent="OpponentDeck" unique_id=438433891 instance=ExtResource("18_imast")]
 position = Vector2(350, 50)
 scale = Vector2(0.4, 0.4)
 anchor_top = false
 
-[node name="PlayerStrike" type="Node2D" parent="." unique_id=1831815512]
+[node name="PlayerStrike" type="Node2D" parent="." unique_id=861081992]
 
-[node name="StrikeZone" type="TextureButton" parent="PlayerStrike" unique_id=1222857886]
+[node name="StrikeZone" type="TextureButton" parent="PlayerStrike" unique_id=2074400708]
 modulate = Color(0.8, 0, 0.729412, 0)
 offset_left = 590.0
 offset_top = 375.0
@@ -480,28 +480,28 @@ texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
-[node name="CharBonusPanel" type="PanelContainer" parent="PlayerStrike" unique_id=1231371982]
+[node name="CharBonusPanel" type="PanelContainer" parent="PlayerStrike" unique_id=2101655294]
 offset_left = 350.0
 offset_top = 380.0
 offset_right = 550.0
 offset_bottom = 529.0
 
-[node name="MarginContainer" type="MarginContainer" parent="PlayerStrike/CharBonusPanel" unique_id=1187870743]
+[node name="MarginContainer" type="MarginContainer" parent="PlayerStrike/CharBonusPanel" unique_id=1790745748]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="VBox" type="VBoxContainer" parent="PlayerStrike/CharBonusPanel/MarginContainer" unique_id=1365118847]
+[node name="VBox" type="VBoxContainer" parent="PlayerStrike/CharBonusPanel/MarginContainer" unique_id=2044325788]
 layout_mode = 2
 
-[node name="UniqueLabel" type="Label" parent="PlayerStrike/CharBonusPanel/MarginContainer/VBox" unique_id=270001036]
+[node name="UniqueLabel" type="Label" parent="PlayerStrike/CharBonusPanel/MarginContainer/VBox" unique_id=1626623672]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Bonus Effects"
 
-[node name="AbilityLabel" type="RichTextLabel" parent="PlayerStrike/CharBonusPanel/MarginContainer/VBox" unique_id=1751045003]
+[node name="AbilityLabel" type="RichTextLabel" parent="PlayerStrike/CharBonusPanel/MarginContainer/VBox" unique_id=868412634]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/normal_font_size = 18
@@ -513,9 +513,9 @@ fit_content = true
 scroll_active = false
 autowrap_mode = 0
 
-[node name="OpponentStrike" type="Node2D" parent="." unique_id=555886315]
+[node name="OpponentStrike" type="Node2D" parent="." unique_id=945755396]
 
-[node name="StrikeZone" type="TextureButton" parent="OpponentStrike" unique_id=1477299489]
+[node name="StrikeZone" type="TextureButton" parent="OpponentStrike" unique_id=913934758]
 modulate = Color(0.8, 0, 0.729412, 0)
 offset_left = 590.0
 offset_top = 50.0
@@ -526,28 +526,28 @@ texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
-[node name="CharBonusPanel" type="PanelContainer" parent="OpponentStrike" unique_id=986995908]
+[node name="CharBonusPanel" type="PanelContainer" parent="OpponentStrike" unique_id=775064472]
 offset_left = 350.0
 offset_top = 75.0
 offset_right = 550.0
 offset_bottom = 224.0
 
-[node name="MarginContainer" type="MarginContainer" parent="OpponentStrike/CharBonusPanel" unique_id=256146230]
+[node name="MarginContainer" type="MarginContainer" parent="OpponentStrike/CharBonusPanel" unique_id=1852135460]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="VBox" type="VBoxContainer" parent="OpponentStrike/CharBonusPanel/MarginContainer" unique_id=364051842]
+[node name="VBox" type="VBoxContainer" parent="OpponentStrike/CharBonusPanel/MarginContainer" unique_id=980140257]
 layout_mode = 2
 
-[node name="UniqueLabel" type="Label" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox" unique_id=972988472]
+[node name="UniqueLabel" type="Label" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox" unique_id=505800729]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Bonus Effects"
 
-[node name="AbilityLabel" type="RichTextLabel" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox" unique_id=1577779439]
+[node name="AbilityLabel" type="RichTextLabel" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox" unique_id=971697367]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/normal_font_size = 18
@@ -559,9 +559,9 @@ fit_content = true
 scroll_active = false
 autowrap_mode = 0
 
-[node name="OpponentHand" type="Node2D" parent="." unique_id=137718795]
+[node name="OpponentHand" type="Node2D" parent="." unique_id=582413463]
 
-[node name="OpponentHandBox" type="HBoxContainer" parent="OpponentHand" unique_id=1242848597]
+[node name="OpponentHandBox" type="HBoxContainer" parent="OpponentHand" unique_id=740223167]
 custom_minimum_size = Vector2(100, 50)
 offset_left = 900.0
 offset_top = 10.0
@@ -570,13 +570,13 @@ offset_bottom = 72.0
 mouse_filter = 2
 alignment = 2
 
-[node name="OpponentHandCardIcon" type="TextureRect" parent="OpponentHand/OpponentHandBox" unique_id=909696499]
+[node name="OpponentHandCardIcon" type="TextureRect" parent="OpponentHand/OpponentHandBox" unique_id=1696198628]
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("11_nsv2h")
 expand_mode = 3
 
-[node name="XLabel" type="RichTextLabel" parent="OpponentHand/OpponentHandBox" unique_id=146696711]
+[node name="XLabel" type="RichTextLabel" parent="OpponentHand/OpponentHandBox" unique_id=2019677267]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
@@ -587,7 +587,7 @@ fit_content = true
 scroll_active = false
 autowrap_mode = 0
 
-[node name="OpponentNumCards" type="RichTextLabel" parent="OpponentHand/OpponentHandBox" unique_id=1738257307]
+[node name="OpponentNumCards" type="RichTextLabel" parent="OpponentHand/OpponentHandBox" unique_id=1306544321]
 custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -598,7 +598,7 @@ text = "#"
 fit_content = true
 autowrap_mode = 0
 
-[node name="HandSpawn" type="TextureButton" parent="OpponentHand" unique_id=2136623777]
+[node name="HandSpawn" type="TextureButton" parent="OpponentHand" unique_id=1139971437]
 visible = false
 modulate = Color(0.8, 0, 0.729412, 1)
 offset_left = 590.0
@@ -610,7 +610,7 @@ texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
-[node name="PlayerZones" type="VBoxContainer" parent="." unique_id=116566379]
+[node name="PlayerZones" type="VBoxContainer" parent="." unique_id=1260403569]
 offset_left = 208.0
 offset_top = 408.0
 offset_right = 343.0
@@ -618,87 +618,87 @@ offset_bottom = 643.0
 scale = Vector2(0.8, 0.8)
 size_flags_vertical = 0
 
-[node name="PlayerGauge" parent="PlayerZones" unique_id=585611267 instance=ExtResource("6_gtjck")]
+[node name="PlayerGauge" parent="PlayerZones" unique_id=1891172150 instance=ExtResource("6_gtjck")]
 layout_mode = 2
 
-[node name="PlayerOverdrive" parent="PlayerZones" unique_id=538049566 instance=ExtResource("6_gtjck")]
+[node name="PlayerOverdrive" parent="PlayerZones" unique_id=1733781977 instance=ExtResource("6_gtjck")]
 layout_mode = 2
 label_text = "OVERDRIVE"
 
-[node name="PlayerSealed" parent="PlayerZones" unique_id=1300265173 instance=ExtResource("6_gtjck")]
+[node name="PlayerSealed" parent="PlayerZones" unique_id=1860469223 instance=ExtResource("6_gtjck")]
 layout_mode = 2
 label_text = "SEALED"
 
-[node name="BoostInfoContainer" type="HBoxContainer" parent="PlayerZones" unique_id=614158997]
+[node name="BoostInfoContainer" type="HBoxContainer" parent="PlayerZones" unique_id=2091976421]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="PlayerBoostInfoButton1" parent="PlayerZones/BoostInfoContainer" unique_id=856050584 instance=ExtResource("16_2v64s")]
+[node name="PlayerBoostInfoButton1" parent="PlayerZones/BoostInfoContainer" unique_id=1724365430 instance=ExtResource("16_2v64s")]
 layout_mode = 2
 
-[node name="PlayerBoostInfoButton2" parent="PlayerZones/BoostInfoContainer" unique_id=1408900623 instance=ExtResource("16_2v64s")]
+[node name="PlayerBoostInfoButton2" parent="PlayerZones/BoostInfoContainer" unique_id=1272490677 instance=ExtResource("16_2v64s")]
 layout_mode = 2
 
-[node name="CombatLogButton" type="Button" parent="PlayerZones" unique_id=350241318]
+[node name="CombatLogButton" type="Button" parent="PlayerZones" unique_id=1341981066]
 layout_mode = 2
 theme_override_font_sizes/font_size = 17
 text = "Combat
 Log"
 
-[node name="SaveReplayButton" type="Button" parent="PlayerZones" unique_id=1687840082]
+[node name="SaveReplayButton" type="Button" parent="PlayerZones" unique_id=924707714]
 layout_mode = 2
 theme_override_font_sizes/font_size = 17
 text = "Save
 Replay"
 
-[node name="OpponentZones" type="VBoxContainer" parent="." unique_id=429282901]
+[node name="OpponentZones" type="VBoxContainer" parent="." unique_id=1354732407]
 offset_left = 208.0
 offset_top = 8.0
 offset_right = 343.0
 offset_bottom = 247.0
 scale = Vector2(0.8, 0.8)
 
-[node name="OpponentGauge" parent="OpponentZones" unique_id=1550835587 instance=ExtResource("6_gtjck")]
+[node name="OpponentGauge" parent="OpponentZones" unique_id=2049410406 instance=ExtResource("6_gtjck")]
 layout_mode = 2
 
-[node name="OpponentOverdrive" parent="OpponentZones" unique_id=331833236 instance=ExtResource("6_gtjck")]
+[node name="OpponentOverdrive" parent="OpponentZones" unique_id=1168494306 instance=ExtResource("6_gtjck")]
 layout_mode = 2
 label_text = "OVERDRIVE"
 
-[node name="OpponentSealed" parent="OpponentZones" unique_id=1407827909 instance=ExtResource("6_gtjck")]
+[node name="OpponentSealed" parent="OpponentZones" unique_id=1590912705 instance=ExtResource("6_gtjck")]
 layout_mode = 2
 label_text = "SEALED"
 
-[node name="BoostInfoContainer" type="HBoxContainer" parent="OpponentZones" unique_id=1497714506]
+[node name="BoostInfoContainer" type="HBoxContainer" parent="OpponentZones" unique_id=744406068]
 layout_mode = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="OpponentBoostInfoButton1" parent="OpponentZones/BoostInfoContainer" unique_id=793062237 instance=ExtResource("16_2v64s")]
+[node name="OpponentBoostInfoButton1" parent="OpponentZones/BoostInfoContainer" unique_id=1983308558 instance=ExtResource("16_2v64s")]
 layout_mode = 2
 
-[node name="OpponentBoostInfoButton2" parent="OpponentZones/BoostInfoContainer" unique_id=1517509015 instance=ExtResource("16_2v64s")]
+[node name="OpponentBoostInfoButton2" parent="OpponentZones/BoostInfoContainer" unique_id=1991526935 instance=ExtResource("16_2v64s")]
 layout_mode = 2
 
-[node name="RevealedCardsButton" type="Button" parent="OpponentZones" unique_id=132891139]
+[node name="RevealedCardsButton" type="Button" parent="OpponentZones" unique_id=848147305]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Known
 Cards"
 
-[node name="PlayerBoostZone" parent="." unique_id=1001539289 instance=ExtResource("7_gn0of")]
+[node name="PlayerBoostZone" parent="." unique_id=1549097437 instance=ExtResource("7_gn0of")]
 position = Vector2(8, 408)
 scale = Vector2(0.991, 1.03)
 
-[node name="OpponentBoostZone" parent="." unique_id=1275522151 instance=ExtResource("7_gn0of")]
+[node name="OpponentBoostZone" parent="." unique_id=274981276 instance=ExtResource("7_gn0of")]
 position = Vector2(8, 8)
 scale = Vector2(1.009, 1.05)
 
-[node name="GameOverStuff" type="Node2D" parent="." unique_id=781477528]
+[node name="GameOverStuff" type="Node2D" parent="." unique_id=551988225]
 
-[node name="GameOverLabel" type="Label" parent="GameOverStuff" unique_id=1377787860]
+[node name="GameOverLabel" type="Label" parent="GameOverStuff" unique_id=1050542849]
 offset_left = 356.0
 offset_top = 375.0
 offset_right = 584.0
@@ -708,7 +708,7 @@ theme_override_font_sizes/font_size = 64
 text = "DEFEAT"
 horizontal_alignment = 1
 
-[node name="ChoicePopoutShowButton" type="Button" parent="." unique_id=6684339]
+[node name="ChoicePopoutShowButton" type="Button" parent="." unique_id=1814098547]
 offset_left = 1053.0
 offset_top = 380.0
 offset_right = 1266.0
@@ -717,7 +717,7 @@ theme_override_font_sizes/font_size = 32
 text = "Show Decision
 Popout"
 
-[node name="ObserverNextButton" type="Button" parent="." unique_id=707165162]
+[node name="ObserverNextButton" type="Button" parent="." unique_id=102982256]
 offset_left = 1061.0
 offset_top = 464.0
 offset_right = 1261.0
@@ -725,7 +725,7 @@ offset_bottom = 514.0
 theme_override_font_sizes/font_size = 32
 text = "Next Event"
 
-[node name="ObserverPlayToLive" type="Button" parent="." unique_id=1858325344]
+[node name="ObserverPlayToLive" type="Button" parent="." unique_id=562256875]
 offset_left = 1088.0
 offset_top = 413.0
 offset_right = 1242.0
@@ -733,19 +733,19 @@ offset_bottom = 456.0
 theme_override_font_sizes/font_size = 27
 text = "Go To Live"
 
-[node name="AllCards" type="Node2D" parent="." unique_id=405831279]
+[node name="AllCards" type="Node2D" parent="." unique_id=2038883730]
 
-[node name="PlayerHand" type="Node2D" parent="AllCards" unique_id=1137970747]
+[node name="PlayerHand" type="Node2D" parent="AllCards" unique_id=1953888817]
 
-[node name="OpponentHand" type="Node2D" parent="AllCards" unique_id=846235470]
+[node name="OpponentHand" type="Node2D" parent="AllCards" unique_id=439962737]
 
-[node name="Striking" type="Node2D" parent="AllCards" unique_id=434773172]
+[node name="Striking" type="Node2D" parent="AllCards" unique_id=968351568]
 
-[node name="PlayerDiscards" type="Node2D" parent="AllCards" unique_id=316896934]
+[node name="PlayerDiscards" type="Node2D" parent="AllCards" unique_id=1513176765]
 
-[node name="OpponentDiscards" type="Node2D" parent="AllCards" unique_id=2127730281]
+[node name="OpponentDiscards" type="Node2D" parent="AllCards" unique_id=1213001930]
 
-[node name="PlayerDiscardButton" type="TextureButton" parent="AllCards" unique_id=484282208]
+[node name="PlayerDiscardButton" type="TextureButton" parent="AllCards" unique_id=305670926]
 offset_left = 1161.0
 offset_top = 576.0
 offset_right = 1411.0
@@ -754,7 +754,7 @@ scale = Vector2(0.4, 0.4)
 texture_pressed = ExtResource("16_laiwo")
 texture_hover = ExtResource("17_rr8uh")
 
-[node name="OpponentDiscardButton" type="TextureButton" parent="AllCards" unique_id=469687873]
+[node name="OpponentDiscardButton" type="TextureButton" parent="AllCards" unique_id=476410320]
 offset_left = 1161.0
 offset_right = 1411.0
 offset_bottom = 350.0
@@ -762,64 +762,64 @@ scale = Vector2(0.4, 0.4)
 texture_pressed = ExtResource("16_laiwo")
 texture_hover = ExtResource("17_rr8uh")
 
-[node name="ActionContainer" type="HBoxContainer" parent="AllCards" unique_id=1078986734]
+[node name="ActionContainer" type="HBoxContainer" parent="AllCards" unique_id=876372026]
 visible = false
 offset_right = 1280.0
 offset_bottom = 220.0
 size_flags_vertical = 0
 mouse_filter = 2
 
-[node name="LeftSpacer" type="Control" parent="AllCards/ActionContainer" unique_id=1105933548]
+[node name="LeftSpacer" type="Control" parent="AllCards/ActionContainer" unique_id=1643486133]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="ActionMenu" parent="AllCards/ActionContainer" unique_id=1651159030 instance=ExtResource("17_8hgvk")]
+[node name="ActionMenu" parent="AllCards/ActionContainer" unique_id=637228634 instance=ExtResource("17_8hgvk")]
 layout_mode = 2
 size_flags_vertical = 0
 
-[node name="RightSpacer" type="Control" parent="AllCards/ActionContainer" unique_id=1402175280]
+[node name="RightSpacer" type="Control" parent="AllCards/ActionContainer" unique_id=385998621]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="PlayerBoosts" type="Node2D" parent="AllCards" unique_id=111787841]
+[node name="PlayerBoosts" type="Node2D" parent="AllCards" unique_id=1703399080]
 
-[node name="OpponentBoosts" type="Node2D" parent="AllCards" unique_id=625700312]
+[node name="OpponentBoosts" type="Node2D" parent="AllCards" unique_id=335074575]
 
-[node name="PlayerGauge" type="Node2D" parent="AllCards" unique_id=465563051]
+[node name="PlayerGauge" type="Node2D" parent="AllCards" unique_id=1988014528]
 
-[node name="OpponentGauge" type="Node2D" parent="AllCards" unique_id=1738372011]
+[node name="OpponentGauge" type="Node2D" parent="AllCards" unique_id=620564935]
 
-[node name="PlayerSealed" type="Node2D" parent="AllCards" unique_id=718476581]
+[node name="PlayerSealed" type="Node2D" parent="AllCards" unique_id=1447804023]
 
-[node name="OpponentSealed" type="Node2D" parent="AllCards" unique_id=1164872861]
+[node name="OpponentSealed" type="Node2D" parent="AllCards" unique_id=144915]
 
-[node name="PlayerOverdrive" type="Node2D" parent="AllCards" unique_id=896850268]
+[node name="PlayerOverdrive" type="Node2D" parent="AllCards" unique_id=1040468494]
 
-[node name="OpponentOverdrive" type="Node2D" parent="AllCards" unique_id=1111158805]
+[node name="OpponentOverdrive" type="Node2D" parent="AllCards" unique_id=2081516397]
 
-[node name="PlayerDeck" type="Node2D" parent="AllCards" unique_id=1393838803]
+[node name="PlayerDeck" type="Node2D" parent="AllCards" unique_id=751597172]
 
-[node name="OpponentDeck" type="Node2D" parent="AllCards" unique_id=1615567771]
+[node name="OpponentDeck" type="Node2D" parent="AllCards" unique_id=1672771160]
 
-[node name="PlayerSetAside" type="Node2D" parent="AllCards" unique_id=988446406]
+[node name="PlayerSetAside" type="Node2D" parent="AllCards" unique_id=818375216]
 
-[node name="OpponentSetAside" type="Node2D" parent="AllCards" unique_id=944413655]
+[node name="OpponentSetAside" type="Node2D" parent="AllCards" unique_id=1137078304]
 
-[node name="PlayerAllCopy" type="Node2D" parent="AllCards" unique_id=924436555]
+[node name="PlayerAllCopy" type="Node2D" parent="AllCards" unique_id=953322350]
 
-[node name="OpponentAllCopy" type="Node2D" parent="AllCards" unique_id=1527081211]
+[node name="OpponentAllCopy" type="Node2D" parent="AllCards" unique_id=1101163650]
 
-[node name="PlayerBuddyCopy" type="Node2D" parent="AllCards" unique_id=1121764275]
+[node name="PlayerBuddyCopy" type="Node2D" parent="AllCards" unique_id=940124118]
 
-[node name="OpponentBuddyCopy" type="Node2D" parent="AllCards" unique_id=1636635871]
+[node name="OpponentBuddyCopy" type="Node2D" parent="AllCards" unique_id=2044904293]
 
-[node name="OpponentRevealed" type="Node2D" parent="AllCards" unique_id=1847624177]
+[node name="OpponentRevealed" type="Node2D" parent="AllCards" unique_id=260161518]
 
-[node name="ChoiceZone" type="Node2D" parent="AllCards" unique_id=1834026378]
+[node name="ChoiceZone" type="Node2D" parent="AllCards" unique_id=640686721]
 
-[node name="ExitToMenu" type="Button" parent="." unique_id=667726818]
+[node name="ExitToMenu" type="Button" parent="." unique_id=1300313321]
 offset_left = 7.0
 offset_top = 652.0
 offset_right = 152.0
@@ -827,7 +827,7 @@ offset_bottom = 691.0
 theme_override_font_sizes/font_size = 24
 text = "Exit to Menu"
 
-[node name="RuntimeHealthDebugToggleButton" type="Button" parent="." unique_id=1538079673]
+[node name="RuntimeHealthDebugToggleButton" type="Button" parent="." unique_id=823327973]
 visible = false
 offset_left = 7.0
 offset_top = 597.0
@@ -837,18 +837,18 @@ theme_override_font_sizes/font_size = 18
 text = "Show
 Perf"
 
-[node name="HugeCard" type="Sprite2D" parent="." unique_id=251813556]
+[node name="HugeCard" type="Sprite2D" parent="." unique_id=91789702]
 visible = false
 z_index = 20
 position = Vector2(640, 300)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("20_sjmm0")
 
-[node name="PlayerEmote" parent="." unique_id=1020789430 instance=ExtResource("21_sd8mp")]
+[node name="PlayerEmote" parent="." unique_id=332091018 instance=ExtResource("21_sd8mp")]
 
-[node name="OpponentEmote" parent="." unique_id=414715026 instance=ExtResource("21_sd8mp")]
+[node name="OpponentEmote" parent="." unique_id=1075108313 instance=ExtResource("21_sd8mp")]
 
-[node name="EmoteButton" type="TextureButton" parent="." unique_id=776673898]
+[node name="EmoteButton" type="TextureButton" parent="." unique_id=1270367911]
 offset_left = 1008.0
 offset_top = 464.0
 offset_right = 1056.0
@@ -859,26 +859,18 @@ texture_hover = ExtResource("21_86687")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="SlideoutDialog" parent="." unique_id=1146621474 instance=ExtResource("22_h48ew")]
+[node name="SlideoutDialog" parent="." unique_id=366499636 instance=ExtResource("22_h48ew")]
 offset_left = -395.0
 offset_top = -124.0
 offset_right = -52.0
 offset_bottom = 88.0
 
-[node name="CombatLog" parent="." unique_id=637346002 instance=ExtResource("18_k7mnw")]
+[node name="CombatLog" parent="." unique_id=1893970954 instance=ExtResource("18_k7mnw")]
 visible = false
 offset_right = 1280.0
 offset_bottom = 720.0
 
-[node name="EmoteDialog" parent="." unique_id=739852881 instance=ExtResource("23_rqqoa")]
-visible = false
-anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-offset_right = 1280.0
-offset_bottom = 720.0
-
-[node name="ModalDialog" parent="." unique_id=1726017297 instance=ExtResource("21_qe5we")]
+[node name="EmoteDialog" parent="." unique_id=420517098 instance=ExtResource("23_rqqoa")]
 visible = false
 anchors_preset = 0
 anchor_right = 0.0
@@ -886,9 +878,17 @@ anchor_bottom = 0.0
 offset_right = 1280.0
 offset_bottom = 720.0
 
-[node name="CardPopoutParent" type="Node2D" parent="." unique_id=156676912]
+[node name="ModalDialog" parent="." unique_id=1470333872 instance=ExtResource("21_qe5we")]
+visible = false
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_right = 1280.0
+offset_bottom = 720.0
 
-[node name="RuntimeHealthDebugPanel" type="PanelContainer" parent="." unique_id=1252055672]
+[node name="CardPopoutParent" type="Node2D" parent="." unique_id=1724561741]
+
+[node name="RuntimeHealthDebugPanel" type="PanelContainer" parent="." unique_id=1806123367]
 visible = false
 z_index = 100
 offset_left = 8.0
@@ -897,27 +897,36 @@ offset_right = 280.0
 offset_bottom = 390.0
 mouse_filter = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="RuntimeHealthDebugPanel" unique_id=1835498247]
+[node name="MarginContainer" type="MarginContainer" parent="RuntimeHealthDebugPanel" unique_id=1719021619]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="RuntimeHealthDebugLabel" type="Label" parent="RuntimeHealthDebugPanel/MarginContainer" unique_id=601966906]
+[node name="RuntimeHealthDebugLabel" type="Label" parent="RuntimeHealthDebugPanel/MarginContainer" unique_id=2060625524]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "Runtime Health"
 autowrap_mode = 2
 
-[node name="TurnStartAudio" type="AudioStreamPlayer" parent="." unique_id=989127544]
+[node name="TurnStartAudio" type="AudioStreamPlayer" parent="." unique_id=757124082]
 stream = ExtResource("27_aidi8")
 
-[node name="FileDialog" type="FileDialog" parent="." unique_id=547352034]
+[node name="FileDialog" type="FileDialog" parent="." unique_id=1833982428]
 initial_position = 1
 size = Vector2i(800, 400)
 access = 2
 
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare1/Button" to="." method="_on_arena_location_pressed" binds= [1]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare2/Button" to="." method="_on_arena_location_pressed" binds= [2]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare3/Button" to="." method="_on_arena_location_pressed" binds= [3]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare4/Button" to="." method="_on_arena_location_pressed" binds= [4]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare5/Button" to="." method="_on_arena_location_pressed" binds= [5]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare6/Button" to="." method="_on_arena_location_pressed" binds= [6]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare7/Button" to="." method="_on_arena_location_pressed" binds= [7]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare8/Button" to="." method="_on_arena_location_pressed" binds= [8]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare9/Button" to="." method="_on_arena_location_pressed" binds= [9]]
 [connection signal="pressed" from="AIMoveButton" to="." method="_on_ai_move_button_pressed"]
 [connection signal="pressed" from="PlayerDeck/PlayerCharacterCard" to="." method="_on_player_reference_button_pressed"]
 [connection signal="pressed" from="PlayerDeck/PlayerBuddyCharacterCard" to="." method="_on_player_buddy_button_pressed"]
