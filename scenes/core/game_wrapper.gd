@@ -639,9 +639,9 @@ func submit_prepare(player : Enums.PlayerId, infusion_cost : InfusionCost = null
 	var game_player = _get_player(player)
 	return current_game.do_prepare(game_player, infusion_cost)
 
-func submit_reshuffle(player : Enums.PlayerId) -> bool:
+func submit_reshuffle(player : Enums.PlayerId, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_reshuffle(game_player)
+	return current_game.do_reshuffle(game_player, infusion_cost)
 
 func submit_choice(player : Enums.PlayerId, choice_index : int) -> bool:
 	var game_player = _get_player(player)
@@ -685,9 +685,9 @@ func submit_pay_strike_cost(
 		spent_life_for_gauge
 	)
 
-func submit_exceed(player : Enums.PlayerId, card_ids : Array, spent_life_for_gauge : int = 0) -> bool:
+func submit_exceed(player : Enums.PlayerId, card_ids : Array, spent_life_for_gauge : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_exceed(game_player, card_ids, spent_life_for_gauge)
+	return current_game.do_exceed(game_player, card_ids, spent_life_for_gauge, infusion_cost)
 
 func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location : int,
 		use_free_force : bool, spent_life_for_force : int, infusion_cost : InfusionCost) -> bool:
@@ -695,9 +695,9 @@ func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location :
 	return current_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force, infusion_cost)
 
 func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool,
-		use_free_force : bool, spent_life_for_force : int) -> bool:
+		use_free_force : bool, spent_life_for_force : int, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force)
+	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force, infusion_cost)
 
 func submit_strike(
 	player : Enums.PlayerId,
@@ -720,10 +720,10 @@ func submit_mulligan(player : Enums.PlayerId, card_ids : Array) -> bool:
 
 func submit_boost(player : Enums.PlayerId, card_id : int, payment_card_ids,
 		use_free_force : bool, spent_life_for_force : int, additional_boost_ids : Array = [],
-		facedown_override = null) -> bool:
+		facedown_override = null, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_boost(game_player, card_id, payment_card_ids, use_free_force,
-		spent_life_for_force, additional_boost_ids, facedown_override)
+		spent_life_for_force, additional_boost_ids, facedown_override, infusion_cost)
 
 # Renea reveals her face-down continuous boosts (and resolves their Now effects)
 # right before she sets her attack. In online games this has to travel as its own

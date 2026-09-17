@@ -10513,6 +10513,9 @@ func handle_infusion(performing_player : Player, infusion_cost : InfusionCost) -
 
 	performing_player.infused = true
 	_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is Infused!")
+	
+	# TODO: investigate but where boosts like akimo quickstep don't get infused bonus action after doing this
+	
 	create_event(Enums.EventType.EventType_Strike_Infuse, performing_player.my_id, -1, "Infused")
 	return true
 	
@@ -10613,11 +10616,16 @@ func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 	start_end_turn()
 	return true
 
-func do_reshuffle(performing_player : Player) -> bool:
+func do_reshuffle(performing_player : Player, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: RESHUFFLE by %s" % [performing_player.name])
 	if not can_do_reshuffle(performing_player):
 		printlog("ERROR: Tried to reshuffle but can't.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Manual Reshuffle")
 	performing_player.reshuffle_discard(true)
@@ -10690,11 +10698,16 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 		continue_player_action_resolution(performing_player)
 	return true
 
-func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool, use_free_force : bool = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: CHANGE_CARDS by %s - %s" % [performing_player.name, card_ids])
 	if not can_do_change(performing_player):
 		printlog("ERROR: Cannot do change action for this player.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	var has_card_from_gauge = false
 	for id in card_ids:
@@ -10753,14 +10766,21 @@ func do_change(performing_player : Player, card_ids, treat_ultras_as_single_forc
 
 	return true
 
-func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gauge : int = 0) -> bool:
+func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gauge : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: EXCEED by %s - %s" % [performing_player.name, card_ids])
+	
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to exceed but not in correct game state.")
 		return false
 	if performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to exceed for wrong player.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
+		
 	for id in card_ids:
 		if not performing_player.is_card_in_gauge(id):
 			# Card not found, error
@@ -10811,7 +10831,8 @@ func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gaug
 		active_exceed = true
 	return true
 
-func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = [], use_free_force = false, spent_life_for_force : int = 0, additional_boost_ids : Array = [], facedown_override = null) -> bool:
+func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = [], use_free_force = false,
+		spent_life_for_force : int = 0, additional_boost_ids : Array = [], facedown_override = null, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: BOOST by %s - %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id)])
 	if game_state != Enums.GameState.GameState_PickAction or performing_player.my_id != active_turn_player:
 		if not wait_for_mid_strike_boost():
@@ -10819,6 +10840,11 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			assert(false)
 			return false
 
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
+			
 	var card = card_db.get_card(card_id)
 	if card == null:
 		printlog("ERROR: Tried to boost a card that does not exist (id %s)." % card_id)

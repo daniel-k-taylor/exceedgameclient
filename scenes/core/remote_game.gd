@@ -249,17 +249,19 @@ func process_prepare(action_message) -> void:
 	var infusion_cost = action_message['infusion_cost']
 	local_game.do_prepare(game_player, infusion_cost)
 
-func do_reshuffle(player : Player) -> bool:
+func do_reshuffle(player : Player, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
 		'action_type': 'action_reshuffle',
 		'player_id': _get_player_remote_id(player),
+		'infusion_cost': infusion_cost
 	}
 	_submit_game_message(action_message)
 	return true
 
 func process_reshuffle(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
-	local_game.do_reshuffle(game_player)
+	var infusion_cost = action_message['infusion_cost']
+	local_game.do_reshuffle(game_player, infusion_cost)
 
 func do_choice(player : Player, choice_index : int) -> bool:
 	var action_message = {
@@ -370,12 +372,13 @@ func process_pay_strike_cost(action_message) -> void:
 	var spent_life_for_gauge = action_message.get('spent_life_for_gauge', 0)
 	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force, pay_alternative_life_cost, spent_life_for_gauge)
 
-func do_exceed(player : Player, card_ids : Array, spent_life_for_gauge : int = 0) -> bool:
+func do_exceed(player : Player, card_ids : Array, spent_life_for_gauge : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
 		'action_type': 'action_exceed',
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 		'spent_life_for_gauge': spent_life_for_gauge,
+		'infusion_cost': infusion_cost
 	}
 	_submit_game_message(action_message)
 	return true
@@ -384,7 +387,8 @@ func process_exceed(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	var spent_life_for_gauge = action_message.get('spent_life_for_gauge', 0)
-	local_game.do_exceed(game_player, card_ids, spent_life_for_gauge)
+	var infusion_cost = action_message['infusion_cost']
+	local_game.do_exceed(game_player, card_ids, spent_life_for_gauge, infusion_cost)
 
 func do_move(player : Player, card_ids : Array, new_arena_location : int, use_free_force : bool = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
@@ -411,7 +415,7 @@ func process_move(action_message) -> void:
 	local_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force, infusion_cost)
 
 func do_change(player : Player, card_ids : Array, treat_ultras_as_single_force : bool,
-		use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+		use_free_force : bool = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
 		'action_type': 'action_change',
 		'player_id': _get_player_remote_id(player),
@@ -420,6 +424,7 @@ func do_change(player : Player, card_ids : Array, treat_ultras_as_single_force :
 		'use_free_force': use_free_force,
 		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
+		'infusion_cost': infusion_cost
 	}
 	_submit_game_message(action_message)
 	return true
@@ -431,7 +436,8 @@ func process_change(action_message) -> void:
 	var use_free_force = action_message['use_free_force']
 	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
-	local_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force)
+	var infusion_cost = action_message['infusion_cost']
+	local_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force, infusion_cost)
 
 func do_strike(player : Player, card_id : int, wild_strike: bool, ex_card_id : int,
 		opponent_sets_first : bool = false, use_face_attack : bool = false) -> bool:
@@ -492,7 +498,7 @@ func process_mulligan(action_message) -> void:
 
 func do_boost(player : Player, card_id : int, payment_card_ids = [],
 		use_free_force : bool = false, spent_life_for_force : int = 0, additional_boost_ids = [],
-		facedown_override = null) -> bool:
+		facedown_override = null, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
 		'action_type': 'action_boost',
 		'player_id': _get_player_remote_id(player),
@@ -503,7 +509,8 @@ func do_boost(player : Player, card_id : int, payment_card_ids = [],
 		'spent_life_for_force': spent_life_for_force,
 		'additional_boost_ids': additional_boost_ids,
 		# Renea places continuous boosts face-down; null means "use the default".
-		'facedown_override': facedown_override
+		'facedown_override': facedown_override,
+		'infusion_cost': infusion_cost
 	}
 	_submit_game_message(action_message)
 	return true
@@ -517,8 +524,9 @@ func process_boost(action_message) -> void:
 	var spent_life_for_force = action_message['spent_life_for_force']
 	var additional_boost_ids = action_message['additional_boost_ids']
 	var facedown_override = action_message.get('facedown_override')
+	var infusion_cost = action_message['infusion_cost']
 	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force,
-		additional_boost_ids, facedown_override)
+		additional_boost_ids, facedown_override, infusion_cost)
 
 func do_cancel_tournelouse_transform_bonus_choice(player : Player) -> bool:
 	_submit_game_message({
