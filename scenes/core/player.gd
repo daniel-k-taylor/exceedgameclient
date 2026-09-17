@@ -409,6 +409,8 @@ var non_exceed_overdrive_active : bool
 var spent_gauge_this_turn : bool
 var infused : bool
 var cannot_draw : int
+var can_infuse : bool
+var spend_life_to_infuse_amount : int
 
 func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 	my_id = id
@@ -577,6 +579,8 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	spent_gauge_this_turn = false
 	infused = false
 	cannot_draw = 0
+	can_infuse = deck_def.get('can_infuse', false)
+	spend_life_to_infuse_amount = deck_def.get('spend_life_to_infuse_amount', 0)
 
 	if "buddy_cards" in deck_def:
 		var buddy_index = 0

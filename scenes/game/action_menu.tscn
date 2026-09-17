@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dal56iqk5k8rh"]
+[gd_scene format=3 uid="uid://dal56iqk5k8rh"]
 
 [ext_resource type="Script" uid="uid://cxeq7pacqen40" path="res://scenes/game/action_menu.gd" id="1_lxy8k"]
 [ext_resource type="Texture2D" uid="uid://dbohb8bxokjln" path="res://assets/icons/eye_show.png" id="2_f4rxt"]
@@ -20,7 +20,7 @@ border_color = Color(0.0784314, 0.0784314, 0.0784314, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_yjcu6"]
 
-[node name="ActionMenu" type="PanelContainer"]
+[node name="ActionMenu" type="PanelContainer" unique_id=1348995659]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -33,7 +33,7 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_cmck5")
 script = ExtResource("1_lxy8k")
 
-[node name="OuterMargin" type="MarginContainer" parent="."]
+[node name="OuterMargin" type="MarginContainer" parent="." unique_id=232966974]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
@@ -42,23 +42,23 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="MainVBox" type="VBoxContainer" parent="OuterMargin"]
+[node name="MainVBox" type="VBoxContainer" parent="OuterMargin" unique_id=554870754]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="OuterMargin/MainVBox"]
+[node name="PanelContainer" type="PanelContainer" parent="OuterMargin/MainVBox" unique_id=435952594]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_hwdeh")
 
-[node name="InstructionHBox" type="HBoxContainer" parent="OuterMargin/MainVBox/PanelContainer"]
+[node name="InstructionHBox" type="HBoxContainer" parent="OuterMargin/MainVBox/PanelContainer" unique_id=687002960]
 layout_mode = 2
 alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox" unique_id=1585894891]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 
-[node name="InstructionsLabel" type="RichTextLabel" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
+[node name="InstructionsLabel" type="RichTextLabel" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox" unique_id=1409445151]
 clip_contents = false
 layout_mode = 2
 size_flags_vertical = 4
@@ -70,142 +70,151 @@ fit_content = true
 scroll_active = false
 autowrap_mode = 0
 
-[node name="MarginContainer2" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
+[node name="MarginContainer2" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox" unique_id=240127867]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 
-[node name="ShowHideHBox" type="HBoxContainer" parent="OuterMargin/MainVBox/PanelContainer"]
+[node name="ShowHideHBox" type="HBoxContainer" parent="OuterMargin/MainVBox/PanelContainer" unique_id=416649230]
 layout_mode = 2
 alignment = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox" unique_id=1876309840]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer" unique_id=242667425]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="ShowImage" type="TextureRect" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer"]
+[node name="ShowImage" type="TextureRect" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer" unique_id=1029670923]
 visible = false
 layout_mode = 2
 texture = ExtResource("2_f4rxt")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="HideImage" type="TextureRect" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer"]
+[node name="HideImage" type="TextureRect" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer" unique_id=1615332262]
 layout_mode = 2
 texture = ExtResource("3_87etl")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="ShowHideButton" type="TextureButton" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer"]
+[node name="ShowHideButton" type="TextureButton" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer" unique_id=685335745]
 layout_mode = 2
 texture_pressed = ExtResource("4_m7dp2")
 texture_hover = ExtResource("5_57fb7")
 ignore_texture_size = true
 stretch_mode = 4
 
-[node name="Spacing" type="MarginContainer" parent="OuterMargin/MainVBox"]
+[node name="Spacing" type="MarginContainer" parent="OuterMargin/MainVBox" unique_id=533253430]
 layout_mode = 2
 
-[node name="CheckHBox3" type="HBoxContainer" parent="OuterMargin/MainVBox"]
+[node name="CheckHBox3" type="HBoxContainer" parent="OuterMargin/MainVBox" unique_id=1169770265]
 layout_mode = 2
 alignment = 2
 
-[node name="FreeForceOptionCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox3"]
+[node name="FreeForceOptionCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox3" unique_id=524030966]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Use free generated force"
 
-[node name="CheckHBox" type="HBoxContainer" parent="OuterMargin/MainVBox"]
+[node name="CheckHBox" type="HBoxContainer" parent="OuterMargin/MainVBox" unique_id=1780588358]
 layout_mode = 2
 alignment = 2
 
-[node name="UltrasForceOptionCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox"]
+[node name="UltrasForceOptionCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox" unique_id=1180238299]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Ultras as 1 force"
 
-[node name="CheckHBox2" type="HBoxContainer" parent="OuterMargin/MainVBox"]
+[node name="CheckHBox2" type="HBoxContainer" parent="OuterMargin/MainVBox" unique_id=2041028412]
 layout_mode = 2
 alignment = 2
 
-[node name="ExDiscardOrderCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox2"]
+[node name="ExDiscardOrderCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox2" unique_id=933589827]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Discard EX copy before paying cost"
 
-[node name="NumberSelectionPanel" type="PanelContainer" parent="OuterMargin/MainVBox"]
+[node name="CheckHBox4" type="HBoxContainer" parent="OuterMargin/MainVBox" unique_id=681085001]
+layout_mode = 2
+alignment = 2
+
+[node name="DontAskInfuseCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox4" unique_id=570612525]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Don't ask for this action this game"
+
+[node name="NumberSelectionPanel" type="PanelContainer" parent="OuterMargin/MainVBox" unique_id=743390207]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_yjcu6")
 
-[node name="Hbox" type="HBoxContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel"]
+[node name="Hbox" type="HBoxContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel" unique_id=639044973]
 layout_mode = 2
 theme_override_constants/separation = 30
 alignment = 1
 
-[node name="MinusButtonContainer" type="MarginContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox"]
+[node name="MinusButtonContainer" type="MarginContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox" unique_id=1669327589]
 layout_mode = 2
 
-[node name="MinusImage" type="TextureRect" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer"]
+[node name="MinusImage" type="TextureRect" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer" unique_id=208167614]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 texture = ExtResource("6_wqqul")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="MinusButton" type="TextureButton" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer"]
+[node name="MinusButton" type="TextureButton" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer" unique_id=924306632]
 layout_mode = 2
 texture_pressed = ExtResource("4_m7dp2")
 texture_hover = ExtResource("5_57fb7")
 ignore_texture_size = true
 stretch_mode = 4
 
-[node name="NumberLabel" type="Label" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox"]
+[node name="NumberLabel" type="Label" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox" unique_id=974221321]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "#"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PlusButtonContainer" type="MarginContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox"]
+[node name="PlusButtonContainer" type="MarginContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox" unique_id=570004256]
 layout_mode = 2
 
-[node name="PlusImage" type="TextureRect" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer"]
+[node name="PlusImage" type="TextureRect" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer" unique_id=581725751]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 texture = ExtResource("7_uju7x")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="PlusButton" type="TextureButton" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer"]
+[node name="PlusButton" type="TextureButton" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer" unique_id=1391883484]
 layout_mode = 2
 texture_pressed = ExtResource("4_m7dp2")
 texture_hover = ExtResource("5_57fb7")
 ignore_texture_size = true
 stretch_mode = 4
 
-[node name="ChoiceButtons" type="GridContainer" parent="OuterMargin/MainVBox"]
+[node name="ChoiceButtons" type="GridContainer" parent="OuterMargin/MainVBox" unique_id=1489380456]
 layout_mode = 2
 size_flags_vertical = 2
 theme_override_constants/h_separation = 40
 theme_override_constants/v_separation = 15
 
-[node name="Choice0" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice0" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=16466491]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice0"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice0" unique_id=456532763]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice0"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice0" unique_id=539040557]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -213,7 +222,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice0/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice0/MarginContainer" unique_id=1015296728]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -227,17 +236,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice1" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice1" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=1499291226]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice1"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice1" unique_id=1907897996]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice1"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice1" unique_id=1822022796]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -245,7 +254,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice1/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice1/MarginContainer" unique_id=7400250]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -259,17 +268,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice2" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice2" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=975890210]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice2"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice2" unique_id=1752530121]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice2"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice2" unique_id=1880254672]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -277,7 +286,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice2/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice2/MarginContainer" unique_id=962811273]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -290,17 +299,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice3" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice3" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=395481279]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice3"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice3" unique_id=1080531784]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice3"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice3" unique_id=837068366]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -308,7 +317,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice3/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice3/MarginContainer" unique_id=1840002610]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -321,17 +330,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice4" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice4" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=1935920897]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice4"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice4" unique_id=2033036165]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice4"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice4" unique_id=1003607290]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -339,7 +348,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice4/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice4/MarginContainer" unique_id=771406475]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -352,17 +361,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice5" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice5" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=11484229]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice5"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice5" unique_id=1041648388]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice5"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice5" unique_id=1702504185]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -370,7 +379,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice5/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice5/MarginContainer" unique_id=1879989649]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -383,17 +392,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice6" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice6" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=923700082]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice6"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice6" unique_id=1592302173]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice6"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice6" unique_id=431343822]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -401,7 +410,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice6/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice6/MarginContainer" unique_id=62937442]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -414,17 +423,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice7" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice7" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=214893366]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice7"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice7" unique_id=1569489651]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice7"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice7" unique_id=263758206]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -432,7 +441,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice7/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice7/MarginContainer" unique_id=1417937802]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -445,17 +454,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice8" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice8" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=1318832456]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice8"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice8" unique_id=1827986365]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice8"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice8" unique_id=2075308184]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -463,7 +472,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice8/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice8/MarginContainer" unique_id=1300163804]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -476,17 +485,17 @@ scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
 
-[node name="Choice9" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice9" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons" unique_id=1934373941]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice9"]
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice9" unique_id=1488239486]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice9"]
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons/Choice9" unique_id=1281201724]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 6
@@ -494,7 +503,7 @@ theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 
-[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice9/MarginContainer"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice9/MarginContainer" unique_id=448182059]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -511,6 +520,7 @@ shortcut_keys_enabled = false
 [connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox3/FreeForceOptionCheck" to="." method="_on_free_force_check_toggled"]
 [connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck" to="." method="_on_ultras_force_option_check_toggled"]
 [connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck" to="." method="_on_ex_discard_order_check_toggled"]
+[connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox4/DontAskInfuseCheck" to="." method="_on_dont_ask_infuse_check_toggled"]
 [connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer/MinusButton" to="." method="_on_minus_button_pressed"]
 [connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer/PlusButton" to="." method="_on_plus_button_pressed"]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice0/Button" to="." method="_on_choice_pressed" binds= [0]]

@@ -2,6 +2,8 @@
 	"id": "akimo",
 	"season": 8,
 	"display_name": "Akimo (9/8 test)",
+	"can_infuse": true,
+	"spend_life_to_infuse_amount": 2,
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,

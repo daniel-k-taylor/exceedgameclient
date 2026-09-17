@@ -559,6 +559,18 @@ func can_player_boost(player_id : Enums.PlayerId,
 		var force_available = get_player_available_force(player_id) - boosting_card_force_value
 		return force_cost <= force_available
 
+func can_player_infuse(player_id: Enums.PlayerId) -> bool:
+	var player = _get_player(player_id)
+	if player.can_infuse and not player.is_infused():
+		if player.spend_life_to_infuse_amount > 0 and player.life > player.spend_life_to_infuse_amount:
+			return true
+		return get_player_available_gauge(player_id) > 0
+	return false
+
+func get_player_life_to_infuse_amount(player_id: Enums.PlayerId) -> int:
+	var player = _get_player(player_id)
+	return player.spend_life_to_infuse_amount
+
 func player_treats_card_as_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
 	var card = current_game.get_card_database().get_card(card_id)
 	if card == null:
