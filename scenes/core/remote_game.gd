@@ -681,7 +681,7 @@ func process_choose_to_discard(action_message) -> void:
 	local_game.do_choose_to_discard(game_player, card_ids)
 
 func do_character_action(player : Player, card_ids : Array, action_idx : int = 0,
-		use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+		use_free_force : bool = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
 		'action_type': 'action_character_action',
 		'player_id': _get_player_remote_id(player),
@@ -690,6 +690,7 @@ func do_character_action(player : Player, card_ids : Array, action_idx : int = 0
 		'use_free_force': use_free_force,
 		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
+		'infusion_cost': infusion_cost
 	}
 	_submit_game_message(action_message)
 	return true
@@ -701,7 +702,8 @@ func process_character_action(action_message) -> void:
 	var use_free_force = action_message['use_free_force']
 	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
-	local_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force)
+	var infusion_cost = action_message['infusion_cost']
+	local_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force, infusion_cost)
 
 func do_bonus_turn_action(player : Player, action_index : int) -> bool:
 	var action_message = {

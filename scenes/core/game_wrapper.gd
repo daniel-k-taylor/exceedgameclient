@@ -793,9 +793,10 @@ func submit_character_action(player: Enums.PlayerId,
 	card_ids : Array,
 	action_idx : int = 0,
 	use_free_force = false,
-	spent_life_for_force : int = 0) -> bool:
+	spent_life_for_force : int = 0,
+	infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force)
+	return current_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force, infusion_cost)
 
 func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> bool:
 	var game_player = _get_player(player)

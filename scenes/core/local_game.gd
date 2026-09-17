@@ -12712,7 +12712,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	continue_player_action_resolution(performing_player)
 	return true
 
-func do_character_action(performing_player : Player, card_ids, action_idx : int = 0, use_free_force = false, spent_life_for_force : int = 0):
+func do_character_action(performing_player : Player, card_ids, action_idx : int = 0, use_free_force = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null):
 	printlog("MainAction: CHARACTER_ACTION %s by %s" % [str(action_idx), get_player_name(performing_player.my_id)])
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to character action but not in correct game state.")
@@ -12721,6 +12721,11 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 	if performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to character action but not current player")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	var action = performing_player.get_character_action(action_idx)
 	var force_cost = action['force_cost']

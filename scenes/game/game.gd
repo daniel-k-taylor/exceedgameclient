@@ -5010,7 +5010,10 @@ func _update_buttons(no_number_picker_update : bool = false):
 					additional_text += " (%s Force)" % force_cost
 				if gauge_cost > 0:
 					additional_text += " (%s Gauge)" % gauge_cost
-				button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": not action_possible })
+				var wrapped_char_action = func(): _on_character_action_pressed(i)
+				if not char_action.get('requires_not_infused', false):
+					wrapped_char_action = _wrap_with_show_infusion_decision_before_action(wrapped_char_action, action_name)
+				button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": wrapped_char_action, "disabled": not action_possible })
 			var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
 			for i in range(bonus_available_actions.size()):
 				var bonus_action = bonus_available_actions[i]
@@ -6200,6 +6203,10 @@ func _on_bonus_action_pressed(index : int):
 	_update_buttons()
 
 func _on_character_action_pressed(action_idx : int = 0):
+	infusion_decision_return = null
+	infusion_decision_return_tag = null
+	infusion_shortcut_selections_return = []
+	
 	var character_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, action_idx)
 	if not character_action:
 		assert(false, "Character action button should not be visible")
@@ -6390,7 +6397,9 @@ func finish_preparing_character_action(selections):
 
 func complete_character_action_pressed(action_idx : int = 0):
 	preparing_character_action = false
-	var success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [], action_idx, use_free_force)
+	var infusion_cost = stored_infusion_cost
+	stored_infusion_cost = null
+	var success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [], action_idx, use_free_force, 0, infusion_cost)
 	if success:
 		popout_instruction_info = null
 		change_ui_state(UIState.UIState_WaitForGameServer)
@@ -6515,7 +6524,9 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 				success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_CharacterAction_Force, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
-				success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_character_action, use_free_force)
+				var infusion_cost = stored_infusion_cost
+				stored_infusion_cost = null
+				success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_character_action, use_free_force, 0, infusion_cost)
 			UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 				select_card_name_boost_restriction = ""
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id)
