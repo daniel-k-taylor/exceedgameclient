@@ -2,6 +2,7 @@
 	"id": "heraal",
 	"season": 8,
 	"display_name": "Heraal (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "strike"

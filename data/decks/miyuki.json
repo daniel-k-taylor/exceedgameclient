@@ -2,6 +2,7 @@
 	"id": "miyuki",
 	"season": 8,
 	"display_name": "Miyuki (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 0,

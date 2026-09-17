@@ -2,6 +2,7 @@
 	"id": "zacoal",
 	"season": 8,
 	"display_name": "Zacoal (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 3,
 	"has_sealed_area": true,
 	"delayed_wild_strike": true,

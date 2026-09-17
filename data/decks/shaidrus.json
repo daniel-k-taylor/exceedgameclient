@@ -2,6 +2,7 @@
 	"id": "shaidrus",
 	"season": 8,
 	"display_name": "Shaidrus (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "choose_discard",

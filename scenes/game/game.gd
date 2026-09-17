@@ -212,6 +212,7 @@ var preparing_character_action = false
 var prepared_character_action_data = {}
 var infusion_decision_return = null
 var infusion_decision_return_tag = ""
+var infusion_decision_required = false
 var stored_infusion_cost = null
 var infusion_shortcut_selections_return = []
 var infusion_prompt_skip_actions = []
@@ -3878,10 +3879,12 @@ func begin_gauge_selection(
 	var cancel_allowed = false
 	match sub_state:
 		UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel, \
-		UISubState.UISubState_SelectCards_CharacterAction_Gauge, UISubState.UISubState_SelectCards_GaugeForBoost, UISubState.UISubState_SelectCards_InfusionBeforeAction:
+		UISubState.UISubState_SelectCards_CharacterAction_Gauge, UISubState.UISubState_SelectCards_GaugeForBoost:
 			cancel_allowed = true
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			cancel_allowed = select_card_require_min == 0 or preparing_character_action
+		UISubState.UISubState_SelectCards_InfusionBeforeAction:
+			cancel_allowed = not infusion_decision_required
 	var strike_options = {
 		"wild_swing_allowed": wild_swing_allowed,
 	}
@@ -5012,14 +5015,16 @@ func _update_buttons(no_number_picker_update : bool = false):
 					additional_text += " (%s Gauge)" % gauge_cost
 				var wrapped_char_action = func(): _on_character_action_pressed(i)
 				if not char_action.get('requires_not_infused', false):
-					wrapped_char_action = _wrap_with_show_infusion_decision_before_action(wrapped_char_action, action_name)
+					var requires_infused = char_action.get('requires_infused', false)
+					wrapped_char_action = _wrap_with_show_infusion_decision_before_action(wrapped_char_action, action_name, false, requires_infused)
 				button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": wrapped_char_action, "disabled": not action_possible })
 			var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
 			for i in range(bonus_available_actions.size()):
 				var bonus_action = bonus_available_actions[i]
 				var action_text = bonus_action.get('text', "Special Action")
 				var bonus_index = i
-				button_choices.append({ "text": action_text, "action": func(): _on_bonus_action_pressed(bonus_index), "disabled": false })
+				var wrapped_bonus_action = _wrap_with_show_infusion_decision_before_action(func(): _on_bonus_action_pressed(bonus_index), action_text)
+				button_choices.append({ "text": action_text, "action": wrapped_bonus_action, "disabled": false })
 		else:
 			var card_db = game_wrapper.get_card_database()
 			var card_name = "these cards"
@@ -5193,16 +5198,15 @@ func _update_buttons(no_number_picker_update : bool = false):
 
 				if action_has_shortcut:
 					var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
+					var action_label = char_action.get('action_name', "Character Action")
 					if not skip_effect_addon:
-						if 'action_name' in char_action:
-							action_name += char_action['action_name']
-						else:
-							action_name += "Character Action"
+						action_name += action_label
 					var force_cost = char_action['force_cost']
 					var gauge_cost = char_action['gauge_cost']
+					var wrapped_shortcut_character_action = _wrap_with_show_infusion_decision_before_action(func(): _on_shortcut_character_action_pressed(i), action_label, true)
 					# NOTE: at the moment shortcuts aren't used for any effects with a cost, may not behave properly otherwise
 					assert(force_cost == 0 and gauge_cost == 0)
-					button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not shortcut_condition_met })
+					button_choices.append({ "text": action_name, "action": wrapped_shortcut_character_action, "disabled": not action_possible or not shortcut_condition_met })
 
 			var shortcut_change_action = _wrap_with_show_infusion_decision_before_action(_on_shortcut_change_pressed, "Change Cards", true)
 			button_choices.append({ "text": "Change Cards", "action": shortcut_change_action, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) or not allow_change_cards })
@@ -5375,7 +5379,8 @@ func _update_buttons(no_number_picker_update : bool = false):
 	# Allow players to not be asked about infusing before specific actions
 	var dont_ask_infuse_toggle = false
 	if ui_sub_state == UISubState.UISubState_SelectCards_InfusionBeforeAction:
-		dont_ask_infuse_toggle = true
+		if not infusion_decision_required:
+			dont_ask_infuse_toggle = true
 		button_choices.append({ "text": "Cancel", "action": _on_infuse_prompt_cancel })
 
 	# Set the Action Menu state
@@ -5941,18 +5946,21 @@ func _show_skipped_character_action_confirmation(action: Callable) -> void:
 	)
 	action_menu.visible = true
 	
-func _wrap_with_show_infusion_decision_before_action(action: Callable, action_tag: String, save_selections: bool = false) -> Callable:
+func _wrap_with_show_infusion_decision_before_action(action: Callable, action_tag: String,
+		save_selections: bool = false, require_infuse : bool = false) -> Callable:
 	if game_wrapper.can_player_infuse(Enums.PlayerId.PlayerId_Player) and action_tag not in infusion_prompt_skip_actions:
-		return func(): _show_infusion_decision_before_action(action, action_tag, save_selections)
+		return func(): _show_infusion_decision_before_action(action, action_tag, save_selections, require_infuse)
 	return action
 	
-func _show_infusion_decision_before_action(action: Callable, action_tag: String, save_selections: bool) -> void:
+func _show_infusion_decision_before_action(action: Callable, action_tag: String, save_selections: bool, require_infuse : bool) -> void:
 	infusion_decision_return = action
 	infusion_decision_return_tag = action_tag
+	infusion_decision_required = require_infuse
 	if save_selections:
 		infusion_shortcut_selections_return = selected_cards.duplicate()
 	
 	deselect_all_cards()
+	action_menu.set_dont_ask_infuse_check(false)
 	var life_to_infuse_amount = game_wrapper.get_player_life_to_infuse_amount(Enums.PlayerId.PlayerId_Player)
 	begin_gauge_selection(1, false, UISubState.UISubState_SelectCards_InfusionBeforeAction, false, false, life_to_infuse_amount)
 
@@ -5967,6 +5975,7 @@ func _on_prepare_button_pressed():
 	stored_infusion_cost = null
 	infusion_decision_return = null
 	infusion_decision_return_tag = null
+	infusion_decision_required = false
 	infusion_shortcut_selections_return = []
 	
 	var success = game_wrapper.submit_prepare(Enums.PlayerId.PlayerId_Player, infusion_cost)
@@ -5978,6 +5987,7 @@ func _on_prepare_button_pressed():
 func _on_move_button_pressed():
 	infusion_decision_return = null
 	infusion_decision_return_tag = null
+	infusion_decision_required = false
 	infusion_shortcut_selections_return = []
 	
 	var valid_moves = []
@@ -5990,6 +6000,7 @@ func _on_move_button_pressed():
 func _on_change_button_pressed():
 	infusion_decision_return = null
 	infusion_decision_return_tag = null
+	infusion_decision_required = false
 	infusion_shortcut_selections_return = []
 	
 	change_ui_state(null, UISubState.UISubState_SelectCards_ForceForChange)
@@ -5998,6 +6009,7 @@ func _on_change_button_pressed():
 func _on_exceed_button_pressed():
 	infusion_decision_return = null
 	infusion_decision_return_tag = null
+	infusion_decision_required = false
 	infusion_shortcut_selections_return = []
 	
 	begin_gauge_selection(game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player), false, UISubState.UISubState_SelectCards_Exceed)
@@ -6007,6 +6019,7 @@ func _on_reshuffle_button_pressed():
 	stored_infusion_cost = null
 	infusion_decision_return = null
 	infusion_decision_return_tag = null
+	infusion_decision_required = false
 	infusion_shortcut_selections_return = []
 	
 	var success = game_wrapper.submit_reshuffle(Enums.PlayerId.PlayerId_Player, infusion_cost)
@@ -6017,6 +6030,7 @@ func _on_reshuffle_button_pressed():
 func _on_boost_button_pressed():
 	infusion_decision_return = null
 	infusion_decision_return_tag = null
+	infusion_decision_required = false
 	infusion_shortcut_selections_return = []
 	
 	var valid_zones = ['hand']
@@ -6198,13 +6212,16 @@ func _restore_local_player_decision_ui(decision_info) -> bool:
 	return false
 
 func _on_bonus_action_pressed(index : int):
-	game_wrapper.submit_bonus_turn_action(Enums.PlayerId.PlayerId_Player, index)
+	var infusion_cost = stored_infusion_cost
+	stored_infusion_cost = null
+	game_wrapper.submit_bonus_turn_action(Enums.PlayerId.PlayerId_Player, index, infusion_cost)
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
 
 func _on_character_action_pressed(action_idx : int = 0):
 	infusion_decision_return = null
 	infusion_decision_return_tag = null
+	infusion_decision_required = false
 	infusion_shortcut_selections_return = []
 	
 	var character_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, action_idx)
@@ -6677,7 +6694,8 @@ func _on_infuse_prompt_cancel() -> void:
 	close_popout()
 	stored_infusion_cost = null
 	infusion_decision_return = null
-	infusion_decision_return_tag = ""
+	infusion_decision_return_tag = null
+	infusion_decision_required = false
 	infusion_shortcut_selections_return = []
 	change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 	_update_buttons()

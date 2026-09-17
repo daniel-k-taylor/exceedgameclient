@@ -705,11 +705,12 @@ func process_character_action(action_message) -> void:
 	var infusion_cost = action_message['infusion_cost']
 	local_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force, infusion_cost)
 
-func do_bonus_turn_action(player : Player, action_index : int) -> bool:
+func do_bonus_turn_action(player : Player, action_index : int, infusion_cost : InfusionCost = null) -> bool:
 	var action_message = {
 		'action_type': 'action_bonus_action',
 		'player_id': _get_player_remote_id(player),
 		'action_index': action_index,
+		'infusion_cost': infusion_cost
 	}
 	_submit_game_message(action_message)
 	return true
@@ -717,7 +718,8 @@ func do_bonus_turn_action(player : Player, action_index : int) -> bool:
 func process_bonus_action(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var action_index = action_message['action_index']
-	local_game.do_bonus_turn_action(game_player, action_index)
+	var infusion_cost = action_message['infusion_cost']
+	local_game.do_bonus_turn_action(game_player, action_index, infusion_cost)
 
 func do_choose_from_topdeck(player : Player, card_id : int, action : String) -> bool:
 	var action_message = {

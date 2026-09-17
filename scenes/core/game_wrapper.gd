@@ -798,9 +798,9 @@ func submit_character_action(player: Enums.PlayerId,
 	var game_player = _get_player(player)
 	return current_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force, infusion_cost)
 
-func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> bool:
+func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_bonus_turn_action(game_player, action_index)
+	return current_game.do_bonus_turn_action(game_player, action_index, infusion_cost)
 
 func submit_choose_from_topdeck(player: Enums.PlayerId, card_id : int, action : String) -> bool:
 	var game_player = _get_player(player)

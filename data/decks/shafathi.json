@@ -2,6 +2,7 @@
 	"id": "shafathi",
 	"season": 8,
 	"display_name": "Shafathi (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 2,
 	"buddy_cards": [
 		"scheme1",

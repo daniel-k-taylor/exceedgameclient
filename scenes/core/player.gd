@@ -2114,7 +2114,9 @@ func can_do_character_action(action_index : int) -> bool:
 			return false
 			
 	if 'requires_infused' in action and action['requires_infused']:
-		if not is_infused(): return false
+		if not is_infused():
+			# allow if you can pay for infusion
+			return get_available_gauge() > 0 or (spend_life_to_infuse_amount > 0 and life > spend_life_to_infuse_amount)
 	if 'requires_not_infused' in action and action['requires_not_infused']:
 		if is_infused(): return false
 

@@ -2,6 +2,7 @@
 	"id": "kohai",
 	"season": 8,
 	"display_name": "Kohai (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,

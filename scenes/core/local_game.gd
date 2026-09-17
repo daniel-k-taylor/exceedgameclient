@@ -12769,7 +12769,7 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 		active_character_action = false
 	return true
 
-func do_bonus_turn_action(performing_player : Player, action_index : int):
+func do_bonus_turn_action(performing_player : Player, action_index : int, infusion_cost : InfusionCost = null):
 	printlog("MainAction: BONUS_ACTION by %s" % [get_player_name(performing_player.my_id)])
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to bonus action but not in correct game state.")
@@ -12778,7 +12778,12 @@ func do_bonus_turn_action(performing_player : Player, action_index : int):
 	if performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to bonus action but not current player")
 		return false
-
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
+			
 	var actions = performing_player.get_bonus_actions()
 	if action_index >= len(actions):
 		printlog("ERROR: Tried to bonus action with invalid index.")

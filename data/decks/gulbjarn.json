@@ -2,6 +2,7 @@
 	"id": "gulbjarn",
 	"season": 8,
 	"display_name": "Gulbjarn (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 2,
 	"character_action_default": [{
 		"gauge_cost": 0,

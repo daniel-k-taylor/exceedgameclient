@@ -2,6 +2,7 @@
 	"id": "khepiax",
 	"season": 8,
 	"display_name": "Khepiax (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "add_hand_to_gauge",
