@@ -10514,8 +10514,6 @@ func handle_infusion(performing_player : Player, infusion_cost : InfusionCost) -
 	performing_player.infused = true
 	_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is Infused!")
 	
-	# TODO: investigate but where boosts like akimo quickstep don't get infused bonus action after doing this
-	
 	create_event(Enums.EventType.EventType_Strike_Infuse, performing_player.my_id, -1, "Infused")
 	return true
 	

@@ -6946,7 +6946,9 @@ func _on_shortcut_boost_pressed():
 		# Tournelouse's normals transform on their own, without a second copy.
 		if logic_card.definition['boost']['boost_type'] == "transform":
 			ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, card_id)
-		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [ex_transform_id], false, 0)
+		var infusion_cost = stored_infusion_cost
+		stored_infusion_cost = null
+		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [ex_transform_id], false, 0, [], null, infusion_cost)
 	else:
 		var gauge_cost = game_wrapper.get_card_database().get_card_boost_gauge_cost(card_id)
 		var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
@@ -6977,7 +6979,9 @@ func _on_shortcut_boost_pressed():
 			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 			begin_generate_force_selection(force_cost, true, false, false, true)
 		else:
-			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force, 0, [], facedown_override)
+			var infusion_cost = stored_infusion_cost
+			stored_infusion_cost = null
+			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force, 0, [], facedown_override, infusion_cost)
 
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
