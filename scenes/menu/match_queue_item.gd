@@ -42,7 +42,9 @@ func set_match_available(match_available : bool):
 	join_button.visible = not match_available
 	play_button.visible = match_available
 	play_container.visible = match_available
-	waiting_character_label.visible = match_available and waiting_character_label.text != ""
+	
+	# Queues displaying their character has been disabled; if needed, it was set to ``match_available and waiting_character_label.text != ""``
+	waiting_character_label.visible = false
 
 func _set_waiting_character(waiting_character) -> void:
 	var display_name = _resolve_waiting_character_name(waiting_character)
