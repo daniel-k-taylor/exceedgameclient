@@ -249,7 +249,7 @@ func do_prepare(player : Player, infusion_cost : InfusionCost = null) -> bool:
 
 func process_prepare(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
-	var infusion_cost = action_message['infusion_cost']
+	var infusion_cost = action_message.get('infusion_cost', null)
 	if infusion_cost:
 		infusion_cost = InfusionCost.deserialize(infusion_cost)
 	local_game.do_prepare(game_player, infusion_cost)
@@ -268,7 +268,7 @@ func do_reshuffle(player : Player, infusion_cost : InfusionCost = null) -> bool:
 
 func process_reshuffle(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
-	var infusion_cost = action_message['infusion_cost']
+	var infusion_cost = action_message.get('infusion_cost', null)
 	if infusion_cost:
 		infusion_cost = InfusionCost.deserialize(infusion_cost)
 	local_game.do_reshuffle(game_player, infusion_cost)
@@ -400,7 +400,7 @@ func process_exceed(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	var spent_life_for_gauge = action_message.get('spent_life_for_gauge', 0)
-	var infusion_cost = action_message['infusion_cost']
+	var infusion_cost = action_message.get('infusion_cost', null)
 	if infusion_cost:
 		infusion_cost = InfusionCost.deserialize(infusion_cost)
 	local_game.do_exceed(game_player, card_ids, spent_life_for_gauge, infusion_cost)
@@ -429,7 +429,7 @@ func process_move(action_message) -> void:
 	var use_free_force = action_message['use_free_force']
 	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
-	var infusion_cost = action_message['infusion_cost']
+	var infusion_cost = action_message.get('infusion_cost', null)
 	if infusion_cost:
 		infusion_cost = InfusionCost.deserialize(infusion_cost)
 	local_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force, infusion_cost)
@@ -459,7 +459,7 @@ func process_change(action_message) -> void:
 	var use_free_force = action_message['use_free_force']
 	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
-	var infusion_cost = action_message['infusion_cost']
+	var infusion_cost = action_message.get('infusion_cost', null)
 	if infusion_cost:
 		infusion_cost = InfusionCost.deserialize(infusion_cost)
 	local_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force, infusion_cost)
@@ -552,7 +552,7 @@ func process_boost(action_message) -> void:
 	var spent_life_for_force = action_message['spent_life_for_force']
 	var additional_boost_ids = action_message['additional_boost_ids']
 	var facedown_override = action_message.get('facedown_override')
-	var infusion_cost = action_message['infusion_cost']
+	var infusion_cost = action_message.get('infusion_cost', null)
 	if infusion_cost:
 		infusion_cost = InfusionCost.deserialize(infusion_cost)
 	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force,
@@ -735,7 +735,7 @@ func process_character_action(action_message) -> void:
 	var use_free_force = action_message['use_free_force']
 	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
-	var infusion_cost = action_message['infusion_cost']
+	var infusion_cost = action_message.get('infusion_cost', null)
 	if infusion_cost:
 		infusion_cost = InfusionCost.deserialize(infusion_cost)
 	local_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force, infusion_cost)
@@ -756,7 +756,7 @@ func do_bonus_turn_action(player : Player, action_index : int, infusion_cost : I
 func process_bonus_action(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var action_index = action_message['action_index']
-	var infusion_cost = action_message['infusion_cost']
+	var infusion_cost = action_message.get('infusion_cost', null)
 	if infusion_cost:
 		infusion_cost = InfusionCost.deserialize(infusion_cost)
 	local_game.do_bonus_turn_action(game_player, action_index, infusion_cost)

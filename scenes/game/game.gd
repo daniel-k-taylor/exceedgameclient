@@ -2478,6 +2478,7 @@ func _on_advance_turn():
 	$OpponentLife.set_turn_indicator(not is_local_player_active)
 
 	if is_local_player_active and not observer_mode:
+		stored_infusion_cost = null
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		deselect_all_cards()
 		close_popout()
@@ -2507,6 +2508,7 @@ func _on_post_boost_action(event):
 	var player = event['event_player']
 	spawn_damage_popup("Bonus Action", player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		stored_infusion_cost = null
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		deselect_all_cards()
 		close_popout()
@@ -6166,6 +6168,7 @@ func _sync_ui_state_after_restore():
 	var game_state = game_wrapper.get_game_state()
 	if game_state == Enums.GameState.GameState_PickAction:
 		if game_wrapper.get_active_player() == Enums.PlayerId.PlayerId_Player and not observer_mode:
+			stored_infusion_cost = null
 			change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		else:
 			change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
@@ -6838,6 +6841,7 @@ func _on_instructions_cancel_button_pressed():
 						if ui_sub_state == UISubState.UISubState_SelectArena_EffectChoice:
 							success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, 0)
 						else:
+							stored_infusion_cost = null
 							change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 				UIState.UIState_SelectCards:
 					if instructions_cancel_allowed:
@@ -6846,6 +6850,7 @@ func _on_instructions_cancel_button_pressed():
 						if ui_sub_state == UISubState.UISubState_SelectCards_BoostCancel:
 							success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, [], false)
 						else:
+							stored_infusion_cost = null
 							change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 	if success:
 		popout_instruction_info = null
