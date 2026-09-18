@@ -559,6 +559,18 @@ func can_player_boost(player_id : Enums.PlayerId,
 		var force_available = get_player_available_force(player_id) - boosting_card_force_value
 		return force_cost <= force_available
 
+func can_player_infuse(player_id: Enums.PlayerId) -> bool:
+	var player = _get_player(player_id)
+	if player.can_infuse and not player.is_infused():
+		if player.spend_life_to_infuse_amount > 0 and player.life > player.spend_life_to_infuse_amount:
+			return true
+		return get_player_available_gauge(player_id) > 0
+	return false
+
+func get_player_life_to_infuse_amount(player_id: Enums.PlayerId) -> int:
+	var player = _get_player(player_id)
+	return player.spend_life_to_infuse_amount
+
 func player_treats_card_as_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
 	var card = current_game.get_card_database().get_card(card_id)
 	if card == null:
@@ -623,13 +635,13 @@ func can_do_character_action(player_id : Enums.PlayerId, action_idx : int = 0) -
 
 ### Action Functions ###
 
-func submit_prepare(player : Enums.PlayerId) -> bool:
+func submit_prepare(player : Enums.PlayerId, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_prepare(game_player)
+	return current_game.do_prepare(game_player, infusion_cost)
 
-func submit_reshuffle(player : Enums.PlayerId) -> bool:
+func submit_reshuffle(player : Enums.PlayerId, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_reshuffle(game_player)
+	return current_game.do_reshuffle(game_player, infusion_cost)
 
 func submit_choice(player : Enums.PlayerId, choice_index : int) -> bool:
 	var game_player = _get_player(player)
@@ -673,19 +685,19 @@ func submit_pay_strike_cost(
 		spent_life_for_gauge
 	)
 
-func submit_exceed(player : Enums.PlayerId, card_ids : Array, spent_life_for_gauge : int = 0) -> bool:
+func submit_exceed(player : Enums.PlayerId, card_ids : Array, spent_life_for_gauge : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_exceed(game_player, card_ids, spent_life_for_gauge)
+	return current_game.do_exceed(game_player, card_ids, spent_life_for_gauge, infusion_cost)
 
 func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location : int,
-		use_free_force : bool, spent_life_for_force : int) -> bool:
+		use_free_force : bool, spent_life_for_force : int, infusion_cost : InfusionCost) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force)
+	return current_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force, infusion_cost)
 
 func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool,
-		use_free_force : bool, spent_life_for_force : int) -> bool:
+		use_free_force : bool, spent_life_for_force : int, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force)
+	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force, infusion_cost)
 
 func submit_strike(
 	player : Enums.PlayerId,
@@ -708,10 +720,10 @@ func submit_mulligan(player : Enums.PlayerId, card_ids : Array) -> bool:
 
 func submit_boost(player : Enums.PlayerId, card_id : int, payment_card_ids,
 		use_free_force : bool, spent_life_for_force : int, additional_boost_ids : Array = [],
-		facedown_override = null) -> bool:
+		facedown_override = null, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_boost(game_player, card_id, payment_card_ids, use_free_force,
-		spent_life_for_force, additional_boost_ids, facedown_override)
+		spent_life_for_force, additional_boost_ids, facedown_override, infusion_cost)
 
 # Renea reveals her face-down continuous boosts (and resolves their Now effects)
 # right before she sets her attack. In online games this has to travel as its own
@@ -781,13 +793,14 @@ func submit_character_action(player: Enums.PlayerId,
 	card_ids : Array,
 	action_idx : int = 0,
 	use_free_force = false,
-	spent_life_for_force : int = 0) -> bool:
+	spent_life_for_force : int = 0,
+	infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force)
+	return current_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force, infusion_cost)
 
-func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> bool:
+func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int, infusion_cost : InfusionCost = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_bonus_turn_action(game_player, action_index)
+	return current_game.do_bonus_turn_action(game_player, action_index, infusion_cost)
 
 func submit_choose_from_topdeck(player: Enums.PlayerId, card_id : int, action : String) -> bool:
 	var game_player = _get_player(player)

@@ -5,6 +5,7 @@ signal choice_selected(choice_index : int)
 signal ultra_force_toggled(new_value : bool)
 signal discard_ex_first_toggled(new_value : bool)
 signal free_force_toggled(new_value : bool)
+signal dont_ask_infuse_toggled(new_value : bool)
 signal number_picker_updated(new_value : int)
 
 @onready var instructions_label : RichTextLabel = $OuterMargin/MainVBox/PanelContainer/InstructionHBox/InstructionsLabel
@@ -28,10 +29,12 @@ func set_choices(instructions_text : String,
 		ex_discard_order_toggle : bool,
 		free_force_toggle : bool,
 		no_number_picker_update : bool,
-		columns_override : int = -1):
+		columns_override : int = -1,
+		infusion_prompt_toggle : bool = false):
 	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.visible = ultra_force_toggle
 	$OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck.visible = ex_discard_order_toggle
 	$OuterMargin/MainVBox/CheckHBox3/FreeForceOptionCheck.visible = free_force_toggle
+	$OuterMargin/MainVBox/CheckHBox4/DontAskInfuseCheck.visible = infusion_prompt_toggle
 	var col_count = 1
 	if columns_override > 0:
 		col_count = columns_override
@@ -90,6 +93,9 @@ func set_discard_ex_first_toggle(value):
 
 func set_free_force_toggle(value):
 	$OuterMargin/MainVBox/CheckHBox3/FreeForceOptionCheck.button_pressed = value
+	
+func set_dont_ask_infuse_check(value):
+	$OuterMargin/MainVBox/CheckHBox4/DontAskInfuseCheck.button_pressed = value
 
 func _on_ultras_force_option_check_toggled(button_pressed):
 	ultra_force_toggled.emit(button_pressed)
@@ -116,3 +122,6 @@ func _on_ex_discard_order_check_toggled(button_pressed):
 
 func _on_free_force_check_toggled(button_pressed):
 	free_force_toggled.emit(button_pressed)
+	
+func _on_dont_ask_infuse_check_toggled(button_pressed):
+	dont_ask_infuse_toggled.emit(button_pressed)

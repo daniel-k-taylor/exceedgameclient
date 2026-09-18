@@ -2,6 +2,7 @@
 	"id": "shafathi",
 	"season": 8,
 	"display_name": "Shafathi (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 2,
 	"buddy_cards": [
 		"scheme1",
@@ -138,23 +139,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/Z2ltET6.png",
+			"url": "https://i.imgur.com/zUxYpoN.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/US8TPRj.png",
+			"url": "https://i.imgur.com/KkhmAyG.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/8tDcfFp.png",
+			"url": "https://i.imgur.com/nWYRW2I.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/319Wsfg.jpeg",
+			"url": "https://i.imgur.com/iuw6Y96.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/nMH6tAa.jpeg",
+			"url": "https://i.imgur.com/P3ktfSE.jpeg",
 			"multiple_cards": true
 		}
 	},

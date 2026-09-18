@@ -2,6 +2,7 @@
 	"id": "khenui",
 	"season": 8,
 	"display_name": "Khenui (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "choose_discard",
@@ -87,23 +88,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/bc5fShH.png",
+			"url": "https://i.imgur.com/SBfElAc.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/2tLVubN.png",
+			"url": "https://i.imgur.com/CwkkyPB.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/Sj9XD5R.png",
+			"url": "https://i.imgur.com/onKIRZ0.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/E48CMOY.jpeg",
+			"url": "https://i.imgur.com/FEPMkDU.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/nMH6tAa.jpeg",
+			"url": "https://i.imgur.com/P3ktfSE.jpeg",
 			"multiple_cards": true
 		}
 	},

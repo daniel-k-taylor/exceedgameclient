@@ -2,6 +2,7 @@
 	"id": "zacoal",
 	"season": 8,
 	"display_name": "Zacoal (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 3,
 	"has_sealed_area": true,
 	"delayed_wild_strike": true,
@@ -96,23 +97,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/6IGaLE7.png",
+			"url": "https://i.imgur.com/QGjpGob.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/RAI37ve.png",
+			"url": "https://i.imgur.com/7LSeMC1.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/vHOPS1K.png",
+			"url": "https://i.imgur.com/USf8Cej.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/HS1lwyq.jpeg",
+			"url": "https://i.imgur.com/LsYtF4h.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/nMH6tAa.jpeg",
+			"url": "https://i.imgur.com/P3ktfSE.jpeg",
 			"multiple_cards": true
 		}
 	},

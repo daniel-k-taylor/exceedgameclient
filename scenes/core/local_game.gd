@@ -10493,11 +10493,41 @@ func _on_player_discard(discarding_player, card_ids : Array):
 				}
 				handle_strike_effect(-1, choice_effect, other_player)
 
-func do_prepare(performing_player) -> bool:
+# non-blocking handling of infusion costs before actions
+func handle_infusion(performing_player : Player, infusion_cost : InfusionCost) -> bool:
+	if performing_player.is_infused():
+		printlog("ERROR: Tried to infuse while already infused")
+		return false
+		
+	if not infusion_cost.free_infuse:
+		if infusion_cost.paid_from_life():
+			if infusion_cost.life_spent > performing_player.life:
+				printlog("ERROR: Tried to spend more life for infusion than character had.")
+				return false
+			performing_player.spend_life(infusion_cost.life_spent)
+		else:
+			if not performing_player.is_card_in_gauge(infusion_cost.gauge_spent):
+				printlog("ERROR: Tried to spend gauge for infusion with card not in gauge.")
+				return false
+			performing_player.discard([infusion_cost.gauge_spent], 0, true)
+
+	performing_player.infused = true
+	_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is Infused!")
+	
+	create_event(Enums.EventType.EventType_Strike_Infuse, performing_player.my_id, -1, "Infused")
+	return true
+	
+
+func do_prepare(performing_player, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: PREPARE by %s" % [performing_player.name])
 	if not can_do_prepare(performing_player):
 		printlog("ERROR: Tried to Prepare but can't.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	create_event(Enums.EventType.EventType_Prepare, performing_player.my_id, 0)
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Prepare")
@@ -10584,22 +10614,32 @@ func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 	start_end_turn()
 	return true
 
-func do_reshuffle(performing_player : Player) -> bool:
+func do_reshuffle(performing_player : Player, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: RESHUFFLE by %s" % [performing_player.name])
 	if not can_do_reshuffle(performing_player):
 		printlog("ERROR: Tried to reshuffle but can't.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Manual Reshuffle")
 	performing_player.reshuffle_discard(true)
 	check_hand_size_advance_turn(performing_player)
 	return true
 
-func do_move(performing_player : Player, card_ids, new_arena_location, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+func do_move(performing_player : Player, card_ids, new_arena_location, use_free_force : bool = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: MOVE by %s to %s" % [performing_player.name, str(new_arena_location)])
 	if not can_do_move(performing_player):
 		printlog("ERROR: Cannot perform the move action for this player.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	var ignore_force_req = false
 	if not performing_player.can_move_to(new_arena_location, ignore_force_req):
@@ -10656,11 +10696,16 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 		continue_player_action_resolution(performing_player)
 	return true
 
-func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool, use_free_force : bool = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: CHANGE_CARDS by %s - %s" % [performing_player.name, card_ids])
 	if not can_do_change(performing_player):
 		printlog("ERROR: Cannot do change action for this player.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	var has_card_from_gauge = false
 	for id in card_ids:
@@ -10719,14 +10764,21 @@ func do_change(performing_player : Player, card_ids, treat_ultras_as_single_forc
 
 	return true
 
-func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gauge : int = 0) -> bool:
+func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gauge : int = 0, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: EXCEED by %s - %s" % [performing_player.name, card_ids])
+	
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to exceed but not in correct game state.")
 		return false
 	if performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to exceed for wrong player.")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
+		
 	for id in card_ids:
 		if not performing_player.is_card_in_gauge(id):
 			# Card not found, error
@@ -10777,7 +10829,8 @@ func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gaug
 		active_exceed = true
 	return true
 
-func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = [], use_free_force = false, spent_life_for_force : int = 0, additional_boost_ids : Array = [], facedown_override = null) -> bool:
+func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = [], use_free_force = false,
+		spent_life_for_force : int = 0, additional_boost_ids : Array = [], facedown_override = null, infusion_cost : InfusionCost = null) -> bool:
 	printlog("MainAction: BOOST by %s - %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id)])
 	if game_state != Enums.GameState.GameState_PickAction or performing_player.my_id != active_turn_player:
 		if not wait_for_mid_strike_boost():
@@ -10785,6 +10838,11 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			assert(false)
 			return false
 
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
+			
 	var card = card_db.get_card(card_id)
 	if card == null:
 		printlog("ERROR: Tried to boost a card that does not exist (id %s)." % card_id)
@@ -12654,7 +12712,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	continue_player_action_resolution(performing_player)
 	return true
 
-func do_character_action(performing_player : Player, card_ids, action_idx : int = 0, use_free_force = false, spent_life_for_force : int = 0):
+func do_character_action(performing_player : Player, card_ids, action_idx : int = 0, use_free_force = false, spent_life_for_force : int = 0, infusion_cost : InfusionCost = null):
 	printlog("MainAction: CHARACTER_ACTION %s by %s" % [str(action_idx), get_player_name(performing_player.my_id)])
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to character action but not in correct game state.")
@@ -12663,6 +12721,11 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 	if performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to character action but not current player")
 		return false
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
 
 	var action = performing_player.get_character_action(action_idx)
 	var force_cost = action['force_cost']
@@ -12706,7 +12769,7 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 		active_character_action = false
 	return true
 
-func do_bonus_turn_action(performing_player : Player, action_index : int):
+func do_bonus_turn_action(performing_player : Player, action_index : int, infusion_cost : InfusionCost = null):
 	printlog("MainAction: BONUS_ACTION by %s" % [get_player_name(performing_player.my_id)])
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to bonus action but not in correct game state.")
@@ -12715,7 +12778,12 @@ func do_bonus_turn_action(performing_player : Player, action_index : int):
 	if performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to bonus action but not current player")
 		return false
-
+	
+	if infusion_cost:
+		if not handle_infusion(performing_player, infusion_cost):
+			printlog("ERROR: Failed to handle infusion cost.")
+			return false
+			
 	var actions = performing_player.get_bonus_actions()
 	if action_index >= len(actions):
 		printlog("ERROR: Tried to bonus action with invalid index.")

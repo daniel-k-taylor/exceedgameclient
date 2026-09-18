@@ -42,7 +42,9 @@ func set_match_available(match_available : bool):
 	join_button.visible = not match_available
 	play_button.visible = match_available
 	play_container.visible = match_available
-	waiting_character_label.visible = match_available and waiting_character_label.text != ""
+	
+	# Queues displaying their character has been disabled; if needed, it was set to ``match_available and waiting_character_label.text != ""``
+	waiting_character_label.visible = false
 
 func _set_waiting_character(waiting_character) -> void:
 	var display_name = _resolve_waiting_character_name(waiting_character)
@@ -72,12 +74,19 @@ static func _resolve_waiting_character_name(waiting_character) -> String:
 
 	# Deck ids may arrive as "random_s3#ryu"; the part after '#' is the actual
 	# picked deck. A bare "random_s3" (unresolved random) has no character yet.
+	
+	# If a random character was chosen, we don't want to spoil who it was yet;
+	# this will just show which season's random was selected instead.
 	var normalized_deck_id = raw_name
 	var split_index = normalized_deck_id.find("#")
 	if split_index != -1:
-		normalized_deck_id = normalized_deck_id.substr(split_index + 1)
-	elif normalized_deck_id.begins_with("random"):
-		return "Random"
+		normalized_deck_id = normalized_deck_id.substr(0, split_index)
+	if normalized_deck_id.begins_with("random"):
+		var random_season = ""
+		var season_split_index = normalized_deck_id.find("_")
+		if season_split_index != -1:
+			random_season = " " + normalized_deck_id.substr(season_split_index + 1).to_upper()
+		return "Random" + random_season
 
 	if CardDataManager.decks.has(normalized_deck_id):
 		var deck = CardDataManager.get_deck(normalized_deck_id)

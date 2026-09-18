@@ -2,6 +2,7 @@
 	"id": "heraal",
 	"season": 8,
 	"display_name": "Heraal (9/8 test)",
+	"can_infuse": true,
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "strike"
@@ -92,23 +93,23 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/g8e2BZE.png",
+			"url": "https://i.imgur.com/6tofWFK.png",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/TTKas20.png",
+			"url": "https://i.imgur.com/WeHJ4Gn.png",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/bcYTYXW.png",
+			"url": "https://i.imgur.com/gWwFuB0.png",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/C6Q0uSp.jpeg",
+			"url": "https://i.imgur.com/FXbfqhE.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/nMH6tAa.jpeg",
+			"url": "https://i.imgur.com/P3ktfSE.jpeg",
 			"multiple_cards": true
 		}
 	},

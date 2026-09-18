@@ -17380,7 +17380,7 @@
 		],
 		"boost": {
 			"boost_type": "immediate",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
 			"display_name": "Undermine",
 			"effects": [

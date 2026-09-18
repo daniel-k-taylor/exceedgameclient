@@ -29,12 +29,20 @@ func test_waiting_character_display_falls_back_to_waiting_deck_id():
 		"waiting_deck_id": "random_s3#ryu",
 	})
 
-	assert_eq(display, "Ryu")
+	assert_eq(display, "Random S3")
 
 
 func test_waiting_character_display_handles_unresolved_random_without_fake_character():
 	var display = MatchQueueItem.get_waiting_character_display({
 		"waiting_deck_id": "random_s3",
+	})
+
+	assert_eq(display, "Random S3")
+
+
+func test_waiting_character_display_handles_unresolved_random_without_season_specified():
+	var display = MatchQueueItem.get_waiting_character_display({
+		"waiting_deck_id": "random",
 	})
 
 	assert_eq(display, "Random")
