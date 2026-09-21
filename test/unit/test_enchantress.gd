@@ -316,15 +316,19 @@ func test_enchantress_mind_control():
 
 	assert_true(game_logic.do_boost(player1, TestCardId1, []))
 	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id], true))
+	assert_eq(game_logic.decision_info.player, player2.my_id)
 	assert_true(game_logic.do_choose_to_discard(player2, [TestCardId2, TestCardId3, TestCardId4]))
 	assert_true("standard_normal_grasp" in player2.public_hand)
 	assert_true("standard_normal_cross" in player2.public_hand)
 	assert_true("standard_normal_assault" in player2.public_hand)
 
+	assert_eq(game_logic.decision_info.player, player1.my_id)
+	assert_false(game_logic.do_choose_to_discard(player2, [TestCardId2]))
 	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId2]))
 	assert_true(player2.is_card_in_discards(TestCardId2))
 	assert_true(player2.is_card_in_hand(TestCardId3))
 	assert_true(player2.is_card_in_hand(TestCardId4))
+	assert_false(player1.is_card_in_discards(TestCardId2))
 	advance_turn(player2)
 
 func test_enchantress_mind_control_no_force():
@@ -365,6 +369,7 @@ func test_enchantress_mind_control_more_force_than_hand():
 	assert_true("standard_normal_grasp" in player2.public_hand)
 	assert_true("standard_normal_cross" in player2.public_hand)
 
+	assert_eq(game_logic.decision_info.player, player1.my_id)
 	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId2]))
 	assert_true(player2.is_card_in_discards(TestCardId2))
 	assert_true(player2.is_card_in_hand(TestCardId3))

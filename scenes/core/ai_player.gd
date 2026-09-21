@@ -811,6 +811,8 @@ func determine_effect_choice_actions():
 	var choice_count = len(game_logic.decision_info.choice)
 	var possible_actions = []
 	for i in range(0, choice_count):
+		if game_logic.decision_info.type == Enums.DecisionType.DecisionType_EffectChoice and not game_player.can_choose_effect(game_logic.decision_info.choice[i]):
+			continue
 		possible_actions.append(EffectChoiceAction.new(i))
 	return possible_actions
 

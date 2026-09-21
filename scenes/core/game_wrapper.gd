@@ -583,11 +583,9 @@ func can_player_ex_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
 
 	var card_db = current_game.get_card_database()
 	var card = card_db.get_card(card_id)
-	if card.definition['boost']['boost_type'] != "transform":
-		# Tournelouse's normals may be transformed on their own before he exceeds,
-		# so they never need a second copy discarded.
-		if player_treats_card_as_transform(player_id, card_id):
-			return not _get_player(player_id).has_card_name_in_zone(card, "transform")
+	if card.definition['boost']['boost_type'] != "transform" and not player_treats_card_as_transform(player_id, card_id):
+		return false
+	if _get_player(player_id).has_card_name_in_zone(card, "transform"):
 		return false
 
 	return get_ex_transform_copy(player_id, card_id) != -1

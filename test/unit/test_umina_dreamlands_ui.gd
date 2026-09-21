@@ -124,6 +124,29 @@ class _FakeCard:
 	func _init(id : int):
 		card_id = id
 
+class _SummaryCard extends Node:
+	var card_id : int
+
+func test_spiraling_descent_is_visible_in_boost_summary():
+	setup_game_ui("umina")
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	var card = GameCard.new(72000, CardDataManager.get_card("umina_dark_thoughts"), player.my_id)
+	game_ui.game_wrapper.current_game.card_db._test_insert_card(card)
+	player.add_to_transforms(card)
+	var holder = Node.new()
+	add_child_autofree(holder)
+	var summary_card = _SummaryCard.new()
+	summary_card.card_id = card.id
+	holder.add_child(summary_card)
+	var label = RichTextLabel.new()
+	add_child_autofree(label)
+	game_ui.update_boost_summary(player.my_id, holder, label)
+	assert_true("invalid" in label.text)
+	assert_true("[TF]" in label.text)
+	player.umina_dreamlands_facedown = true
+	game_ui.update_boost_summary(player.my_id, holder, label)
+	assert_true("(Invalid)" in label.text)
+
 func test_umina_deck_declares_a_dreamlands_buddy_visible_before_exceeding():
 	var deck = CardDataManager.get_deck_from_str_id("umina")
 	assert_eq(deck.get("buddy_card"), "umina_dreamlands")

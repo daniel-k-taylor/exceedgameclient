@@ -237,7 +237,10 @@ func test_gordeau_exceed_ua():
 	give_gauge(player2, 1)
 
 	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id], 0))
+	assert_eq(game_logic.decision_info.player, player2.my_id)
 	assert_true(game_logic.do_force_for_effect(player2, [player2.hand[0].id], false))
+	assert_eq(game_logic.active_turn_player, player1.my_id)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id], 0))
 	assert_true(game_logic.do_force_for_effect(player2, [player2.hand[0].id], false))
 	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id], 0))
@@ -284,14 +287,20 @@ func test_gordeau_soul_exodus_full_discard():
 
 	var topdeck_id1 = player1.deck[0].id
 	var topdeck_id2 = player1.deck[1].id
+	var opponent_topdeck = player2.deck[0].id
+	var opponent_gauge_size = player2.gauge.size()
 
 	execute_strike(player1, player2, "gordeau_soulexodus", "uni_normal_grasp", [], [], false, false)
+	assert_eq(game_logic.decision_info.player, player2.my_id)
 	assert_true(game_logic.do_choose_to_discard(player2, [player2.hand[0].id, player2.hand[1].id]))
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 30, player2, 29)
 	assert_true(player1.is_card_in_gauge(topdeck_id1))
 	assert_true(player1.is_card_in_gauge(topdeck_id2))
 	assert_true(player1.is_card_in_gauge(TestCardId1))
+	assert_eq(player2.gauge.size(), opponent_gauge_size)
+	assert_eq(player2.deck[0].id, opponent_topdeck)
+	assert_eq(game_logic.active_turn_player, player1.my_id)
 	advance_turn(player1)
 
 func test_gordeau_soul_exodus_partial_discard():

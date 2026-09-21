@@ -1829,6 +1829,10 @@ func get_gauge_from_spent_life(spent_life_for_gauge : int):
 	return 0
 
 func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool, spent_life_for_force : int, alternative_life_cost : int = 0, spent_life_for_gauge : int = 0):
+	if spent_life_for_force < 0 or spent_life_for_gauge < 0 or alternative_life_cost < 0:
+		return false
+	if not can_spend_life(spent_life_for_force + spent_life_for_gauge + alternative_life_cost):
+		return false
 	if alternative_life_cost and life > alternative_life_cost and card_ids.size() == 0:
 		return true
 	if force_cost and gauge_cost:
@@ -1841,8 +1845,6 @@ func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use
 				assert(false)
 				parent.printlog("ERROR: Card not in hand or gauge")
 				return false
-		if spent_life_for_force > life:
-			return false
 		force_generated += get_force_from_spent_life(spent_life_for_force)
 		return force_generated >= force_cost
 	elif gauge_cost:
@@ -2650,19 +2652,35 @@ func discard_random(amount):
 	if discarded_names:
 		parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s): %s." % parent._log_card_name(discarded_names))
 
-func spend_life(amount):
+func can_spend_life(amount : int) -> bool:
+	return amount == 0 or (amount > 0 and amount < life)
+
+func can_choose_effect(effect : Dictionary) -> bool:
+	if effect.get("_choice_disabled", false):
+		return false
+	if effect.get("effect_type") == StrikeEffects.SpendLife:
+		var paying_player = self
+		if effect.has("for_other_player"):
+			paying_player = parent._get_player(parent.get_other_player(my_id))
+		return paying_player.can_spend_life(paying_player.resolve_effect_amount(effect))
+	return true
+
+func spend_life(amount : int) -> bool:
+	if not can_spend_life(amount):
+		parent._append_log_full(Enums.LogType.LogType_Health, self, "cannot spend %s life; at least 1 life must remain." % amount)
+		return false
+	if amount == 0:
+		return true
 	life -= amount
 	last_spent_life = amount
 	parent.create_event(Enums.EventType.EventType_Strike_TookDamage, my_id, amount, "spend", life)
 	parent._append_log_full(Enums.LogType.LogType_Health, self, "spends %s life, bringing them to %s!" % [str(amount), str(life)])
-	if life <= 0:
-		parent._append_log_full(Enums.LogType.LogType_Default, self, "has no life remaining!")
-		parent.on_death(self)
 	if not parent.game_over:
 		var on_spend_life_effects = parent.get_all_effects_for_timing("on_spend_life", self, null)
 		# Assumption: No choices at this timing.
 		for effect in on_spend_life_effects:
 			parent.do_effect_if_condition_met(self, effect["card_id"], effect, null)
+	return true
 
 func invalidate_card(card : GameCard, invalid_by_choice : bool = false):
 	invalid_card_moved_elsewhere = false
@@ -2799,7 +2817,7 @@ func get_available_force():
 		force += card_database.get_card_force_value(card.id)
 	if deck_flag("discards_count_as_force_until_exceed") and not exceeded:
 		force += discards.size()
-	force += get_force_from_spent_life(life)
+	force += get_force_from_spent_life(max(0, life - 1))
 	return force
 
 func get_available_free_force():

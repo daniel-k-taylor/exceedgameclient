@@ -38,6 +38,18 @@ func test_emogine_bloodforblood_transform_and_attack_opponent_notwild():
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 16, player2, 24)
 
+func test_blood_ministration_buffs_owner_when_opponent_initiates_with_wild_swing():
+	position_players(player1, 3, player2, 6)
+	add_transform(player2, "emogine_bloodforblood")
+	player2.life = 20
+	set_player_topdeck(player1, "standard_normal_grasp")
+	execute_strike(player1, player2, -1, "standard_normal_spike",
+		false, false, [1], [])
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_PowerUp, player2, 1)
+	validate_not_has_event(events, Enums.EventType.EventType_Strike_PowerUp, player1, 1)
+	validate_life(player1, 24, player2, 20)
+
 func test_emogine_guiltypaean_transform():
 	position_players(player1, 3, player2, 6)
 	add_transform(player1, "emogine_guiltypaean")

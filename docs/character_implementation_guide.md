@@ -111,6 +111,8 @@ that can be reverted when a boost leaves play (`powerup`, `speedup`, `armorup`, 
 ### S2 Transform Pattern
 Transform cards use `"force_cost": -1` (displayed as "T"). Each transform reduces exceed cost by 2 via `transform_discount`.
 
+The EX Transform turn action requires two matching cards in hand: transform one and discard the other. This also applies to Tournelouse's normals before exceeding. Effects that explicitly transform a card (including strike cleanup) can still transform a single card.
+
 ```json
 {
     "boost_type": "transform",
@@ -138,6 +140,9 @@ Add card definitions with all stats. Use existing cards as templates. Important 
 - All stats must match the wiki exactly
 - Effects use `"timing"` and `"effect_type"` fields
 - Chain effects with `"and"` field
+- An `"and"` continuation retains the performing player of its parent effect, even when an intervening decision is made by the opponent.
+- `"for_other_player"` switches that performing player for the effect and its continuation. By contrast, `"opponent": true` on `draw` only changes who draws; use it explicitly when the opponent should draw after `opponent_discard_choose`, including when no discard decision is needed.
+- A discard's `"discard_effect"` runs from the discarding player's perspective. Effects at `"opponent_set_strike"` run from the striking opponent's perspective. Neither convention is changed by continuation ownership.
 - Provide choices with `"choice"` array
 
 ### Stun Rule

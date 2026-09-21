@@ -5075,7 +5075,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 						can_ex_transform = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
 					else:
 						can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ["hand"], "", false)
-						# Tournelouse's normals may also be transformed on their own.
+						# Tournelouse can EX transform normals before exceeding.
 						if game_wrapper.player_treats_card_as_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id):
 							can_ex_transform = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
 							if can_ex_transform:
@@ -5088,8 +5088,8 @@ func _update_buttons(no_number_picker_update : bool = false):
 						strike_text = "EX Strike"
 
 						var logic_card = card_db.get_card(card1.card_id)
-						if logic_card.definition["boost"]["boost_type"] == "transform":
-							can_ex_transform = true
+						if logic_card.definition["boost"]["boost_type"] == "transform" or game_wrapper.player_treats_card_as_transform(Enums.PlayerId.PlayerId_Player, card1.card_id):
+							can_ex_transform = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, card1.card_id)
 							boost_text = "EX Transform"
 					elif card_db.get_card(card1.card_id).definition['type'] == "normal" and \
 							card_db.get_card(card2.card_id).definition['boost']['boost_type'] == "overload":
@@ -5328,6 +5328,8 @@ func _update_buttons(no_number_picker_update : bool = false):
 		var disabled = false
 		if "_choice_disabled" in choice and choice["_choice_disabled"]:
 			disabled = true
+		if game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_EffectChoice:
+			disabled = disabled or not game_wrapper._get_player(Enums.PlayerId.PlayerId_Player).can_choose_effect(choice)
 
 		if "_choice_func" in choice:
 			button_choices.append({ "text": card_text, "action": choice["_choice_func"], "disabled": disabled })
@@ -5345,7 +5347,8 @@ func _update_buttons(no_number_picker_update : bool = false):
 				var button_text = get_effect_text_with_card_name(strike_option, "", true)
 				button_choices.append({ "text": button_text, "action": func(): _on_extra_strike_button_pressed(i) })
 	if instructions_pay_alternative_life_cost:
-		button_choices.append({ "text": "Pay %s Life" % instructions_pay_alternative_life_cost, "action": _on_pay_alternative_life_cost_button_pressed })
+		button_choices.append({ "text": "Pay %s Life" % instructions_pay_alternative_life_cost, "action": _on_pay_alternative_life_cost_button_pressed,
+			"disabled": not game_wrapper._get_player(Enums.PlayerId.PlayerId_Player).can_spend_life(instructions_pay_alternative_life_cost) })
 	if ui_state == UIState.UIState_SelectCards and ui_sub_state in [UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard]:
 		instructions_face_attack_card = game_wrapper.get_face_attack_card(Enums.PlayerId.PlayerId_Player)
 	else:
@@ -5356,11 +5359,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 
 	if can_spend_life_for_force and show_life_for_force_counter:
 		instructions_number_picker_min = 0
-		instructions_number_picker_max = game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player)
+		instructions_number_picker_max = max(0, game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player) - 1)
 
 	if can_spend_life_for_gauge and ui_sub_state in [UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed]:
 		instructions_number_picker_min = 0
-		instructions_number_picker_max = game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player)
+		instructions_number_picker_max = max(0, game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player) - 1)
 
 	# Minato seal-to-pay: the number picker seals top discards. One discard = one
 	# Force; three discards = one Gauge (step of 3).
@@ -5508,7 +5511,7 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 				"amount": int(card.get_meta("speedup_counter"))
 			})
 		for effect in card.definition['boost']['effects']:
-			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive", "reduce_opponent_prepare_draw", "generate_free_force", "gauge_costs_reduced_passive"]:
+			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive", "reduce_opponent_prepare_draw", "generate_free_force", "gauge_costs_reduced_passive", "umina_spiraling_descent"]:
 				if effect['timing'] != "discarded":
 					if is_tournelouse_normal_transform and tournelouse_normal_transform_count != tournelouse_normal_transform_total:
 						continue
@@ -5702,6 +5705,9 @@ func can_press_ok():
 		return false
 
 	if ui_state == UIState.UIState_SelectCards:
+		var life_payment = get_spent_life_for_force() + get_spent_life_for_gauge()
+		if not game_wrapper._get_player(Enums.PlayerId.PlayerId_Player).can_spend_life(life_payment):
+			return false
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_InfusionBeforeAction:
 				return get_gauge_generated() >= select_card_require_min and get_gauge_generated() <= select_card_require_max
@@ -6608,9 +6614,7 @@ func _on_instructions_ok_button_pressed(index : int):
 						facedown_override = placement_choice == 1
 				if play_as_transform:
 					var ex_transform_id = -1
-					# Tournelouse's normals transform on their own; other cards need
-					# a second copy discarded when this is the EX transform action.
-					if select_boost_options['limitation'] != "transform" and logic_card.definition['boost']['boost_type'] == "transform":
+					if select_boost_options['limitation'] != "transform":
 						ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, single_card_id)
 					var infusion_cost = stored_infusion_cost
 					stored_infusion_cost = null
@@ -6976,10 +6980,7 @@ func _on_shortcut_boost_pressed():
 		if placement_choice >= 0:
 			facedown_override = placement_choice == 1
 	if play_as_transform:
-		var ex_transform_id = -1
-		# Tournelouse's normals transform on their own, without a second copy.
-		if logic_card.definition['boost']['boost_type'] == "transform":
-			ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, card_id)
+		var ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, card_id)
 		var infusion_cost = stored_infusion_cost
 		stored_infusion_cost = null
 		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [ex_transform_id], false, 0, [], null, infusion_cost)

@@ -363,12 +363,14 @@ class Strike:
 	var initiator_first : bool
 	var initiator_wild_strike : bool = false
 	var initiator_set_from_gauge : bool = false
+	var initiator_set_from_stored_zone : bool = false
 	var initiator_set_from_boosts : bool = false
 	var initiator_set_from_boost_space : int = -1
 	var initiator_set_face_up : bool = false
 	var defender_set_face_up : bool = false
 	var defender_wild_strike : bool = false
 	var defender_set_from_boosts : bool = false
+	var defender_set_from_stored_zone : bool = false
 	var defender_set_from_boost_space : int = -1
 	var strike_state
 	var hit_response_state : Dictionary = {}
@@ -1556,17 +1558,14 @@ func begin_resolve_strike():
 		defender_ex = "EX "
 	_append_log_full(Enums.LogType.LogType_Strike, null, "Strike Reveal: %s's %s%s vs %s's %s%s!" % [initiator_name, initiator_ex, initiator_card, defender_name, defender_ex, defender_card])
 
-	# Umina Dreamlands stun immunity: applies when attacking with the Dreamlands card
-	# (Shadow Chorus copy grants its own immunity on reveal copy).
-	var umina_si_p = null
-	if active_strike.initiator.deck_flag("dreamlands_config", null) != null:
-		umina_si_p = active_strike.initiator
-	elif active_strike.defender.deck_flag("dreamlands_config", null) != null:
-		umina_si_p = active_strike.defender
-	if umina_si_p != null and not umina_si_p.exceeded and umina_si_p.set_aside_cards.size() > 0:
-		var umina_si_dream = umina_si_p.set_aside_cards[0]
+	# The physical Dreamlands card has already left the stored zone at reveal.
+	for umina_si_p in [active_strike.initiator, active_strike.defender]:
+		if umina_si_p.exceeded or not umina_si_p.deck_flag("dreamlands_config", {}).get("stun_immunity", false):
+			continue
+		var from_dreamlands = active_strike.initiator_set_from_stored_zone if umina_si_p == active_strike.initiator else active_strike.defender_set_from_stored_zone
 		var umina_si_attack = active_strike.get_player_card(umina_si_p)
-		if umina_si_attack != null and _is_spiraling_match(umina_si_dream.definition.get("id", ""), umina_si_attack):
+		var matches_dreamlands = not umina_si_p.set_aside_cards.is_empty() and _is_spiraling_match(umina_si_p.set_aside_cards[0].definition.get("id", ""), umina_si_attack)
+		if from_dreamlands or matches_dreamlands:
 			umina_si_p.strike_stat_boosts.stun_immunity = true
 			_append_log_full(Enums.LogType.LogType_Effect, umina_si_p, "has stun immunity from Dreamlands!")
 			create_event(Enums.EventType.EventType_Strike_CharacterEffect, umina_si_p.my_id, -1, "", {"character_effect": true, "override_description": "Stun Immune (Dreamlands)"})
@@ -6693,8 +6692,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.discard_gauge()
 			performing_player.gauge_spent_before_strike = gauge_amount
 		StrikeEffects.SpendLife:
-			var amount = effect['amount']
-			performing_player.spend_life(amount)
+			if not performing_player.spend_life(performing_player.resolve_effect_amount(effect)):
+				return
 		StrikeEffects.SetLife:
 			var amount = effect['amount']
 			performing_player.life = min(Enums.MaxLife, amount)
@@ -7579,7 +7578,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			and_effect["discarded_card_ids"] = effect["discarded_card_ids"]
 			
 		if game_state == Enums.GameState.GameState_PlayerDecision:
-			add_queued_effect(and_effect, local_conditions)
+			add_queued_effect(and_effect, local_conditions, performing_player.my_id)
 		else:
 			var saved_source = _last_effect_source_player_id
 			do_effect_if_condition_met(performing_player, card_id, and_effect, local_conditions)
@@ -7925,7 +7924,7 @@ func remove_remaining_effect(effect, card_id):
 	var base_effect = get_base_remaining_effect(effect)
 	if active_strike and 'timing' in base_effect:
 		for remaining_effect in active_strike.remaining_effect_list:
-			if remaining_effect['timing'] == base_effect['timing'] and remaining_effect['card_id'] == card_id:
+			if remaining_effect.get('timing', "") == base_effect['timing'] and remaining_effect.get('card_id', -1) == card_id:
 				active_strike.remaining_effect_list.erase(remaining_effect)
 				break
 
@@ -8109,11 +8108,12 @@ func do_remaining_overdrive(performing_player : Player):
 		active_overdrive = false
 		start_begin_turn()
 
-func add_queued_effect(effect : Dictionary, local_conditions : LocalStrikeConditions = null):
+func add_queued_effect(effect : Dictionary, local_conditions : LocalStrikeConditions = null, performing_player_id : int = -1):
 	var new_chain = {
 		"effect": effect,
 		"chain": queued_effect_chain,
-		"local_conditions": local_conditions
+		"local_conditions": local_conditions,
+		"performing_player_id": performing_player_id
 	}
 	queued_effect_chain = new_chain
 
@@ -8137,6 +8137,7 @@ func do_queued_effects(performing_player : Player):
 		var effect = queued_effect_chain["effect"]
 		var chain = queued_effect_chain["chain"]
 		var local_conditions = queued_effect_chain["local_conditions"]
+		var effect_player_id = queued_effect_chain.get("performing_player_id", -1)
 
 		var after_resolution = false
 		if 'after_resolution' in effect:
@@ -8150,7 +8151,8 @@ func do_queued_effects(performing_player : Player):
 			queued_effect_chain["effect"] = null
 
 		var card_id = effect.get("card_id", -1)
-		do_effect_if_condition_met(performing_player, card_id, effect, local_conditions)
+		var effect_player = performing_player if effect_player_id == -1 else _get_player(effect_player_id)
+		do_effect_if_condition_met(effect_player, card_id, effect, local_conditions)
 		if game_state == Enums.GameState.GameState_PlayerDecision or game_over:
 			# Player has a decision to make, so stop mid-effect resolve.
 			break
@@ -10232,11 +10234,10 @@ func can_do_ex_transform(performing_player : Player):
 		return false
 
 	var transform_options = []
-	var tl_not_exceeded = performing_player.treats_normals_as_transforms()
 	for card in performing_player.hand:
-		if tl_not_exceeded and card.definition['type'] == "normal" and not performing_player.has_card_name_in_zone(card, "transform"):
-			return true
-		if card.definition['boost']['boost_type'] != "transform":
+		if card.definition['boost']['boost_type'] != "transform" and not performing_player.can_treat_card_as_transform(card):
+			continue
+		if performing_player.has_card_name_in_zone(card, "transform"):
 			continue
 		var card_name = card.definition['display_name']
 		if card_name in transform_options:
@@ -10501,10 +10502,9 @@ func handle_infusion(performing_player : Player, infusion_cost : InfusionCost) -
 		
 	if not infusion_cost.free_infuse:
 		if infusion_cost.paid_from_life():
-			if infusion_cost.life_spent > performing_player.life:
-				printlog("ERROR: Tried to spend more life for infusion than character had.")
+			if not performing_player.spend_life(infusion_cost.life_spent):
+				printlog("ERROR: Cannot pay infusion life cost.")
 				return false
-			performing_player.spend_life(infusion_cost.life_spent)
 		else:
 			if not performing_player.is_card_in_gauge(infusion_cost.gauge_spent):
 				printlog("ERROR: Tried to spend gauge for infusion with card not in gauge.")
@@ -10569,22 +10569,10 @@ func continue_resolve_prepare(performing_player : Player):
 			break
 
 func handle_spend_life_for_force(performing_player : Player, spent_life : int) -> bool:
-	if spent_life > performing_player.life:
-		printlog("ERROR: Tried to spend more life than player had.")
-		return false
-
-	if spent_life > 0:
-		performing_player.spend_life(spent_life)
-	return true
+	return performing_player.spend_life(spent_life)
 
 func handle_spend_life_cost(performing_player : Player, spent_life : int) -> bool:
-	if spent_life > performing_player.life:
-		printlog("ERROR: Tried to spend more life than player had.")
-		return false
-
-	if spent_life > 0:
-		performing_player.spend_life(spent_life)
-	return true
+	return performing_player.spend_life(spent_life)
 
 func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 	printlog("SubAction: DISCARD_TO_MAX by %s - %s" % [get_player_name(performing_player.my_id), card_ids])
@@ -10642,6 +10630,9 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 			return false
 
 	var ignore_force_req = false
+	if not performing_player.can_spend_life(spent_life_for_force):
+		printlog("ERROR: Move life payment must leave at least 1 life.")
+		return false
 	if not performing_player.can_move_to(new_arena_location, ignore_force_req):
 		printlog("ERROR: Unable to move to that arena location.")
 		return false
@@ -10706,6 +10697,10 @@ func do_change(performing_player : Player, card_ids, treat_ultras_as_single_forc
 		if not handle_infusion(performing_player, infusion_cost):
 			printlog("ERROR: Failed to handle infusion cost.")
 			return false
+
+	if not performing_player.can_spend_life(spent_life_for_force):
+		printlog("ERROR: Change Cards life payment must leave at least 1 life.")
+		return false
 
 	var has_card_from_gauge = false
 	for id in card_ids:
@@ -10786,6 +10781,9 @@ func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gaug
 			return false
 
 	var gauge_from_life = performing_player.get_gauge_from_spent_life(spent_life_for_gauge)
+	if not performing_player.can_spend_life(spent_life_for_gauge):
+		printlog("ERROR: Exceed life payment must leave at least 1 life.")
+		return false
 	var total_gauge_available = len(card_ids) + gauge_from_life + min(performing_player.free_gauge, performing_player.get_exceed_cost())
 	if total_gauge_available < performing_player.get_exceed_cost():
 		printlog("ERROR: Tried to exceed with too few cards.")
@@ -10843,6 +10841,9 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			printlog("ERROR: Failed to handle infusion cost.")
 			return false
 			
+	if not performing_player.can_spend_life(spent_life_for_force):
+		printlog("ERROR: Boost life payment must leave at least 1 life.")
+		return false
 	var card = card_db.get_card(card_id)
 	if card == null:
 		printlog("ERROR: Tried to boost a card that does not exist (id %s)." % card_id)
@@ -10983,25 +10984,29 @@ func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int
 			printlog("ERROR: Tried to transform a card without a transform")
 			assert(false)
 			return false
-		card.definition["replaced_boost"] = card.definition["boost"].duplicate(true)
-		card.definition["boost"] = _make_tournelouse_normal_transform_boost(card)
 
 	if ex_card_id == -1:
-		if not allow_single_card_transform and decision_info.limitation != "transform" and not is_tournelouse_normal_pre_exceed:
+		var effect_allows_single = game_state == Enums.GameState.GameState_PlayerDecision and decision_info.limitation == "transform"
+		if not allow_single_card_transform and not effect_allows_single:
 			printlog("ERROR: Tried to transform without a second card with invalid effect")
-			assert(false)
 			return false
 	else:
 		var ex_card = card_db.get_card(ex_card_id)
-		if card.definition['display_name'] != ex_card.definition['display_name']:
+		if ex_card_id == card_id or not performing_player.is_card_in_hand(card_id) or not performing_player.is_card_in_hand(ex_card_id):
+			printlog("ERROR: EX transform requires two distinct cards in hand")
+			return false
+		if ex_card == null or card.definition['display_name'] != ex_card.definition['display_name']:
 			printlog("ERROR: Tried to EX transform with mismatching cards")
-			assert(false)
 			return false
 
 	if performing_player.has_card_name_in_zone(card, "transform"):
 		printlog("ERROR: Tried to transform a previously-transformed card")
 		assert(false)
 		return false
+
+	if card.definition['boost']['boost_type'] != "transform":
+		card.definition["replaced_boost"] = card.definition["boost"].duplicate(true)
+		card.definition["boost"] = _make_tournelouse_normal_transform_boost(card)
 
 	if game_state == Enums.GameState.GameState_PickAction:
 		_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: EX Transform")
@@ -11236,6 +11241,7 @@ func do_strike(
 					performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), StrikeEffects.Strike)
 					active_strike.initiator_set_from_boosts = true
 				elif strike_from_stored_zone:
+					active_strike.initiator_set_from_stored_zone = true
 					performing_player.remove_from_set_aside(card_id)
 					active_strike.initiator.next_strike_faceup = true
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack from %s!" % strike_from_stored_zone_name)
@@ -11314,6 +11320,7 @@ func do_strike(
 					performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), StrikeEffects.Strike)
 					active_strike.defender_set_from_boosts = true
 				elif strike_from_stored_zone:
+					active_strike.defender_set_from_stored_zone = true
 					performing_player.remove_from_set_aside(card_id)
 					active_strike.defender.next_strike_faceup = true
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack from %s!" % strike_from_stored_zone_name)
@@ -11659,6 +11666,9 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 
 	var card_id = decision_info.choice_card_id
 	var effect = decision_info.choice[choice_index].duplicate()
+	if decision_info.type == Enums.DecisionType.DecisionType_EffectChoice and not performing_player.can_choose_effect(effect):
+		printlog("ERROR: Tried to select an unavailable effect.")
+		return false
 	if 'card_id' in effect:
 		card_id = effect['card_id']
 	var copying_effect = false
@@ -12311,6 +12321,9 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	return true
 
 func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool = false, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+	if not cancel and not performing_player.can_spend_life(spent_life_for_force):
+		printlog("ERROR: Force payment must leave at least 1 life.")
+		return false
 	printlog("SubAction: FORCE_FOR_EFFECT by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ForceForEffect:
 		printlog("ERROR: Tried to force for effect but not in decision state.")

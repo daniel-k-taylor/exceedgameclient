@@ -66,7 +66,10 @@
 
 - Uses the player's spend_life() method which handles life validation and tracking
 - Tracks the amount spent in last_spent_life for potential recovery effects
-- Cannot spend more life than the character currently has
+- A life payment must leave at least 1 life. Paying exactly the current life, overpaying, or paying a negative amount is rejected without changing life or triggering on-death effects.
+- Unaffordable `spend_life` choices are disabled in the UI and excluded from AI choices; submitting one directly is also rejected.
+- If a mandatory life payment cannot be made, its chained `and` benefit does not resolve. No partial payment is taken.
+- Life-for-force, life-for-gauge, infusion, and alternative life costs use the same nonlethal payment rule.
 - Often used as a cost for powerful effects or abilities
 - Commonly paired with choice effects to let players decide how much to spend
 - Creates appropriate log messages for life spending

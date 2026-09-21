@@ -3,6 +3,59 @@ extends ExceedGutTest
 func who_am_i():
 	return "miyuki"
 
+func _check_cleansing_flame_draw_target(opponent_hand_size : int, initiating : bool = true):
+	if not initiating:
+		advance_turn(player1)
+	position_players(player1, 3, player2, 6)
+	player1.discard_hand()
+	player2.discard_hand()
+	var discard_ids = []
+	for i in range(opponent_hand_size):
+		discard_ids.append(give_player_specific_card(player2, "standard_normal_assault"))
+	var miyuki_topdeck = set_player_topdeck(player1, "standard_normal_sweep")
+	var opponent_topdeck = set_player_topdeck(player2, "standard_normal_cross")
+	var attack_id = give_player_specific_card(player1, "miyuki_cleansingflame")
+	var response_id = give_player_specific_card(player2, "standard_normal_grasp")
+	game_logic.get_latest_events()
+
+	if initiating:
+		assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+		assert_true(game_logic.do_strike(player2, response_id, false, -1))
+	else:
+		assert_true(game_logic.do_strike(player2, response_id, false, -1))
+		assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+	if opponent_hand_size > 2:
+		assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseToDiscard)
+		assert_eq(game_logic.decision_info.player, player2.my_id)
+		assert_false(game_logic.do_choose_to_discard(player1, discard_ids.slice(0, 2)))
+		assert_true(game_logic.do_choose_to_discard(player2, discard_ids.slice(0, 2)))
+
+	assert_true(player2.is_card_in_hand(opponent_topdeck))
+	assert_true(player1.is_card_in_deck(miyuki_topdeck))
+	assert_eq(player1.hand.size(), 0)
+	assert_eq(player2.hand.size(), max(0, opponent_hand_size - 2) + 1)
+	for card_id in discard_ids.slice(0, 2):
+		assert_true(player2.is_card_in_discards(card_id))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Draw, player2, opponent_topdeck)
+	validate_not_has_event(events, Enums.EventType.EventType_Draw, player1)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_cleansing_flame_opponent_chooses_discards_then_draws():
+	_check_cleansing_flame_draw_target(3)
+
+func test_cleansing_flame_opponent_discards_entire_hand_then_draws():
+	_check_cleansing_flame_draw_target(2)
+
+func test_cleansing_flame_opponent_discards_only_card_then_draws():
+	_check_cleansing_flame_draw_target(1)
+
+func test_cleansing_flame_empty_handed_opponent_still_draws():
+	_check_cleansing_flame_draw_target(0)
+
+func test_cleansing_flame_draw_target_when_miyuki_defends():
+	_check_cleansing_flame_draw_target(3, false)
+
 ##
 ## Tests start here
 ##

@@ -5,9 +5,11 @@ func who_am_i():
 
 func test_pre_exceed_normal_can_ex_transform():
 	var assault_id = give_player_specific_card(player1, "standard_normal_assault")
+	var copy_id = give_player_specific_card(player1, "standard_normal_assault")
 
 	assert_true(game_logic.can_do_ex_transform(player1))
-	assert_true(game_logic.do_ex_transform(player1, assault_id, -1))
+	assert_true(game_logic.do_ex_transform(player1, assault_id, copy_id))
+	assert_true(player1.is_card_in_discards(copy_id))
 
 	assert_eq(player1.transforms.size(), 1)
 	assert_eq(player1.transforms[0].id, assault_id)
@@ -241,7 +243,8 @@ func test_ouroboros_action_can_cancel_force_step_back_to_pick_action():
 
 func test_normal_transform_restores_boost_when_it_leaves_transforms():
 	var assault_id = give_player_specific_card(player1, "standard_normal_assault")
-	assert_true(game_logic.do_ex_transform(player1, assault_id, -1))
+	var copy_id = give_player_specific_card(player1, "standard_normal_assault")
+	assert_true(game_logic.do_ex_transform(player1, assault_id, copy_id))
 	var assault_card = game_logic.get_card_database().get_card(assault_id)
 
 	player1.remove_from_transforms(assault_card)
@@ -477,18 +480,27 @@ func test_exceeded_normals_are_not_treated_as_transforms():
 	assert_false(wrapper.can_player_ex_transform(player1.my_id, normal_id))
 	wrapper.free()
 
-func test_ui_offers_ex_transform_for_a_single_normal_before_exceeding():
+func test_turn_action_requires_two_normals_before_exceeding():
 	_empty_hand(player1)
 	var normal_id = give_player_specific_card(player1, "standard_normal_grasp")
 
 	var wrapper = GameWrapper.new()
 	wrapper.current_game = game_logic
-	assert_true(game_logic.can_do_ex_transform(player1))
-	assert_true(wrapper.can_player_ex_transform(player1.my_id, normal_id),
-			"a lone normal can be transformed as a turn action before exceeding")
+	assert_false(game_logic.can_do_ex_transform(player1))
+	assert_false(wrapper.can_player_ex_transform(player1.my_id, normal_id))
+	assert_false(game_logic.do_ex_transform(player1, normal_id, -1))
+	assert_true(player1.is_card_in_hand(normal_id))
+	assert_false(game_logic.card_db.get_card(normal_id).definition.has("replaced_boost"))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 
-	assert_true(game_logic.do_ex_transform(player1, normal_id, -1))
+	var copy_id = give_player_specific_card(player1, "standard_normal_grasp")
+	assert_true(game_logic.can_do_ex_transform(player1))
+	assert_true(wrapper.can_player_ex_transform(player1.my_id, normal_id))
+	assert_false(game_logic.do_ex_transform(player1, normal_id, normal_id))
+	assert_true(game_logic.do_boost(player1, normal_id, [copy_id]))
 	assert_true(player1.is_card_in_transforms(normal_id))
+	assert_true(player1.is_card_in_discards(copy_id))
+	assert_eq(game_logic.active_turn_player, player2.my_id)
 
 	var duplicate_id = give_player_specific_card(player1, "standard_normal_grasp")
 	assert_false(wrapper.can_player_ex_transform(player1.my_id, duplicate_id),

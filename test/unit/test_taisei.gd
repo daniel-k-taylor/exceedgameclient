@@ -75,6 +75,30 @@ func test_ability_spend_2_life():
 	validate_life(player1, 13, player2, 9)
 	validate_positions(player1, 4, player2, 5)
 
+func test_ability_cannot_spend_last_life_to_trigger_exceed():
+	player1.life = 1
+	give_gauge(player1, 5)
+	var attack_id = give_player_specific_card(player1, "standard_normal_assault")
+	assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+	assert_false(game_logic.do_choice(player1, 1))
+	assert_false(game_logic.do_choice(player1, 2))
+	assert_eq(player1.life, 1)
+	assert_false(player1.exceeded)
+	assert_eq(player1.gauge.size(), 5)
+	assert_eq(player1.strike_stat_boosts.power, 0)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 0))
+
+func test_ability_can_spend_down_to_one_life():
+	player1.life = 2
+	var attack_id = give_player_specific_card(player1, "standard_normal_assault")
+	assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+	assert_false(game_logic.do_choice(player1, 2))
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(player1.life, 1)
+	assert_eq(player1.strike_stat_boosts.power, 1)
+	assert_false(player1.exceeded)
+
 ## ===== ON DEATH / EXCEED TESTS =====
 
 func test_on_death_exceed_with_gauge():
@@ -818,6 +842,18 @@ func test_demonhide_return_reverts_armor():
 			found = true
 			break
 	assert_true(found, "Blackvolt should be back in hand")
+
+func test_demonhide_life_payment_preserves_pending_transform_choice():
+	position_players(player1, 3, player2, 5)
+	var boost_id = give_player_specific_card(player1, "taisei_blackvolt")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	advance_turn(player2)
+	execute_strike(player1, player2, "taisei_anathemasurge", "standard_normal_focus",
+		false, false, [0, 0, 0, 0], [0])
+	assert_true(player1.is_card_in_hand(boost_id))
+	assert_true(player1.has_transform("taisei_anathemasurge"))
+	assert_eq(player1.life, 15)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 
 ## ===== EXCEEDED TAISEI LOSES STARTING ABILITY =====
 

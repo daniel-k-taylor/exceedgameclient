@@ -599,11 +599,15 @@ func test_byakuya_disrespect_opponent_initiates():
 	validate_positions(player1, 2, player2, 6)
 	player1.hand = []
 
+	var opponent_hand_size = player2.hand.size()
+	var opponent_topdeck = player2.deck[0].id
 	execute_strike(player2, player1, "uni_normal_dive", "uni_normal_sweep", [], [], false, false)
 	validate_positions(player1, 2, player2, 3)
 	validate_life(player1, 25, player2, 24)
 	assert_true(player1.is_card_in_discards(TestCardId3))
 	assert_eq(len(player1.hand), 3)
+	assert_eq(player2.hand.size(), opponent_hand_size - 1, "Sweep discards one; only the boost owner draws")
+	assert_eq(player2.deck[0].id, opponent_topdeck)
 	advance_turn(player1)
 
 func test_byakuya_disrespect_opponent_doesnt_initiate():

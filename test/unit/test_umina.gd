@@ -271,3 +271,48 @@ func test_faq_u5_dreamlands_stun_immunity_applies_to_copy_of_card():
 	validate_has_event(events, Enums.EventType.EventType_Strike_Stun_Immunity, player1)
 	validate_not_has_event(events, Enums.EventType.EventType_Strike_Stun, player1)
 	validate_life(player1, 25, player2, 30)
+
+func test_dreamlands_card_has_stun_immunity_as_initiator():
+	position_players(player1, 3, player2, 6)
+	var dreamlands_id = _put_card_in_dreamlands(player1, "standard_normal_spike")
+	execute_strike(player1, player2, dreamlands_id, "standard_normal_dive")
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun_Immunity, player1)
+	validate_not_has_event(events, Enums.EventType.EventType_Strike_Stun, player1)
+	assert_true(player1.set_aside_cards.is_empty())
+
+func test_dreamlands_card_has_stun_immunity_as_defender_in_mirror():
+	position_players(player1, 3, player2, 6)
+	var dreamlands_id = _put_card_in_dreamlands(player2, "standard_normal_spike")
+	execute_strike(player1, player2, "standard_normal_dive", dreamlands_id)
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun_Immunity, player2)
+	validate_not_has_event(events, Enums.EventType.EventType_Strike_Stun, player2)
+
+func test_spiraling_descent_invalidates_opponent_attack_and_matching_wild_swing():
+	position_players(player1, 1, player2, 9)
+	var transform_id = give_player_specific_card(player1, "umina_dark_thoughts")
+	var copy_id = give_player_specific_card(player1, "umina_dark_thoughts")
+	assert_true(game_logic.do_ex_transform(player1, transform_id, copy_id))
+	_put_card_in_dreamlands(player1, "standard_normal_spike")
+	var valid_id = set_player_topdeck(player2, "standard_normal_assault")
+	var invalid_wild_id = set_player_topdeck(player2, "standard_normal_spike")
+	var attack_id = give_player_specific_card(player2, "standard_normal_spike")
+	execute_strike(player2, player1, attack_id, "standard_normal_focus")
+	assert_true(player2.is_card_in_discards(attack_id))
+	assert_true(player2.is_card_in_discards(invalid_wild_id))
+	validate_has_event(game_logic.get_latest_events(), Enums.EventType.EventType_Strike_CardActivation, player2, valid_id)
+
+func test_spiraling_descent_from_hit_invalidates_defender():
+	position_players(player1, 3, player2, 5)
+	execute_strike(player1, player2, "umina_dark_thoughts", "standard_normal_grasp",
+		false, false, [1, 0], [])
+	assert_true(player1.has_transform("umina_dark_thoughts"))
+	_put_card_in_dreamlands(player1, "standard_normal_spike")
+	position_players(player1, 1, player2, 9)
+	advance_turn(player2)
+	var valid_id = set_player_topdeck(player2, "standard_normal_assault")
+	var attack_id = give_player_specific_card(player2, "standard_normal_spike")
+	execute_strike(player1, player2, "standard_normal_focus", attack_id)
+	assert_true(player2.is_card_in_discards(attack_id))
+	validate_has_event(game_logic.get_latest_events(), Enums.EventType.EventType_Strike_CardActivation, player2, valid_id)

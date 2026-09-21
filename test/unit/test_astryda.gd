@@ -52,8 +52,11 @@ func test_astryda_exceed():
 
 func test_astryda_drown_discard():
 	position_players(player1, 4, player2, 5)
+	var own_topdeck = set_player_topdeck(player1, "standard_normal_assault")
+	var own_hand_size = player1.hand.size()
 	
 	player2.draw(5)
+	var opponent_topdeck = set_player_topdeck(player2, "standard_normal_cross")
 	var keep_card = player2.hand[3].id
 	var other_cards = []
 	for card in player2.hand:
@@ -68,6 +71,9 @@ func test_astryda_drown_discard():
 	
 	assert_true(player2.is_card_in_hand(keep_card))
 	assert_eq(player2.hand.size(), 2)
+	assert_true(player2.is_card_in_hand(opponent_topdeck))
+	assert_true(player1.is_card_in_deck(own_topdeck))
+	assert_eq(player1.hand.size(), own_hand_size)
 
 	advance_turn(player2)
 
@@ -78,6 +84,7 @@ func test_astryda_drown_empty_hand():
 	
 	var p1_handsize = player1.hand.size()
 	player2.discard_hand()
+	var opponent_topdeck = set_player_topdeck(player2, "standard_normal_cross")
 	
 	var strike_cards = execute_strike(player1, player2, "astryda_drown", "standard_normal_spike",
 		false, false, [], [])
@@ -87,6 +94,7 @@ func test_astryda_drown_empty_hand():
 	
 	assert_eq(player1.hand.size(), p1_handsize)
 	assert_eq(player2.hand.size(), 1)
+	assert_true(player2.is_card_in_hand(opponent_topdeck))
 	
 	advance_turn(player2)
 

@@ -25262,7 +25262,8 @@
 					"amount": 2,
 					"and": {
 						"effect_type": "draw",
-						"NOTE": "opponent_discard_choose swaps to opponent perspective already",
+						"opponent": true,
+						"NOTE": "The continuation stays with Miyuki; the opponent draws even when no discard choice is needed.",
 						"amount": 1
 					}
 				}
@@ -42320,7 +42321,7 @@
 				{
 					"timing": "now",
 					"effect_type": "umina_spiraling_descent",
-					"override_description": "While a card is in your Dreamlands, your opponent cannot boost or strike with a card of the same name."
+					"override_description": "If a card is in your Dreamlands, the opponent cannot Boost using a copy of that card, and copies of that card are invalid for the opponent."
 				}
 			]
 		}

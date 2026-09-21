@@ -50,7 +50,7 @@ func test_treasure_hunter_hit_discards_opponent_gauge_without_returning_it():
 	var discarded_gauge_id = give_gauge(player2, 1)[0]
 
 	execute_strike(player1, player2, "syrus_treasure_hunter", "standard_normal_focus",
-		false, false, [], [[discarded_gauge_id]])
+		false, false, [], [[], discarded_gauge_id])
 
 	assert_false(player2.is_card_in_gauge(discarded_gauge_id))
 	assert_true(player2.is_card_in_discards(discarded_gauge_id))
@@ -65,10 +65,18 @@ func test_treasure_hunter_hit_adds_top_of_own_discard_to_gauge():
 	assert_true(player1.is_card_in_discards(top_discard_id))
 
 	execute_strike(player1, player2, "syrus_treasure_hunter", "standard_normal_focus",
-		false, false, [], [[discarded_gauge_id]])
+		false, false, [], [[], discarded_gauge_id])
 
 	assert_true(player1.is_card_in_gauge(top_discard_id))
 	assert_false(player1.is_card_in_discards(top_discard_id))
+
+func test_treasure_hunter_hit_without_opponent_gauge_still_adds_own_discard():
+	position_players(player1, 3, player2, 5)
+	var top_discard_id = give_player_specific_card(player1, "standard_normal_cross")
+	player1.discard([top_discard_id])
+	execute_strike(player1, player2, "syrus_treasure_hunter", "standard_normal_focus")
+	assert_true(player1.is_card_in_gauge(top_discard_id))
+	assert_true(player2.discards.is_empty())
 
 func test_exceed_moves_continuous_boosts_to_gauge():
 	var test_card = player1.deck[0]
