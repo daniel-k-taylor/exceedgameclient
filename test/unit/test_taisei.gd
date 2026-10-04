@@ -190,6 +190,23 @@ func test_on_death_exceed_1_transform_pays_correct_gauge():
 	validate_life(player1, 9, player2, 15) # -1 + 10 = 9
 	assert_eq(player1.gauge.size(), 0, "All 3 gauge should have been spent to exceed")
 
+func test_on_death_exceed_free_with_3_transforms_auto_exceeds():
+	# 3 transforms → exceed cost = 0. On death, exceed should happen automatically without a gauge prompt.
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "taisei_anathemasurge")
+	add_transform(player1, "taisei_ashenclaws")
+	add_transform(player1, "taisei_bloodthirst")
+	player1.life = 3
+	assert_eq(player1.get_exceed_cost(), 0)
+	execute_strike(player1, player2, "standard_normal_block", "standard_normal_sweep",
+		false, false,
+		[0, [], 0], # ability pass, ForceForArmor 0 cards, on_exceed: gain 10 life
+		[0],
+		false)
+	assert_true(player1.exceeded, "Player1 should have exceeded for free")
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_GameOver)
+	validate_life(player1, 9, player2, 15)
+
 func test_on_death_exceed_1_transform_insufficient_gauge_game_over():
 	# With 1 transform, exceed cost = 3. If only 2 gauge, can't exceed → game over.
 	position_players(player1, 4, player2, 5)

@@ -3663,7 +3663,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.exceed()
 		StrikeEffects.MayExceedNowWithCost:
 			var exceed_cost = performing_player.get_exceed_cost()
-			if performing_player.get_available_gauge() >= exceed_cost:
+			if exceed_cost <= 0:
+				performing_player.exceed()
+			elif performing_player.get_available_gauge() >= exceed_cost:
 				# Prompt the player to select which gauge cards to spend to exceed.
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
