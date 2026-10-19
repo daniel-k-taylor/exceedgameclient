@@ -2293,8 +2293,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 	printlog("STRIKE: Handling effect %s" % [effect])
 	if 'for_other_player' in effect:
 		performing_player = _get_player(get_other_player(performing_player.my_id))
-	# Track who caused this effect for discard source checking (e.g. Eugenia passive)
-	_last_effect_source_player_id = performing_player.my_id
+	# Track who caused this effect for discard source checking (e.g. Eugenia passive).
+	# An explicit _source_player_id wins, since the performing player may be the
+	# opponent resolving a choice that the source player's effect gave them.
+	var effect_source_id : int = effect.get('_source_player_id', performing_player.my_id)
+	_last_effect_source_player_id = effect_source_id
 	if 'character_effect' in effect and effect['character_effect']:
 		performing_player.strike_stat_boosts.active_character_effects.append(effect)
 		create_event(Enums.EventType.EventType_Strike_CharacterEffect, performing_player.my_id, card_id, "", effect)
@@ -3002,6 +3005,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var choice_effect = c_eff.duplicate()
 				if 'card_id' in effect and 'card_id' not in choice_effect:
 					choice_effect['card_id'] = effect['card_id']
+				if '_source_player_id' not in choice_effect:
+					choice_effect['_source_player_id'] = effect_source_id
 				decision_info.choice.append(choice_effect)
 			
 			decision_info.choice_card_id = card_id
@@ -3156,6 +3161,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				cards_available = effect['discarded_card_ids']
 			var decision_effect = effect.duplicate()
 			decision_effect['amount'] = 1
+			decision_effect['_source_player_id'] = effect_source_id
 			if cards_available.size() > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
@@ -7578,6 +7584,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		# Used to chain results of a self_discard_choose effect
 		if effect.get('pass_discards_to_and', false):
 			and_effect["discarded_card_ids"] = effect["discarded_card_ids"]
+		if '_source_player_id' in effect and '_source_player_id' not in and_effect:
+			and_effect['_source_player_id'] = effect['_source_player_id']
 			
 		if game_state == Enums.GameState.GameState_PlayerDecision:
 			add_queued_effect(and_effect, local_conditions, performing_player.my_id)
@@ -11708,8 +11716,10 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	# Carry forward the original effect source to sub-effects so that
 	# effects like discard_random (for Eugenia's passive) can correctly
 	# identify who caused them, even when the choice is made by the opponent.
+	# Choice effects are stamped with their source when the decision is created;
+	# anything else (e.g. ordering simultaneous effects) belongs to the chooser.
 	if '_source_player_id' not in effect:
-		effect['_source_player_id'] = _last_effect_source_player_id
+		effect['_source_player_id'] = performing_player.my_id
 	var saved_source = _last_effect_source_player_id
 	# Record what the player is choosing from so a cancellable sub-decision
 	# (e.g. Tournelouse's seal-a-transform prompt) can put them back on this
@@ -12703,7 +12713,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		"card_ids": card_ids,
 		"destination": decision_info.destination,
 		"discard_source": source,
-		"_source_player_id": _last_effect_source_player_id
+		"_source_player_id": decision_info.effect.get('_source_player_id', _last_effect_source_player_id)
 	}
 	var repeat_bonus_times = 0
 	var repeat_bonus_effect = null

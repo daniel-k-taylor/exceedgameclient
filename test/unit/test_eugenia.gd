@@ -144,6 +144,24 @@ func test_werelight_opponent_discards():
 		[0])   # opponent chooses discard 2 random
 	validate_life(player1, 30, player2, 26)
 
+func test_werelight_reveal_passive_with_simultaneous_hit_effects():
+	# Opponent's during_strike effects run last before Eugenia orders her two hit
+	# effects, so the discard source must not be taken from stale global state.
+	add_transform(player1, "eugenia_shimmer_of_madness")  # adds a second hit effect
+	position_players(player1, 2, player2, 5)
+	player2.hand.clear()
+	var def_card = give_player_specific_card(player2, "standard_normal_block")
+	var target = give_player_specific_card(player2, "standard_normal_spike")  # printed S3
+	player1.hand.clear()
+	var strike_card = give_player_specific_card(player1, "eugenia_werelight")
+	give_player_specific_card(player1, "eugenia_werelight")  # printed S3 -> matches Spike
+	execute_strike(player1, player2, strike_card, def_card,
+		false, false,
+		[0, [target], 0],  # order Werelight's choice first; discard Spike; passive: reveal
+		[1, []])   # opponent chooses reveal + Eugenia discards; no force for armor
+	# Werelight P4 + Hanging by a Thread +2 (opp hand now 0) - Block armor 2 = 4, +2 passive.
+	validate_life(player1, 30, player2, 24)
+
 # ===== COLOR SPRAY: hit opp draw-or-discard to 2 (random) =====
 
 func test_color_spray_damage():
@@ -430,9 +448,8 @@ func test_unhinged_adds_discard_on_ex_strike():
 func test_were_all_mad_here_boost():
 	# We're All Mad Here (Absinthin Arrow immediate boost, 0 Force): both players
 	# choose draw 0-4, then discard 1 random.
-	# do_boost handles Eugenia's choice (default Draw 1). Then opponent's
-	# EffectChoice is pending: picks Draw 1 (idx1). His discard triggers
-	# Eugenia's passive: pass (idx0).
+	# Eugenia picks Draw 0 (idx0); opponent picks Draw 1 (idx1). His discard
+	# triggers Eugenia's passive: pass.
 	# p1: 2 - 1(boost) + 1(draw, auto) - 1(discard) = 1
 	# p2: 2 + 1(draw) - 1(discard) = 2
 	position_players(player1, 4, player2, 5)
@@ -445,7 +462,7 @@ func test_were_all_mad_here_boost():
 	var p2_before = player2.hand.size()  # 2
 	assert_true(game_logic.do_boost(player1, boost_id))
 	# Opponent's EffectChoice (draw amount) then Eugenia's passive pass.
-	process_remaining_decisions(player1, player2, [0], [1])
+	process_remaining_decisions(player1, player2, [0, "pass"], [1])
 	# p1: boost consumed, auto-draw+discard
 	assert_eq(player1.hand.size(), p1_before - 1)
 	# p2: draw 1 discard 1 = net 0
