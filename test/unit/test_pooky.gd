@@ -115,6 +115,15 @@ func test_pooky_gambling_reveal_chains_into_second_gambling():
 
 	validate_life(player1, 30, player2, 23)
 
+func test_pooky_gambling_replacement_normal_keeps_speed_bonus_for_this_strike():
+	position_players(player1, 3, player2, 6)
+	set_player_topdeck(player1, "standard_normal_dive")
+
+	execute_strike(player1, player2, "pooky_gamblingimin", "standard_normal_assault",
+		false, false, [], [])
+
+	validate_life(player1, 30, player2, 24)
+
 func test_pooky_long_intooth_with_boost_applies_range_bonus_without_crash():
 	position_players(player1, 3, player2, 6)
 	var boost_id = give_player_specific_card(player1, "pooky_snackattack")
@@ -137,6 +146,37 @@ func test_pooky_speedup_with_continuous_boost_wins_speed_tie():
 
 	# Player 1 struck first (25 damage to opponent), took none in return.
 	validate_life(player1, 30, player2, 25)
+
+func test_pooky_normal_with_light_and_firewater_loses_reading_moonsong_speed_tie():
+	position_players(player1, 3, player2, 6)
+	set_player_topdeck(player1, "standard_normal_spike")
+	execute_strike(player1, player2, "pooky_gamblingimin", "standard_normal_sweep",
+		false, false, [], [])
+	validate_life(player1, 30, player2, 24)
+	game_logic.get_latest_events()
+
+	player1.discard_hand()
+	var dive_id = give_player_specific_card(player1, "standard_normal_dive")
+	add_continuous_boost(player1, "standard_normal_sweep")
+	add_continuous_boost(player1, "pooky_gamblingimin")
+	var reading_id = give_player_specific_card(player2, "standard_normal_focus")
+	var moonsong_id = give_player_specific_card(player2, "jin_moonsong")
+	var gauge_ids = give_gauge(player2, 3)
+
+	assert_true(game_logic.do_boost(player2, reading_id))
+	assert_true(game_logic.do_boost_name_card_choice_effect(player2, dive_id))
+	assert_true(game_logic.do_strike(player2, moonsong_id, false, -1))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player1, dive_id, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player2, gauge_ids, false))
+
+	assert_string_contains(game_logic.get_combat_log([Enums.LogType.LogType_Strike]),
+		"p2 has speed 6, p1 has speed 6.")
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_CardActivation, player2, moonsong_id)
+	validate_not_has_event(events, Enums.EventType.EventType_Strike_CardActivation, player1)
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 24, player2, 24)
 
 func test_pooky_range_per_cb_extends_to_distance_four_with_two_boosts():
 	# Long in the Tooth gains +0-1 max range per continuous boost. With two

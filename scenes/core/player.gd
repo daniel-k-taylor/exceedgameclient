@@ -166,6 +166,7 @@ class StrikeStatBoosts:
 		when_hit_force_for_armor = ""
 		stun_immunity = false
 		was_hit = false
+		pooky_normals_get_bonus = false
 		is_ex = false
 		higher_speed_misses = false
 		lower_speed_misses = false
