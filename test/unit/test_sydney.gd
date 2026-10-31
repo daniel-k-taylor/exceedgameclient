@@ -115,6 +115,23 @@ func test_sydney_verdantslaughter_drawpergauge():
 	advance_turn(player2)
 
 
+func test_sydney_alurauneskiss_boost_at_one_life_can_spend_zero():
+	position_players(player1, 2, player2, 1)
+	player1.life = 1
+	var boostcard = give_player_specific_card(player1, "sydney_alurauneskiss")
+	assert_true(game_logic.do_boost(player1, boostcard, []))
+	var gauge_size = player1.gauge.size()
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_false(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, 3))
+	assert_eq(player1.life, 1)
+	assert_eq(player1.gauge.size(), gauge_size)
+	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
+		# Decline the optional transform.
+		assert_true(game_logic.do_gauge_for_effect(player1, []))
+	advance_turn(player2)
+
+
 func test_sydney_verdantslaughter_drawpergauge_transform_noneavailable():
 	position_players(player1, 2, player2, 1)
 

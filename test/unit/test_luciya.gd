@@ -41,6 +41,16 @@ func test_exceed_cost_with_two_transforms():
 	add_transform(player1, "luciya_downburst")
 	assert_eq(player1.get_exceed_cost(), 1)
 
+func test_exceed_cost_with_four_transforms_clamps_to_zero_and_can_exceed():
+	add_transform(player1, "luciya_mantis_strike")
+	add_transform(player1, "luciya_downburst")
+	add_transform(player1, "luciya_talon_sweep")
+	add_transform(player1, "luciya_bug_zapper")
+	assert_eq(player1.get_exceed_cost(), 0)
+	assert_true(game_logic.can_do_exceed(player1))
+	assert_true(game_logic.do_exceed(player1, []))
+	assert_true(player1.exceeded)
+
 func test_exceed_moves_hand_to_gauge_and_draws_5():
 	var gauge_ids = give_gauge(player1, 5)
 	assert_true(game_logic.do_exceed(player1, gauge_ids))

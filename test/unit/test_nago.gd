@@ -122,23 +122,26 @@ func handle_simultaneous_effects(initiator, defender):
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
 
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = []):
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_id = TestCardId1, def_id = TestCardId2):
 	var all_events = []
-	give_specific_cards(initiator, init_card, defender, def_card)
+	if initiator:
+		give_player_specific_card(initiator, init_card, init_id)
+	if defender:
+		give_player_specific_card(defender, def_card, def_id)
 	if init_ex:
 		give_player_specific_card(initiator, init_card, TestCardId3)
-		do_and_validate_strike(initiator, TestCardId1, TestCardId3)
+		do_and_validate_strike(initiator, init_id, TestCardId3)
 	else:
-		do_and_validate_strike(initiator, TestCardId1)
+		do_and_validate_strike(initiator, init_id)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		game_logic.do_force_for_effect(initiator, init_force_discard, false)
 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
-		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
+		all_events += do_strike_response(defender, def_id, TestCardId4)
 	elif def_card:
-		all_events += do_strike_response(defender, TestCardId2)
+		all_events += do_strike_response(defender, def_id)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
 		game_logic.do_force_for_effect(defender, def_force_discard, false)
@@ -220,7 +223,8 @@ func test_nago_special_draw_exceed():
 	assert_eq(player1.hand.size(), 7)
 	assert_true(player1.exceeded)
 	validate_life(player1, 30, player2, 26)
-	events = execute_strike(player1, player2, "gg_normal_slash", "gg_normal_slash", [], [], false, false)
+	# Use fresh card ids so the first strike's cards (still in gauge/discard) aren't freed.
+	events = execute_strike(player1, player2, "gg_normal_slash", "gg_normal_slash", [], [], false, false, [], [], TestCardId5, TestCardId5 + 1)
 	validate_life(player1, 28, player2, 21)
 
 func test_nago_wildswing_cantpay():
@@ -308,3 +312,12 @@ func test_nago_boost_nago_shizuriyuki_cancel():
 
 
 
+
+func test_cannot_manually_exceed():
+	for i in range(3):
+		player1.add_to_gauge(player1.deck[0])
+		player1.deck.remove_at(0)
+	assert_eq(player1.get_exceed_cost(), -1)
+	assert_false(game_logic.can_do_exceed(player1))
+	assert_false(game_logic.do_exceed(player1, [player1.gauge[0].id]))
+	assert_false(player1.exceeded)

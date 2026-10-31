@@ -62,7 +62,15 @@ func get_card_names(card_ids) -> String:
 
 func _test_insert_card(card : GameCard):
 	if id_exists(card.id):
-		get_card(card.id).free()
+		# Tests reuse fixed ids across strikes; the displaced card may still be
+		# in a zone (gauge/discard), so give it a fresh id instead of freeing it.
+		var displaced = get_card(card.id)
+		all_cards.erase(card.id)
+		var fresh_id = 900000
+		if not all_cards.is_empty():
+			fresh_id = max(fresh_id, all_cards.keys().max() + 1)
+		displaced.id = fresh_id
+		all_cards[fresh_id] = displaced
 	add_card(card)
 
 func get_card_name(id : int) -> String:

@@ -56,14 +56,15 @@ func test_waiting_character_display_handles_missing_fields():
 	assert_eq(display, "")
 
 
-func test_initialize_queue_shows_english_waiting_label():
+func test_initialize_queue_sets_english_waiting_label_text():
 	var queue_item = MatchQueueItemScene.instantiate()
 	add_child_autofree(queue_item)
 
 	queue_item.initialize_queue("all", "All Seasons", true, "Ryu")
 
 	assert_eq(queue_item.waiting_character_label.text, "Waiting: Ryu")
-	assert_true(queue_item.waiting_character_label.visible)
+	# Displaying the waiting character on queues is currently disabled.
+	assert_false(queue_item.waiting_character_label.visible)
 
 
 func test_waiting_label_hidden_when_no_match_available():

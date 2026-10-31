@@ -38440,6 +38440,9 @@
 								"min_amount": 3,
 								"max_amount": 3
 							}
+						},
+						{
+							"effect_type": "pass"
 						}
 					]
 				}

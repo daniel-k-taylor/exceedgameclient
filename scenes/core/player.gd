@@ -648,6 +648,9 @@ func owns_card(card_id: int):
 	return false
 
 func get_exceed_cost():
+	# A negative deck exceed_cost means this character cannot manually exceed.
+	if exceed_cost < 0:
+		return -1
 	var cost = exceed_cost
 	if 'exceed_cost_reduced_by' in deck_def:
 		for reduction_effect in deck_def['exceed_cost_reduced_by']:

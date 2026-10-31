@@ -309,3 +309,12 @@ func test_leo_exceeded_zweites_get_bonus_once():
 	validate_life(player1, 30, player2, 26)
 	validate_positions(player1, 6, player2, 5)
 	advance_turn(player1)
+
+func test_cannot_manually_exceed():
+	for i in range(3):
+		player1.add_to_gauge(player1.deck[0])
+		player1.deck.remove_at(0)
+	assert_eq(player1.get_exceed_cost(), -1)
+	assert_false(game_logic.can_do_exceed(player1))
+	assert_false(game_logic.do_exceed(player1, [player1.gauge[0].id]))
+	assert_false(player1.exceeded)

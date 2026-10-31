@@ -2971,47 +2971,50 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var choice_player = performing_player
 			if 'opponent' in effect and effect['opponent']:
 				choice_player = opposing_player
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
-			decision_info.player = choice_player.my_id
-			if 'add_topdeck_card_name_to_choices' in effect:
-				# Add a 'card_name' field to each choice that's in this array.
-				for index in effect['add_topdeck_card_name_to_choices']:
-					var choice = effect[StrikeEffects.Choice][index]
-					var card_name = "nothing (deck empty)"
-					if choice_player.deck.size() > 0:
-						card_name = card_db.get_card_name(choice_player.deck[0].id)
-					choice['card_name'] = card_name
-			elif 'add_topdiscard_card_name_to_choices' in effect:
-				# Add a 'card_name' field to each choice that's in this array.
-				for index in effect['add_topdiscard_card_name_to_choices']:
-					var choice = effect[StrikeEffects.Choice][index]
-					var card_name = "nothing (discard empty)"
-					if choice_player.discards.size() > 0:
-						card_name = card_db.get_card_name(choice_player.discards[choice_player.discards.size() - 1].id)
-					choice['card_name'] = card_name
-			elif 'add_bottomdiscard_card_name_to_choices' in effect:
-				# Add a 'card_name' field to each choice that's in this array.
-				for index in effect['add_bottomdiscard_card_name_to_choices']:
-					var choice = effect[StrikeEffects.Choice][index]
-					var card_name = "nothing (discard empty)"
-					if choice_player.discards.size() > 0:
-						card_name = card_db.get_card_name(choice_player.discards[0].id)
-					choice['card_name'] = card_name
+			if not effect[StrikeEffects.Choice].any(func(c): return choice_player.can_choose_effect(c)):
+				_append_log_full(Enums.LogType.LogType_Effect, choice_player, "has no valid options to choose from.")
+			else:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
+				decision_info.player = choice_player.my_id
+				if 'add_topdeck_card_name_to_choices' in effect:
+					# Add a 'card_name' field to each choice that's in this array.
+					for index in effect['add_topdeck_card_name_to_choices']:
+						var choice = effect[StrikeEffects.Choice][index]
+						var card_name = "nothing (deck empty)"
+						if choice_player.deck.size() > 0:
+							card_name = card_db.get_card_name(choice_player.deck[0].id)
+						choice['card_name'] = card_name
+				elif 'add_topdiscard_card_name_to_choices' in effect:
+					# Add a 'card_name' field to each choice that's in this array.
+					for index in effect['add_topdiscard_card_name_to_choices']:
+						var choice = effect[StrikeEffects.Choice][index]
+						var card_name = "nothing (discard empty)"
+						if choice_player.discards.size() > 0:
+							card_name = card_db.get_card_name(choice_player.discards[choice_player.discards.size() - 1].id)
+						choice['card_name'] = card_name
+				elif 'add_bottomdiscard_card_name_to_choices' in effect:
+					# Add a 'card_name' field to each choice that's in this array.
+					for index in effect['add_bottomdiscard_card_name_to_choices']:
+						var choice = effect[StrikeEffects.Choice][index]
+						var card_name = "nothing (discard empty)"
+						if choice_player.discards.size() > 0:
+							card_name = card_db.get_card_name(choice_player.discards[0].id)
+						choice['card_name'] = card_name
 
-			decision_info.choice = []
-			for c_eff in effect[StrikeEffects.Choice]:
-				var choice_effect = c_eff.duplicate()
-				if 'card_id' in effect and 'card_id' not in choice_effect:
-					choice_effect['card_id'] = effect['card_id']
-				if '_source_player_id' not in choice_effect:
-					choice_effect['_source_player_id'] = effect_source_id
-				decision_info.choice.append(choice_effect)
+				decision_info.choice = []
+				for c_eff in effect[StrikeEffects.Choice]:
+					var choice_effect = c_eff.duplicate()
+					if 'card_id' in effect and 'card_id' not in choice_effect:
+						choice_effect['card_id'] = effect['card_id']
+					if '_source_player_id' not in choice_effect:
+						choice_effect['_source_player_id'] = effect_source_id
+					decision_info.choice.append(choice_effect)
 			
-			decision_info.choice_card_id = card_id
-			decision_info.multiple_choice_amount = multiple
-			create_event(Enums.EventType.EventType_Strike_EffectChoice, choice_player.my_id, 0, "EffectOption")
+				decision_info.choice_card_id = card_id
+				decision_info.multiple_choice_amount = multiple
+				create_event(Enums.EventType.EventType_Strike_EffectChoice, choice_player.my_id, 0, "EffectOption")
 		StrikeEffects.ChoiceAlteredValues:
 			# Make a deep copy of the choices and replace any needed values.
 			var updated_choices = effect[StrikeEffects.Choice].duplicate(true)
@@ -10208,6 +10211,8 @@ func can_do_exceed(performing_player : Player):
 	var gauge_available = len(performing_player.gauge) + performing_player.free_gauge
 	gauge_available += performing_player.get_discards_as_bonus_gauge()
 	var exceed_cost = performing_player.get_exceed_cost()
+	if exceed_cost < 0:
+		return false
 	if gauge_available >= exceed_cost:
 		return true
 
@@ -10777,6 +10782,9 @@ func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gaug
 		return false
 	if performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to exceed for wrong player.")
+		return false
+	if performing_player.get_exceed_cost() < 0:
+		printlog("ERROR: Tried to exceed but this character cannot manually exceed.")
 		return false
 	
 	if infusion_cost:
