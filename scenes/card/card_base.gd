@@ -44,6 +44,13 @@ const HighlightColor = Color('#36fff3')
 const GreyedOutColor = Color(0.5, 0.5, 0.5)
 const NormalColor = Color(1, 1, 1)
 
+# Phone (portrait) layout overrides, set by PhoneLayout.
+static var phone_mode : bool = false
+static var phone_strike_scale : Vector2 = Vector2(1.0, 1.0)
+static var phone_discard_scale : Vector2 = Vector2(0.3, 0.3)
+static var phone_focus_center : Vector2 = Vector2(360, 400)
+static var phone_focus_scale : Vector2 = Vector2(2.0, 2.0)
+
 static func get_hand_card_size() -> Vector2:
 	return ActualCardSize * HandCardScale
 
@@ -111,6 +118,10 @@ var topdeck_texture : Texture2D
 
 const DRAW_ANIMATION_LENGTH = 0.5
 const FOCUS_ANIMATION_LENGTH = 0.1
+# Phone: cards moving to a zone (discard pile, gauge, boost box, strike area...) take a little
+# longer, and fly over everything else on the screen except the help screen and the menu.
+const PHONE_ZONE_ANIMATION_LENGTH = 0.3
+const PHONE_ZONE_FLIGHT_Z = 85 # (help screen: 90; hamburger menu: its own canvas layer)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -205,12 +216,94 @@ func flip_card_to_front(front):
 	else:
 		card_back.visible = true
 		card_front.visible = false
+	_update_badge_visibility()
+
+# --- Special / ultra markers (phone layout) ---
+# A bold coloured roman numeral (specials) or lower-case greek letter (ultras)
+# in the top-left and top-right corners of the card. The value comes from the
+# card's fixed position in its character's special/ultra list, so it never
+# changes between matches. Hidden while the card is face down.
+var badge_text : String = ""
+var badge_color : Color = Color.WHITE
+
+var badge_s6 : bool = false
+
+func set_badge(text : String, color : Color, s6 : bool = false) -> void:
+	badge_text = text
+	badge_color = color
+	badge_s6 = s6
+	if text != "":
+		var font : Font = load("res://scenes/game/badge_font.gd").make_font()
+		# Positions are in card-local pixels (origin = card centre).
+		var is_ultra : bool = text.unicode_at(0) >= 0x370
+		var font_size := 23 if is_ultra else 36
+		var outline := 5 if is_ultra else 8
+		if not is_ultra:
+			if text.length() == 2 or text.length() == 3:
+				font_size = 29
+			elif text.length() > 3:
+				font_size = 23
+		# Top corners (clear of the gauge cost diamond at the bottom-left).
+		var anchor := Vector2(91.0, -144.0)
+		# Season 6 ultras print their gauge cost in the top-left corner: tuck the left marker
+		# in beside it (between the cost and the title).
+		var left_pos := Vector2(-anchor.x, anchor.y)
+		var right_pos := Vector2(anchor.x, anchor.y)
+		if is_ultra and s6:
+			# Lower-right corner of the cost square, mirrored on the other side.
+			left_pos = Vector2(-70.0, -134.0)
+			right_pos = Vector2(70.0, -134.0)
+		for pair in [["BadgeLeft", left_pos],
+				["BadgeRight", right_pos]]:
+			var label := card_features.get_node_or_null(pair[0]) as Label
+			if label == null:
+				label = Label.new()
+				label.name = pair[0]
+				label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				label.size = Vector2(70, 56)
+				card_features.add_child(label)
+			label.position = pair[1] - label.size / 2.0
+			label.text = text
+			label.add_theme_font_override("font", font)
+			label.add_theme_font_size_override("font_size", font_size)
+			label.add_theme_color_override("font_color", color)
+			label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.95))
+			label.add_theme_constant_override("outline_size", outline)
+	_update_badge_visibility()
+
+func _update_badge_visibility() -> void:
+	if card_features == null:
+		return
+	var show_it : bool = badge_text != "" and card_front != null and card_front.visible
+	for n in ["BadgeLeft", "BadgeRight"]:
+		var label = card_features.get_node_or_null(n)
+		if label != null:
+			label.visible = show_it
 
 func set_backlight_visible(backlight_visible):
 	backlight.visible = backlight_visible
 
+var _stun_badge = null
+
 func set_stun(stun_visible):
-	stun_indicator.visible = stun_visible
+	if not phone_mode:
+		stun_indicator.visible = stun_visible
+		return
+	# Phone: an onyx STUNNED badge across the middle of the card instead of the red X.
+	stun_indicator.visible = false
+	if stun_visible:
+		if _stun_badge == null or not is_instance_valid(_stun_badge):
+			_stun_badge = load("res://scenes/game/stun_badge.gd").new()
+			$CardFocusFeatures.add_child(_stun_badge)
+			_stun_badge.size = Vector2(236, 64)
+			_stun_badge.position = -_stun_badge.size / 2.0
+		elif _stun_badge.visible and _stun_badge.modulate.a > 0.9:
+			return
+		_stun_badge.slam_in()
+	elif _stun_badge != null and is_instance_valid(_stun_badge) and _stun_badge.visible:
+		_stun_badge.fade_out()
 
 func set_ex(ex_visible):
 	bonus_ex.visible = ex_visible
@@ -251,6 +344,7 @@ func update_visibility():
 
 func _physics_process(delta):
 	update_visibility()
+	delta *= phone_anim_pace # (phone: animations at their own pace, PhoneLayout.ANIM_PACE)
 
 	match state:
 		CardState.CardState_Focusing:
@@ -263,6 +357,7 @@ func _physics_process(delta):
 				card_features.position = target_pos
 				card_features.rotation_degrees = target_rotation
 				card_features.scale = target_scale
+				_end_focus_raise()
 		CardState.CardState_Unfocusing:
 			if animation_time <= 1:
 				card_features.position = start_pos.lerp(target_pos, animation_time)
@@ -273,6 +368,7 @@ func _physics_process(delta):
 				card_features.position = target_pos
 				card_features.rotation_degrees = target_rotation
 				card_features.scale = target_scale
+				_end_unfocus_raise()
 				change_state(return_state)
 		CardState.CardState_DrawingToHand: # animate from deck to hand
 			if animation_time <= 1:
@@ -298,7 +394,70 @@ func _physics_process(delta):
 				animation_time += delta / animation_length
 			else:
 				set_card_and_focus(target_pos, target_rotation, target_scale)
+				_end_zone_flight()
 				change_state(return_state)
+
+# Phone: a card being unfocused is drawn over everything (the highest z there is) until it is
+# back in place.
+const PHONE_UNFOCUS_Z := RenderingServer.CANVAS_ITEM_Z_MAX
+static var phone_anim_pace : float = 1.0
+var _unfocus_raised : bool = false
+
+func _end_unfocus_raise() -> void:
+	_raise_hand_for_anim(false)
+	if _unfocus_raised:
+		_unfocus_raised = false
+		if not z_as_relative and z_index == PHONE_UNFOCUS_Z:
+			z_as_relative = true
+			z_index = 0
+
+# Phone: while a hand card grows out of the hand or shrinks back into it, the whole hand is drawn
+# over everything else (the highest z), the card keeping its place among the hand cards: those
+# lying over it in the fan still cover it. Counted on the hand zone, as several cards can be
+# animating at once.
+var _hand_raise_zone : Node2D = null
+
+func _raise_hand_for_anim(on : bool) -> void:
+	if on:
+		if _hand_raise_zone != null:
+			return
+		var zone = get_parent()
+		if not zone is Node2D:
+			return
+		var n : int = int(zone.get_meta("phone_anim_raise", 0))
+		if n == 0:
+			zone.set_meta("phone_raise_orig", [zone.z_as_relative, zone.z_index])
+			zone.z_as_relative = false
+			zone.z_index = PHONE_UNFOCUS_Z
+		zone.set_meta("phone_anim_raise", n + 1)
+		_hand_raise_zone = zone
+	else:
+		var zone := _hand_raise_zone
+		_hand_raise_zone = null
+		if zone == null or not is_instance_valid(zone):
+			return
+		var n : int = int(zone.get_meta("phone_anim_raise", 1)) - 1
+		zone.set_meta("phone_anim_raise", maxi(n, 0))
+		if n <= 0 and zone.has_meta("phone_raise_orig"):
+			var orig : Array = zone.get_meta("phone_raise_orig")
+			zone.z_as_relative = orig[0]
+			zone.z_index = orig[1]
+			zone.remove_meta("phone_raise_orig")
+
+# A focused hand card in place: back to its normal focus level (z 14), the hand to its own.
+func _end_focus_raise() -> void:
+	if _hand_raise_zone != null:
+		_raise_hand_for_anim(false)
+		if phone_mode and z_as_relative and z_index == 0:
+			z_index = 14
+
+# Phone: back to its normal drawing order once it has landed.
+func _end_zone_flight() -> void:
+	if has_meta("phone_center_hold"):
+		return # (stopping at the screen center on its way to a zone: stays raised)
+	if not z_as_relative:
+		z_as_relative = true
+		z_index = 0
 
 func position_card_in_hand(dst_pos, dst_rot):
 	if state == CardState.CardState_DrawingToHand:
@@ -416,29 +575,40 @@ func set_resting_position(pos, rot):
 			resting_scale = ReferenceCardScale
 			set_card_and_focus(null, null, resting_scale)
 		CardState.CardState_Discarded:
-			resting_scale = DiscardCardScale
+			resting_scale = phone_discard_scale if phone_mode else DiscardCardScale
 			set_card_and_focus(null, null, resting_scale)
 
 func discard_to(pos, target_state):
+	set_meta("phone_prev_state", state) # (the phone layout's flight hook checks where it came from)
 	set_selected(false)
 	set_resting_position(pos, 0)
 	unfocus() # Sets animation_time to 0
 	if target_state == CardState.CardState_InStrike:
-		target_scale = StrikeCardScale
+		target_scale = phone_strike_scale if phone_mode else StrikeCardScale
 	elif target_state == CardState.CardState_Discarded:
-		target_scale = DiscardCardScale
+		target_scale = phone_discard_scale if phone_mode else DiscardCardScale
 	else:
 		target_scale = ReferenceCardScale
 	resting_scale = target_scale
 	return_state = target_state
+	if phone_mode:
+		animation_length = PHONE_ZONE_ANIMATION_LENGTH
+		z_as_relative = false
+		z_index = PHONE_ZONE_FLIGHT_Z
+	var from_zone = get_parent()
 	change_state(CardState.CardState_Discarding)
+	# Phone layout: it may change how the card gets there (e.g. no flight at all).
+	if phone_mode and phone_zone_flight_hook.is_valid():
+		phone_zone_flight_hook.call(self, from_zone, target_state)
 
 func finish_animation_immediately():
 	match state:
 		CardState.CardState_Focusing:
 			set_card_and_focus(target_pos, target_rotation, target_scale)
+			_end_focus_raise()
 		CardState.CardState_Unfocusing:
 			set_card_and_focus(target_pos, target_rotation, target_scale)
+			_end_unfocus_raise()
 			change_state(return_state)
 		CardState.CardState_DrawingToHand:
 			if not manual_flip_needed and not skip_flip_when_drawing:
@@ -447,6 +617,7 @@ func finish_animation_immediately():
 			change_state(CardState.CardState_InHand)
 		CardState.CardState_Discarding:
 			set_card_and_focus(target_pos, target_rotation, target_scale)
+			_end_zone_flight()
 			change_state(return_state)
 		_:
 			return
@@ -454,6 +625,10 @@ func finish_animation_immediately():
 
 func change_state(new_state):
 	state = new_state
+	# (a card leaving its focus animation some other way, e.g. played from the hand mid-way,
+	# lets the hand go back to its own drawing order)
+	if _hand_raise_zone != null and new_state != CardState.CardState_Focusing and new_state != CardState.CardState_Unfocusing:
+		_raise_hand_for_anim(false)
 
 func clamp_to_screen(center_pos : Vector2, size: Vector2) -> Vector2:
 	var global_pos = Vector2(0,0)
@@ -508,10 +683,29 @@ func focus():
 		target_scale = FocusScale
 		var size_at_scale = $CardFocusFeatures/CardContainer.size * target_scale
 		target_pos = clamp_to_screen(focus_pos, size_at_scale)
+		if phone_mode and return_state == CardState.CardState_InHand:
+			target_scale = phone_focus_scale
+			target_pos = phone_focus_center
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
 
+	z_as_relative = true
 	z_index = 10
+	# Phone: a focused hand card also shows over the strike cards (z 11), e.g. when a card is
+	# picked from the hand in the middle of a strike.
+	if phone_mode and return_state == CardState.CardState_InHand:
+		z_index = 14
+		# While it grows out of the hand it is drawn over everything except the hand cards
+		# lying over it (see _raise_hand_for_anim); z 14 once it is in place.
+		z_index = 0
+		_raise_hand_for_anim(true)
+
+	# Phone: the preview moves away from the hand, so its (still full-size)
+	# hit button must not swallow taps meant for neighbouring cards or the
+	# empty hand area.
+	if phone_mode and return_state == CardState.CardState_InHand:
+		focus_feature.get_node("Focus").mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_set_preview_input_ignored(true)
 
 	emit_signal("raised_card", self)
 	change_state(CardState.CardState_Focusing)
@@ -528,26 +722,81 @@ func unfocus():
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
 
-	z_index = 0
+	if phone_mode and return_state == CardState.CardState_InHand:
+		# Phone: back into the hand, drawn over everything except the hand cards lying over it.
+		z_as_relative = true
+		z_index = 0
+		_raise_hand_for_anim(true)
+	elif phone_mode:
+		# Phone: on its way back down it is drawn over everything else on screen.
+		z_as_relative = false
+		z_index = PHONE_UNFOCUS_Z
+		_unfocus_raised = true
+	else:
+		z_as_relative = true
+		z_index = 0
+	focus_feature.get_node("Focus").mouse_filter = Control.MOUSE_FILTER_STOP
+	_set_preview_input_ignored(false)
 
 	change_state(CardState.CardState_Unfocusing)
 	emit_signal("lowered_card", self)
 
+# Phone preview: GUI picking follows tree order, so the big preview card would
+# otherwise sit on top of the layout's tap targets. Let taps pass through it.
+func _set_preview_input_ignored(ignored : bool) -> void:
+	for n in card_features.find_children("*", "Control", true, false):
+		if ignored:
+			if not n.has_meta("phone_orig_mouse_filter"):
+				n.set_meta("phone_orig_mouse_filter", n.mouse_filter)
+			n.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		elif n.has_meta("phone_orig_mouse_filter"):
+			n.mouse_filter = n.get_meta("phone_orig_mouse_filter")
+			n.remove_meta("phone_orig_mouse_filter")
+
 func _on_focus_mouse_entered():
+	if phone_mode:
+		return
 	match state:
 		CardState.CardState_InHand, CardState.CardState_Unfocusing, CardState.CardState_InStrike, CardState.CardState_InPopout:
 			focus()
 
 func _on_focus_mouse_exited():
+	if phone_mode:
+		return
 	match state:
 		CardState.CardState_Focusing:
 			unfocus()
 
+const PhoneLongPressTime := 0.45
+# Set by the phone layout when "Phone Controls" are on; called as handler(card)
+# when a card is held down for a long press.
+static var phone_long_press_handler : Callable = Callable()
+# Phone layout: called (card, zone it is leaving, target state) once discard_to has set up a
+# card's flight to a zone.
+static var phone_zone_flight_hook : Callable = Callable()
+var _long_press_fired : bool = false
+var _press_token : int = 0
+
 func _on_focus_button_down():
-	pass
+	_long_press_fired = false
+	_press_token += 1
+	if phone_mode and phone_long_press_handler.is_valid():
+		var token := _press_token
+		get_tree().create_timer(PhoneLongPressTime).timeout.connect(func(): _check_long_press(token))
+
+func _check_long_press(token : int):
+	if token != _press_token or not is_inside_tree():
+		return
+	var btn = focus_feature.get_node_or_null("Focus")
+	if btn != null and btn.button_pressed and phone_long_press_handler.is_valid():
+		_long_press_fired = true
+		phone_long_press_handler.call(self)
 
 func _on_focus_button_up():
-	pass
+	_press_token += 1 # cancels a pending long press
 
 func _on_focus_pressed():
+	if _long_press_fired:
+		_long_press_fired = false
+		return # the long press already handled this touch
 	emit_signal("clicked_card", self)

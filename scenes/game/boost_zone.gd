@@ -10,6 +10,13 @@ signal clicked_zone
 const MaxEffectsHeight : float = 180.0
 const ScrollWheelStep : float = 32.0
 
+# Phone layout stretches the zone to a fixed window; the summary then fills the
+# window (and scrolls) instead of growing it.
+var fill_mode : bool = false
+
+# Phone layout raises this so the box can grow taller before scrolling.
+var max_effects_height : float = MaxEffectsHeight
+
 @onready var focus_button : TextureButton = $OuterMargin/Focus
 @onready var effects_label : RichTextLabel = $OuterMargin/BoostPanel/InnerMargin/BoostVBox/BoostEffects
 
@@ -40,16 +47,20 @@ func set_text(text):
 func _update_effects_height():
 	if not is_node_ready():
 		return
+	if fill_mode:
+		if effects_label.custom_minimum_size.y != 0.0:
+			effects_label.custom_minimum_size.y = 0.0
+		return
 	var content_height : float = effects_label.get_content_height()
 	var desired : float = content_height
-	if content_height > MaxEffectsHeight:
+	if content_height > max_effects_height:
 		# Snap the cap to whole lines so the summary never ends on a half-drawn
 		# row of text.
-		desired = MaxEffectsHeight
+		desired = max_effects_height
 		var line_count : int = effects_label.get_line_count()
 		if line_count > 0:
 			var line_height : float = content_height / line_count
 			if line_height > 0:
-				desired = maxf(line_height, floorf(MaxEffectsHeight / line_height) * line_height)
+				desired = maxf(line_height, floorf(max_effects_height / line_height) * line_height)
 	if not is_equal_approx(effects_label.custom_minimum_size.y, desired):
 		effects_label.custom_minimum_size.y = desired

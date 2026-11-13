@@ -190,7 +190,10 @@ enum EventType {
 	EventType_SwapSealedAndDeck,
 	EventType_SwapDeckAndDiscard,
 	EventType_Transform_Added,
-	EventType_CancelDecision
+	EventType_CancelDecision,
+	# A strike status the phone layout shows as a badge (reason: "stun_immunity",
+	# "ignore_armor" or "ignore_guard"). No other UI reacts to it.
+	EventType_Strike_StatusBadge
 }
 
 enum LogType {

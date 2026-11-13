@@ -1518,6 +1518,31 @@ func strike_setup_initiator_response():
 		decision_info.player = active_strike.initiator.my_id
 		create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet, active_strike.initiator.my_id, 0)
 
+# Character ability effects that apply to this strike but are only carried out later (on a
+# hit, after the attack, at cleanup) are announced as the cards are revealed, so the bonus
+# effect box can list them: always-on ones, and conditional ones whose condition is already
+# met. (The UI skips the line again when the effect is carried out.)
+const ANNOUNCE_TIMINGS = ["hit", "after", "cleanup"]
+# Conditions that can be told from the revealed cards / turn state alone.
+const ANNOUNCE_CONDITIONS = ["", "is_normal_attack", "is_special_attack", "is_special_or_ultra_attack",
+		"is_buddy_special_or_ultra_attack", "initiated_strike", "not_initiated_strike",
+		"used_character_action", "used_character_bonus", "not_used_character_bonus"]
+
+func _announce_character_abilities():
+	for p in [active_strike.initiator, active_strike.defender]:
+		for timing in ANNOUNCE_TIMINGS:
+			for e in p.get_character_effects_at_timing(timing):
+				if not e.get("character_effect", false):
+					continue
+				var cond = str(e.get("condition", ""))
+				if not (cond in ANNOUNCE_CONDITIONS):
+					continue
+				if cond != "" and not is_effect_condition_met(p, e, LocalStrikeConditions.new()):
+					continue
+				var shown = e.duplicate()
+				shown["announce_timing"] = timing
+				create_event(Enums.EventType.EventType_Strike_CharacterEffect, p.my_id, -1, "", shown)
+
 func begin_resolve_strike():
 	# Strike is beginning, setup has been completed.
 	active_strike.in_setup = false
@@ -1568,7 +1593,10 @@ func begin_resolve_strike():
 		if from_dreamlands or matches_dreamlands:
 			umina_si_p.strike_stat_boosts.stun_immunity = true
 			_append_log_full(Enums.LogType.LogType_Effect, umina_si_p, "has stun immunity from Dreamlands!")
+			create_event(Enums.EventType.EventType_Strike_StatusBadge, umina_si_p.my_id, 0, "stun_immunity")
 			create_event(Enums.EventType.EventType_Strike_CharacterEffect, umina_si_p.my_id, -1, "", {"character_effect": true, "override_description": "Stun Immune (Dreamlands)"})
+
+	_announce_character_abilities()
 
 	# Handle EX
 	if active_strike.initiator_ex_card != null:
@@ -3918,30 +3946,38 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var speed_dodge = effect['dodge_at_speed_greater_or_equal']
 				performing_player.strike_stat_boosts.dodge_at_speed_greater_or_equal = speed_dodge
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of speed %s or greater!" % speed_dodge)
+				create_event(Enums.EventType.EventType_Strike_StatusBadge, performing_player.my_id, 0, "speed_dodge", "DODGE SPD %s+" % speed_dodge)
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of a higher speed!")
+				create_event(Enums.EventType.EventType_Strike_StatusBadge, performing_player.my_id, 0, "speed_dodge", "DODGE >SPD")
 		StrikeEffects.LowerSpeedMisses:
 			performing_player.strike_stat_boosts.lower_speed_misses = true
 			if 'dodge_at_speed_lower_or_equal' in effect:
 				var speed_dodge = effect['dodge_at_speed_lower_or_equal']
 				performing_player.strike_stat_boosts.dodge_at_speed_lower_or_equal = speed_dodge
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of speed %s or lower!" % speed_dodge)
+				create_event(Enums.EventType.EventType_Strike_StatusBadge, performing_player.my_id, 0, "speed_dodge", "DODGE SPD %s-" % speed_dodge)
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of a lower speed!")
+				create_event(Enums.EventType.EventType_Strike_StatusBadge, performing_player.my_id, 0, "speed_dodge", "DODGE <SPD")
 		StrikeEffects.IgnoreArmor:
 			if 'opponent' in effect and effect['opponent']:
 				opposing_player.strike_stat_boosts.ignore_armor = true
 				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "gains ignore armor.")
+				create_event(Enums.EventType.EventType_Strike_StatusBadge, opposing_player.my_id, 0, "ignore_armor")
 			else:
 				performing_player.strike_stat_boosts.ignore_armor = true
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore armor.")
+				create_event(Enums.EventType.EventType_Strike_StatusBadge, performing_player.my_id, 0, "ignore_armor")
 		StrikeEffects.IgnoreGuard:
 			if 'opponent' in effect and effect['opponent']:
 				opposing_player.strike_stat_boosts.ignore_guard = true
 				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "gains ignore guard.")
+				create_event(Enums.EventType.EventType_Strike_StatusBadge, opposing_player.my_id, 0, "ignore_guard")
 			else:
 				performing_player.strike_stat_boosts.ignore_guard = true
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore guard.")
+				create_event(Enums.EventType.EventType_Strike_StatusBadge, performing_player.my_id, 0, "ignore_guard")
 		StrikeEffects.IgnorePushAndPull:
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		StrikeEffects.IgnorePushAndPullPassiveBonus:
@@ -6892,6 +6928,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)
 		StrikeEffects.StunImmunity:
 			performing_player.strike_stat_boosts.stun_immunity = true
+			create_event(Enums.EventType.EventType_Strike_StatusBadge, performing_player.my_id, 0, "stun_immunity")
 		StrikeEffects.SustainAllBoosts:
 			for boost in performing_player.continuous_boosts:
 				if boost.id not in performing_player.sustained_boosts:
@@ -7381,6 +7418,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				umina_sc_card.definition = umina_sc_def.duplicate(true)
 				if not performing_player.exceeded and performing_player.deck_flag("dreamlands_config", {}).get("stun_immunity"):
 					performing_player.strike_stat_boosts.stun_immunity = true
+					create_event(Enums.EventType.EventType_Strike_StatusBadge, performing_player.my_id, 0, "stun_immunity")
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "copies %s from Dreamlands." % _log_card_name(umina_sc_copy.id))
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Shadow Chorus has no strike card to replace.")
@@ -10727,8 +10765,10 @@ func do_change(performing_player : Player, card_ids, treat_ultras_as_single_forc
 			printlog("ERROR: Tried to discard cards that aren't in hand or gauge.")
 			return false
 
-	create_event(Enums.EventType.EventType_ChangeCards, performing_player.my_id, 0)
 	var force_generated = performing_player.get_force_with_cards(card_ids, "CHANGE_CARDS", treat_ultras_as_single_force, use_free_force)
+	# extra_info: the force generated (= cards drawn), for the UI's last-action box.
+	create_event(Enums.EventType.EventType_ChangeCards, performing_player.my_id, 0, "",
+		force_generated + performing_player.get_force_from_spent_life(spent_life_for_force))
 	performing_player.discard(card_ids, 0, true)
 
 	force_generated += performing_player.get_force_from_spent_life(spent_life_for_force)

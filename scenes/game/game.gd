@@ -78,6 +78,7 @@ const StrikeRevealDelay : float = 2.0
 const MoveDelay : float = 1.0
 const BoostDelay : float = 2.0
 const SmallNoticeDelay : float = 1.0
+const PhoneGemStatDelay : float = 0.3 # (phone: a stat change shown by its gem rolling, not floating text)
 
 # --- Web-runtime health governor tuning (all no-op when not running on web) ---
 const WebRuntimeLoadYieldBatchSize : int = 4
@@ -309,6 +310,7 @@ var previous_ui_state : UIState = UIState.UIState_Initializing
 var previous_ui_sub_state : UISubState = UISubState.UISubState_None
 
 var game_wrapper : GameWrapper = GameWrapper.new()
+var phone_layout : PhoneLayout = null
 var ai_player : AIPlayer
 @onready var card_popout_parent : Node2D = $CardPopoutParent
 @onready var choice_zone_parent : Node2D = $AllCards/ChoiceZone
@@ -487,6 +489,11 @@ func _ready():
 	image_loader = CardImageLoader.new()
 	add_child(image_loader)
 
+	if GlobalSettings.PhoneLayoutEnabled:
+		phone_layout = PhoneLayout.new()
+		add_child(phone_layout)
+		phone_layout.setup(self)
+
 	resolved_arena_style = BackgroundManager.resolve_background_id(GlobalSettings.ArenaStyle)
 	_initialize_track_overlay_layers()
 
@@ -572,7 +579,7 @@ func _on_players_update(_players, _matches, _queues : Array, newly_available_mat
 
 func show_match_available_notification():
 	if not ignore_queue_notifications:
-		slideout_dialog.position = SlideoutStartPosition
+		slideout_dialog.position = phone_layout.slideout_start() if phone_layout != null else SlideoutStartPosition
 		slideout_dialog.visible = true
 		slideout_dialog.set_fields(
 			"A match is available!",
@@ -845,6 +852,8 @@ func setup_character_card(character_card, deck, buddy_character_card):
 func finish_initialization():
 	opponent_name_label.text = game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Opponent)
 	await spawn_all_cards()
+	if phone_layout != null:
+		phone_layout.on_game_ready()
 
 func test_init():
 	if Test_StartWithGauge:
@@ -997,13 +1006,38 @@ func spawn_deck(deck_list,
 				buddy_card_id = buddy_card_id_links[buddy_id]
 			create_buddy_reference_card(buddy_id, false, buddy_copy_zone, buddy_card_id, image_resources)
 
+# The phone layout announces turn actions with banners instead of these floating words.
+# (and leaves out a few more notices it has no use for)
+const PHONE_BANNERED_POPUPS := ["Prepare!", "Change Cards!", "Exceed!", "Boost!", "Reshuffle!",
+		"Cancel!", "Move", "Strike!", "Character Action",
+		"Bonus Action", "Cancel?", "+ Continuous Boost", "+ Gauge", "Wild Swing!", "Force Wild Swing!",
+		"+Advantage!", "Stunned!", "Ready!"]
+# Notices starting with these (every Dodge notice; placing / removing a buddy such as Eddie).
+const PHONE_SKIPPED_POPUP_PREFIXES := ["Dodge", "Place ", "Remove "]
+# Notices ending with these ("3 Damage", "+2 Life"): with the life gem on, it shows the change
+# instead.
+const PHONE_SKIPPED_POPUP_SUFFIXES := [" Damage", " Life"]
+
 func spawn_damage_popup(value:String, notice_player : Enums.PlayerId):
+	if phone_layout != null:
+		if value in PHONE_BANNERED_POPUPS:
+			return
+		for pre in PHONE_SKIPPED_POPUP_PREFIXES:
+			if value.begins_with(pre):
+				return
+		for suf in PHONE_SKIPPED_POPUP_SUFFIXES:
+			if value.ends_with(suf) and phone_layout.USE_LIFE_GEM:
+				return
 	var popup = get_damage_popup()
 	var pos = get_notice_position(notice_player)
 	pos.y -= NoticeOffsetY
 	var height = NoticeOffsetY
 	add_child(popup)
-	popup.set_values_and_animate(value, pos, height)
+	if phone_layout != null:
+		# Phone: twice as big, and up half as long again.
+		popup.set_values_and_animate(value, pos, height, 2.0, 1.5)
+	else:
+		popup.set_values_and_animate(value, pos, height)
 
 func get_damage_popup() -> DamagePopup:
 	if damage_popup_pool.size() > 0:
@@ -1029,7 +1063,11 @@ func spawn_emote(
 	if game_wrapper.get_player_location(player_id) > 5:
 		pos.x -= 50
 	var height = NoticeOffsetY
-	emote_display.play_emote(is_image_emote, emote, pos, height)
+	if phone_layout != null:
+		# Phone: text twice as big (as the notice popups), up half as long again.
+		emote_display.play_emote(is_image_emote, emote, pos, height, 2.0, 1.5)
+	else:
+		emote_display.play_emote(is_image_emote, emote, pos, height)
 
 func spawn_all_cards():
 	var player_buddy_graphics = []
@@ -1085,6 +1123,9 @@ func move_character_to_arena_square(character,
 		move_anim : Character.CharacterAnim,
 		buddy_offset : int = 0
 ):
+	if phone_layout != null:
+		phone_layout.on_character_moved(character, arena_location, immediate, move_anim, buddy_offset)
+		return
 	var target_square = arena_layout.get_child(arena_location - 1)
 	var target_position = target_square.global_position + target_square.size/2
 	var offset_y = $ArenaNode/RowButtons.position.y
@@ -1130,9 +1171,16 @@ func _process(delta):
 			first_run_in_progress = true
 			await first_run()
 		return
+	# Phone layout: during a strike, the next events wait until the cards passing through the
+	# screen center have finished (so e.g. the opponent paying force doesn't start while your card
+	# is still on its way to the gauge).
+	var phone_holding : bool = phone_layout != null and not restore_fast_forwarding \
+			and phone_layout.should_hold_events(delta)
 	if ui_state == UIState.UIState_PlayingAnimation:
-		remaining_delay -= delta
-		if remaining_delay <= 0:
+		remaining_delay -= delta * (phone_layout.ANIM_PACE if phone_layout != null else 1.0)
+		if remaining_delay <= 0 and phone_holding:
+			remaining_delay = 0
+		elif remaining_delay <= 0:
 			# Animation is finished playing.
 			update_character_facing()
 			remaining_delay = 0
@@ -1142,7 +1190,7 @@ func _process(delta):
 				_handle_events(temp_events)
 			else:
 				change_ui_state(previous_ui_state, previous_ui_sub_state)
-	else:
+	elif not phone_holding:
 		var events = game_wrapper.poll_for_events()
 		if events.size() > 0:
 			_handle_events(events)
@@ -1506,6 +1554,9 @@ static func get_rotation_safe_position(target_position : Vector2, node_size : Ve
 		clampf(target_position.y, -node_size.y, viewport_size.y))
 
 func _apply_responsive_root_layout(viewport_size : Vector2):
+	if phone_layout != null:
+		phone_layout.apply(viewport_size)
+		return
 	var viewport_scale = Vector2(
 		viewport_size.x / BaseViewportSize.x,
 		viewport_size.y / BaseViewportSize.y
@@ -1779,6 +1830,11 @@ func update_card_counts():
 	$PlayerZones/PlayerOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Player)
 	$OpponentZones/OpponentOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Opponent)
 
+	if phone_layout != null:
+		phone_layout.refresh_gauge()
+		phone_layout.refresh_counts()
+		phone_layout.update_strip()
+
 func get_card_node_name(id):
 	return "Card_" + str(id)
 
@@ -1806,6 +1862,10 @@ func create_card(id, card_def, image_url_index, cardback_url, parent, is_opponen
 	)
 
 	new_card.name = get_card_node_name(id)
+	if phone_layout != null:
+		var badge : Dictionary = phone_layout.badge_for(card_def, is_opponent)
+		if not badge.is_empty():
+			new_card.set_badge(badge["text"], badge["color"], badge.get("s6", false))
 	new_card.raised_card.connect(on_card_raised)
 	new_card.lowered_card.connect(on_card_lowered)
 	new_card.clicked_card.connect(on_card_clicked)
@@ -1837,6 +1897,8 @@ func on_card_raised(card):
 		parent.move_child(card, parent.get_child_count() - 1)
 
 func on_card_lowered(card):
+	if phone_layout != null:
+		phone_layout.on_card_lowered(card)
 	if UseHugeCard:
 		huge_card.visible = false
 	if card.saved_hand_index != -1:
@@ -2163,6 +2225,8 @@ func get_selected_card_ids() -> Array:
 	return selected_card_ids
 
 func on_card_clicked(card : CardBase):
+	if phone_layout != null and phone_layout.intercept_card_click(card):
+		return
 	if observer_mode:
 		return
 
@@ -2187,6 +2251,8 @@ func on_card_clicked(card : CardBase):
 		_update_buttons(true)
 
 func _on_card_popout_card_clicked(card_id : int):
+	if phone_layout != null and phone_layout.show_popout_preview(card_id):
+		return
 	var card = find_card_on_board(card_id)
 	if card:
 		on_card_clicked(card)
@@ -2226,6 +2292,9 @@ func sort_player_hand(hand_zone):
 		hand_zone.add_child(node)
 
 func layout_player_hand(is_player : bool):
+	if phone_layout != null and is_player:
+		phone_layout.layout_hand()
+		return
 	var hand_zone = get_hand_zone(is_player)
 	var num_cards = len(hand_zone.get_children())
 	if num_cards > 0:
@@ -2277,6 +2346,13 @@ func layout_player_hand(is_player : bool):
 				hand_center.y += 85
 			var min_x = hand_center.x - 200
 			var max_x = hand_center.x + 200
+			if phone_layout != null:
+				# Phone: the fan stays between their sealed icon and their hand icon, however many
+				# cards they hold (the cards just overlap more).
+				var span : Vector2 = phone_layout.opp_hand_span()
+				hand_center.x = (span.x + span.y) / 2.0
+				min_x = span.x
+				max_x = span.y
 			if num_cards == 1:
 				var pos = Vector2(hand_center.x, hand_center.y)
 				var card : CardBase = hand_zone.get_child(0)
@@ -2427,6 +2503,14 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_EndOverdrive:
 			notice_text = "Overdrive Ends"
 
+	# Phone layout with stat gems: stat changes roll up in the gem badges instead of floating text.
+	if phone_layout != null and phone_layout.USE_STAT_GEMS and event['event_type'] in [
+			Enums.EventType.EventType_Strike_PowerUp, Enums.EventType.EventType_Strike_SpeedUp,
+			Enums.EventType.EventType_Strike_ArmorUp, Enums.EventType.EventType_Strike_GuardUp,
+			Enums.EventType.EventType_Strike_RangeUp]:
+		# (no floating text to read: just long enough for the gem to start rolling, so a strike
+		# with a few boosts in play doesn't sit idle a second per stat change)
+		return PhoneGemStatDelay
 	spawn_damage_popup(notice_text, player)
 	return SmallNoticeDelay
 
@@ -2462,6 +2546,9 @@ func _on_stunned(event):
 	return _stat_notice_event(event)
 
 func _on_end_of_strike():
+	_announced_lines.clear()
+	if phone_layout != null:
+		phone_layout.strike_end()
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
 	for zone in $AllCards.get_children():
@@ -2548,6 +2635,10 @@ func _on_continuous_boost_added(event):
 	card.discard_to(pos, CardBase.CardState.CardState_InBoost)
 	reparent_to_zone(card, boost_card_loc)
 	spawn_damage_popup("+ Continuous Boost", player)
+	if phone_layout != null:
+		# Phone: the card has already flown into its boost box (and its text shows there) when
+		# it was played, so there is nothing more to wait for here.
+		return 0.0
 	return SmallNoticeDelay
 
 func _on_transform_added(event):
@@ -2700,6 +2791,10 @@ func _on_boost_played(event):
 	if not is_player:
 		target_zone = $OpponentStrike/StrikeZone
 	_move_card_to_strike_area(card, target_zone, $AllCards/Striking, is_player, false)
+	# Phone layout: the boosted card isn't shown over the characters (an instant boost's text
+	# shows in the boost window while it resolves instead).
+	if phone_layout != null:
+		phone_layout.boost_card_played(card, is_player, is_facedown == true)
 
 	var boost_text = "Boost!"
 	if is_transform:
@@ -2828,6 +2923,17 @@ func _on_choose_from_topdeck(event):
 	var can_pass = decision_info.can_pass
 	var look_amount = decision_info.amount
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		# Phone layout: nothing to choose (the top card, which can only be boosted, e.g. Faust's
+		# action): boost it straight away, without the top-of-deck window.
+		if phone_layout != null and int(look_amount) == 1 and not can_pass \
+				and action_choices is Array and action_choices.size() == 1 and str(action_choices[0]) == "boost":
+			var top_ids = game_wrapper.get_player_top_cards(player, 1)
+			if top_ids.size() == 1:
+				current_topdeck_choosing_player = player
+				if game_wrapper.submit_choose_from_topdeck(player, top_ids[0], "boost"):
+					popout_instruction_info = null
+					change_ui_state(UIState.UIState_WaitForGameServer)
+					return
 		begin_choose_from_topdeck(action_choices, look_amount, can_pass, player)
 	elif game_wrapper.is_ai_game():
 		ai_choose_from_topdeck(action_choices, look_amount, can_pass)
@@ -3022,6 +3128,9 @@ func get_all_player_cards() -> Array:
 	return found_cards
 
 func reparent_to_zone(card, zone, from_top : int = 0):
+	if card.get_parent() == $AllCards/Striking and phone_layout != null \
+			and str(zone.name) in ["PlayerGauge", "OpponentGauge", "PlayerDiscards", "OpponentDiscards", "PlayerSealed", "OpponentSealed", "PlayerOverdrive", "OpponentOverdrive"]:
+		phone_layout.strike_cards_sent_away(card) # (the card tells EX extras apart)
 	card.get_parent().remove_child(card)
 	zone.add_child(card)
 	if from_top > 0:
@@ -3044,11 +3153,14 @@ func _on_add_to_gauge(event):
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	if card.get_parent() == $AllCards/PlayerDeck or card.get_parent() == $AllCards/OpponentDeck:
 		card.set_card_and_focus(get_deck_button_position(is_player), null, null)
+	# A strike card going to the gauge at the end of a strike: no pause after it, so it
+	# leaves at the same time as the other strike card (discards have no pause either).
+	var from_strike : bool = card.get_parent() == $AllCards/Striking
 	card.discard_to(pos, CardBase.CardState.CardState_InGauge)
 	reparent_to_zone(card, gauge_card_loc)
 	layout_player_hand(is_player)
 	spawn_damage_popup("+ Gauge", player)
-	return SmallNoticeDelay
+	return 0 if from_strike else SmallNoticeDelay
 
 func _on_add_to_sealed(event):
 	var player = event['event_player']
@@ -3068,11 +3180,14 @@ func _on_add_to_sealed(event):
 	card.flip_card_to_front(not keep_hidden)
 	var pos = sealed_panel.get_center_pos()
 	var is_player = player == Enums.PlayerId.PlayerId_Player
+	var from_zone = card.get_parent()
 	if card.get_parent() == $AllCards/PlayerDeck or card.get_parent() == $AllCards/OpponentDeck:
 		card.set_card_and_focus(get_deck_button_position(is_player), null, null)
 	card.discard_to(pos, CardBase.CardState.CardState_InGauge)
 	reparent_to_zone(card, sealed_card_loc)
 	layout_player_hand(is_player)
+	if phone_layout != null:
+		phone_layout.on_card_sealed(card, from_zone, is_player) # (its SEAL banner)
 
 	var display_popup = true
 	if 'extra_info' in event:
@@ -3154,6 +3269,18 @@ func _on_add_to_hand(event):
 	var player = event['event_player']
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	var card = find_card_on_board(event['number'])
+	# Phone: a card leaving a sealed area stops at the screen center first, then goes into the hand.
+	if phone_layout != null and card.get_parent() in [$AllCards/PlayerSealed, $AllCards/OpponentSealed]:
+		phone_layout.fly_from_sealed_to_hand(card, is_player, func(): _put_card_in_hand(card, is_player))
+		return
+	_put_card_in_hand(card, is_player)
+
+func _put_card_in_hand(card, is_player : bool) -> void:
+	if card == null or not is_instance_valid(card):
+		return
+	# Phone: a card returned from your gauge flies to the hand over everything else (only the
+	# hand cards lying over it in the fan still cover it).
+	var from_gauge : bool = phone_layout != null and is_player and card.get_parent() == $AllCards/PlayerGauge
 	card.reset()
 	var reveal = is_player
 	if observer_mode:
@@ -3161,6 +3288,11 @@ func _on_add_to_hand(event):
 	card.flip_card_to_front(reveal)
 	add_card_to_hand(card.card_id, is_player)
 	layout_player_hand(is_player)
+	if from_gauge and card.state == CardBase.CardState.CardState_DrawingToHand:
+		if not card.z_as_relative:
+			card.z_as_relative = true
+			card.z_index = 0
+		card._raise_hand_for_anim(true)
 
 func _on_draw_event(event):
 	var player = event['event_player']
@@ -3276,6 +3408,10 @@ func _on_force_start_boost(event):
 				change_ui_state(UIState.UIState_WaitForGameServer)
 		else:
 			begin_boost_choosing(false, valid_zones, limitation, ignore_costs, boost_amount)
+			if phone_layout != null:
+				# Phone: you choose the boost straight away (a delay here would hold the selection
+				# back while it plays out, e.g. after Jack-O's character action).
+				return 0.0
 	else:
 		ai_do_boost(valid_zones, limitation, ignore_costs, boost_amount)
 	return SmallNoticeDelay
@@ -3310,6 +3446,9 @@ func _on_force_start_strike(event):
 				change_ui_state(UIState.UIState_WaitForGameServer)
 		else:
 			begin_strike_choosing(false, false, false, disable_wild_swing, disable_ex, require_ex)
+			if phone_layout != null:
+				# Phone: you choose your strike card straight away (see _on_force_start_boost).
+				return 0.0
 	else:
 		ai_forced_strike(disable_wild_swing, disable_ex, require_ex)
 	return SmallNoticeDelay
@@ -3356,10 +3495,17 @@ func _on_game_over(event):
 	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
 	_update_buttons()
 	var player = event['event_player']
+	if phone_layout != null:
+		# (the winner's victory slot under their life bar, marked with how they won)
+		phone_layout.record_victory(int(player), int(event.get('number', -1)))
 	if player == Enums.PlayerId.PlayerId_Player:
 		game_over_label.text = "DEFEAT"
+		if phone_layout != null:
+			phone_layout.show_game_over(false)
 	else:
 		game_over_label.text = "WIN!"
+		if phone_layout != null:
+			phone_layout.show_game_over(true)
 		if not observer_mode:
 			game_wrapper.submit_match_result(player_clock_remaining, opponent_clock_remaining)
 
@@ -3375,6 +3521,9 @@ func _on_change_cards(event):
 
 func _on_hand_size_exceeded(event):
 	var active_player = game_wrapper.get_active_player()
+	if phone_layout != null:
+		# (its discards come under a HAND LIMIT banner)
+		phone_layout.hand_limit_started(active_player == Enums.PlayerId.PlayerId_Player)
 	if active_player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		begin_discard_cards_selection(event['number'], event['number'],UISubState.UISubState_SelectCards_DiscardCards)
 	else:
@@ -3574,7 +3723,7 @@ func update_gauge_selection_message():
 		if force_for_armor_ignore_armor:
 			damage_after_armor = force_for_armor_incoming_damage
 			ignore_armor_str = "Armor Ignored! "
-		set_instructions("Spend Gauge for +%s Armor each.\n%s\n%sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
+		set_instructions("Spend Gauge for +%s Armor each.\n%s %sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
 	else:
 		var gauge_from_life = get_gauge_from_spent_life()
 		var num_remaining = select_card_require_min - get_gauge_generated()
@@ -3722,7 +3871,7 @@ func update_force_generation_message():
 			if force_for_armor_ignore_armor:
 				damage_after_armor = force_for_armor_incoming_damage
 				ignore_armor_str = "Armor Ignored! "
-			set_instructions("Select cards to generate force for +%s Armor each.\n%s\n%sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
+			set_instructions("Select cards to generate force for +%s Armor each.\n%s %sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
 		UISubState.UISubState_SelectCards_StrikeForce:
 			set_instructions("Select cards to generate %s force for this strike.\n%s" % [select_card_require_force, force_generated_str])
 		UISubState.UISubState_SelectCards_ForceForEffect:
@@ -4252,6 +4401,22 @@ func _on_strike_started(event, is_ex : bool, is_wild : bool = false):
 	else:
 		# Opponent started strike, player has to respond.
 		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false, is_ex)
+	# Phone layout: every set strike card is face down (the staged reveal turns them up).
+	if phone_layout != null and not reveal_immediately:
+		card.flip_card_to_front(false)
+	# Phone layout: of an EX strike's two cards only one stays in view (it has the EX label).
+	if phone_layout != null and is_ex:
+		phone_layout.strike_stage.hide_ex_card(card)
+	# Phone layout: set strike cards stay out of sight; a STRIKE banner (tagged EX / WILD SWING)
+	# is shown until the response is chosen.
+	if phone_layout != null:
+		phone_layout.strike_stage.card_set(card, player == Enums.PlayerId.PlayerId_Player,
+				is_ex or is_ex_strike, is_wild)
+		# The opponent striking face up: the STRIKE banner names the card.
+		if reveal_immediately and player == Enums.PlayerId.PlayerId_Opponent:
+			phone_layout.strike_stage.name_opponent_strike(card)
+		if is_ex or is_ex_strike:
+			phone_layout.show_ex_badge(player == Enums.PlayerId.PlayerId_Player)
 
 func _on_strike_started_extra_attack(event):
 	var player = event['event_player']
@@ -4289,6 +4454,8 @@ func make_card_revealed(card):
 		update_eyes_on_hand_icons()
 
 func _on_strike_reveal(_event):
+	if phone_layout != null:
+		return phone_layout.strike_reveal()
 	var strike_cards = $AllCards/Striking.get_children()
 	for card in strike_cards:
 		make_card_revealed(card)
@@ -4302,7 +4469,16 @@ func _on_strike_reveal_one_player(event):
 	for card in strike_cards:
 		if game_wrapper.does_card_belong_to_player(player, card.card_id):
 			make_card_revealed(card)
+			# Phone layout: the opponent's strike turned face up: the STRIKE banner names it.
+			if phone_layout != null and player == Enums.PlayerId.PlayerId_Opponent:
+				phone_layout.strike_stage.name_opponent_strike(card)
 	return SmallNoticeDelay
+
+# Lights up `player`'s strike card(s) (the backlight that marks the card in focus) and turns it
+# off on the other player's.
+func _backlight_player_strike_card(player : Enums.PlayerId) -> void:
+	for card in $AllCards/Striking.get_children():
+		card.set_backlight_visible(game_wrapper.does_card_belong_to_player(player, card.card_id))
 
 func _on_strike_card_activation(event):
 	var strike_cards = $AllCards/Striking.get_children()
@@ -4314,11 +4490,44 @@ func _on_strike_card_activation(event):
 func _on_strike_character_effect(event):
 	var player = event['event_player']
 	var effect = event['extra_info']
+	# (The phone layout keeps the character's ability in the bonus box at all times for some
+	# characters: their ability's own strike lines would just repeat it.)
+	if phone_layout != null and phone_layout.hides_character_effect_lines(player):
+		return
 	var label_text : String = ""
 	label_text += GameStrings.get_effect_text(effect, false, true, true, "", true)
+	if effect is Dictionary and effect.has("announce_timing"):
+		# An ability effect that will be carried out later in the strike (on hit...): listed
+		# now, with when it happens. Its own lines are skipped when it is carried out.
+		var plain : String = _announce_tag_re.sub(label_text, "", true)
+		var lines : Array = []
+		for ln in label_text.split("\n", false):
+			if ln.strip_edges() != "":
+				lines.append(ln)
+		if lines.is_empty():
+			return
+		if not _announced_lines.has(player):
+			_announced_lines[player] = []
+		_announced_lines[player].append_array(lines)
+		var pre : String = _ANNOUNCE_PREFIX.get(str(effect["announce_timing"]), "")
+		if pre != "" and not plain.strip_edges().begins_with(pre.strip_edges()):
+			label_text = "[b]%s[/b] %s" % [pre.strip_edges(), ", ".join(lines)]
+		else:
+			label_text = "\n".join(lines)
+		_add_bonus_label_text(player, label_text, true)
+		return
 	_add_bonus_label_text(player, label_text)
 
-func _add_bonus_label_text(player, new_text : String):
+const _ANNOUNCE_PREFIX := {"hit": "Hit:", "after": "After:", "cleanup": "Cleanup:"}
+var _announce_tag_re : RegEx = _make_tag_re()
+var _announced_lines : Dictionary = {}
+
+func _make_tag_re() -> RegEx:
+	var re := RegEx.new()
+	re.compile("\\[[^\\]]*\\]")
+	return re
+
+func _add_bonus_label_text(player, new_text : String, is_announcement : bool = false):
 	var bonus_panel = player_bonus_panel
 	var bonus_label = player_bonus_label
 	if player == Enums.PlayerId.PlayerId_Opponent:
@@ -4330,6 +4539,10 @@ func _add_bonus_label_text(player, new_text : String):
 		bonus_label.text = ""
 
 	for line in new_text.split("\n", false):
+		if not is_announcement and _announced_lines.has(player) and line in _announced_lines[player]:
+			# Already listed when the strike was revealed.
+			_announced_lines[player].erase(line)
+			continue
 		bonus_label.text += "* "
 		for word in line.split(" ", false):
 			bonus_label.text += word + " "
@@ -4441,6 +4654,9 @@ func _on_force_for_armor(event):
 	force_for_armor_incoming_damage = event['number']
 	force_for_armor_ignore_armor = event['extra_info']
 	force_for_armor_amount = game_wrapper.get_decision_info().amount
+	# Paying to block (either player): the blocker's strike card is the one in focus first (its
+	# backlight moves over to it before the payment is chosen / comes through).
+	_backlight_player_strike_card(player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		if use_gauge_instead:
 			begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForArmor)
@@ -4723,11 +4939,23 @@ func _on_place_underboost(event):
 		update_underboost_info(player, underboost_tracking, index)
 	return SmallNoticeDelay
 
+var events_ahead : Array = []
+
 func _handle_events(events):
 	var delay = 0
 	for event_index in range(events.size()):
 		var event = events[event_index]
 		_log_event(event)
+		# (The phone layout peeks at what follows, e.g. to tell an invalid strike card's discard
+		# from the end of the strike.)
+		events_ahead = events.slice(event_index + 1)
+		if phone_layout != null:
+			# The opponent's action is announced with a banner first: hold this event (and
+			# the rest) back until it has played.
+			var banner_delay : float = phone_layout.on_game_event(event)
+			if banner_delay > 0.0:
+				begin_delay(banner_delay, events.slice(event_index))
+				break
 		match event['event_type']:
 			Enums.EventType.EventType_AddToGauge:
 				delay = _on_add_to_gauge(event)
@@ -4861,6 +5089,8 @@ func _handle_events(events):
 				delay = _on_strike_card_activation(event)
 			Enums.EventType.EventType_Strike_CharacterEffect:
 				_on_strike_character_effect(event)
+			Enums.EventType.EventType_Strike_StatusBadge:
+				pass # shown by the phone layout's status badges
 			Enums.EventType.EventType_Strike_ChooseToDiscard:
 				delay = _on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
@@ -4983,7 +5213,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_face_attack_card = null
 			var move_action = _wrap_with_show_infusion_decision_before_action(_on_move_button_pressed, "Move")
 			button_choices.append({ "text": "Move", "action": move_action, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
-			var prepare_action = _wrap_with_show_infusion_decision_before_action(_wrap_with_confirmation("Prepare", _on_prepare_button_pressed), "Prepare")
+			var prepare_action = _wrap_with_show_infusion_decision_before_action(_wrap_with_confirmation("Prepare", _on_prepare_button_pressed, true), "Prepare")
 			button_choices.append({ "text": "Prepare", "action": prepare_action, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
 			var change_action = _wrap_with_show_infusion_decision_before_action(_on_change_button_pressed, "Change Cards")
 			button_choices.append({ "text": "Change Cards", "action": change_action, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
@@ -4993,7 +5223,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": exceed_action, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
 			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
 				var reshuffle_action = _wrap_with_show_infusion_decision_before_action(_on_reshuffle_button_pressed, "Reshuffle")
-				button_choices.append({ "text": "Manual Reshuffle", "action": _wrap_with_confirmation("Manual Reshuffle", reshuffle_action), "disabled": false })
+				button_choices.append({ "text": "Manual Reshuffle", "action": _wrap_with_confirmation("Manual Reshuffle", reshuffle_action, true), "disabled": false })
 			var ex_transform_available = game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)
 			var ex_transform_text = "/Transform" if ex_transform_available else ""
 			var boost_action = _wrap_with_show_infusion_decision_before_action(_wrap_with_confirmation("Boost", _on_boost_button_pressed), "Boost")
@@ -5016,6 +5246,10 @@ func _update_buttons(no_number_picker_update : bool = false):
 				if gauge_cost > 0:
 					additional_text += " (%s Gauge)" % gauge_cost
 				var wrapped_char_action = func(): _on_character_action_pressed(i)
+				if force_cost <= 0 and gauge_cost <= 0:
+					# Nothing to pay: with phone controls it is confirmed first (the phone layout's
+					# UNIQUE ACTION pre-confirmation banner). A paid one is confirmed by its payment.
+					wrapped_char_action = _wrap_with_confirmation(action_name, wrapped_char_action, true)
 				if not char_action.get('requires_not_infused', false):
 					var requires_infused = char_action.get('requires_infused', false)
 					wrapped_char_action = _wrap_with_show_infusion_decision_before_action(wrapped_char_action, action_name, false, requires_infused)
@@ -5124,11 +5358,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_strike_options = {}
 			instructions_pay_alternative_life_cost = 0
 			instructions_face_attack_card = null
-			var shortcut_strike_action : Callable = _wrap_with_confirmation(strike_text, _on_shortcut_strike_pressed)
+			var shortcut_strike_action : Callable = _wrap_with_confirmation(strike_text, _on_shortcut_strike_pressed, true)
 			if _should_warn_about_skipping_strike_character_action():
 				shortcut_strike_action = _wrap_with_skipped_character_action_confirmation(_on_shortcut_strike_pressed)
 			button_choices.append({ "text": strike_text, "action": shortcut_strike_action, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
-			var shortcut_boost_action = _wrap_with_show_infusion_decision_before_action(_wrap_with_confirmation(boost_text, _on_shortcut_boost_pressed), "Boost", true)
+			var shortcut_boost_action = _wrap_with_show_infusion_decision_before_action(_wrap_with_confirmation(boost_text, _on_shortcut_boost_pressed, true), "Boost", true)
 			button_choices.append({ "text": boost_text, "action": shortcut_boost_action,
 				"disabled": (not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player)) and (not can_ex_transform or not game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)) })
 
@@ -5460,8 +5694,27 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	var summary_player = game_wrapper._get_player(player_id)
 	for card in boosts_card_holder.get_children():
 		card_ids.append(card.card_id)
+	# Phone layout: a continuous boost whose card has reached the boost box but hasn't finished
+	# resolving there yet already shows, as it will in the box.
+	if phone_layout != null:
+		for pending in phone_layout.pending_boost_cards(0 if player_id == Enums.PlayerId.PlayerId_Player else 1):
+			if not pending.card_id in card_ids:
+				card_ids.append(pending.card_id)
 	var transform_effects = []
+	var printed_boost_lines = []
 	var normal_effects = []
+	# (Phone layout: statuses with a badge (stun immunity, ignore armor/guard, dodge) are
+	# shown as badges instead of boost text.)
+	var status_badges := {}
+	var opp_stat_totals := {} # (phone: what these boosts do to the opponent's stats: their gems)
+	var summary_side := 0 if player_id == Enums.PlayerId.PlayerId_Player else 1
+	if phone_layout != null:
+		# (a boost that has left mid-strike takes back its gems and badges)
+		var in_play_ids := []
+		for card in boosts_card_holder.get_children():
+			in_play_ids.append(card.card_id)
+		phone_layout.note_boost_cards(summary_side, in_play_ids)
+	var multi_action_boost_shown := false
 	# Only characters whose face-down boosts delay their effects (Renea) keep
 	# those effects secret; for everyone else face-down only hides card identity.
 	var hides_facedown_boost_effects = summary_player.deck_flag("facedown_boosts_delay_effects")
@@ -5500,6 +5753,7 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 		if is_tournelouse_normal_transform:
 			tournelouse_normal_transform_count += 1
 
+		var effects_before : int = add_to_effects.size()
 		if 'stop_on_space_effect' in card.definition['boost']:
 			var stop_on_space_effect = card.definition['boost']['stop_on_space_effect'].duplicate()
 			stop_on_space_effect['timing'] = "on_stop_on_space"
@@ -5510,7 +5764,24 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 				"effect_type": StrikeEffects.Speedup,
 				"amount": int(card.get_meta("speedup_counter"))
 			})
-		for effect in card.definition['boost']['effects']:
+		var boost_effects : Array = card.definition['boost']['effects']
+		var card_badges := {}
+		if phone_layout != null:
+			boost_effects = phone_layout.extract_badge_effects(boost_effects, card_badges)
+			boost_effects = phone_layout.extract_opponent_stat_effects(boost_effects, opp_stat_totals)
+			boost_effects = phone_layout.rename_boost_card_refs(boost_effects, card.definition)
+			status_badges.merge(card_badges, true)
+		# (Phone layout: a boost giving several actions shows "Actions left:" and its circles.)
+		if phone_layout != null and phone_layout.multi_action_amount(card.definition) > 0:
+			printed_boost_lines.append(phone_layout.actions_left_line(summary_side, phone_layout.multi_action_amount(card.definition)))
+			multi_action_boost_shown = true
+			continue
+		# (The phone layout shows some boosts in their card's own wording.)
+		var printed_boost : String = phone_layout.boost_text_override(card.definition, true) if phone_layout != null else ""
+		if printed_boost != "":
+			printed_boost_lines.append(phone_layout.phrase_boost_text(printed_boost, str(card.definition['boost'].get('display_name', ""))))
+			continue
+		for effect in boost_effects:
 			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive", "reduce_opponent_prepare_draw", "generate_free_force", "gauge_costs_reduced_passive", "umina_spiraling_descent"]:
 				if effect['timing'] != "discarded":
 					if is_tournelouse_normal_transform and tournelouse_normal_transform_count != tournelouse_normal_transform_total:
@@ -5524,8 +5795,45 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 							"effect_type": StrikeEffects.Nothing
 						}
 					add_to_effects.append(effect_to_add)
+		# Phone layout: a boost that would leave no text in the boost box (its effects went into
+		# status badges or stat gems, or it has nothing ongoing to list) shows its name instead.
+		if phone_layout != null:
+			var has_text := false
+			for i in range(effects_before, add_to_effects.size()):
+				var shown_effect = add_to_effects[i]
+				if shown_effect.get('hide_effect', false):
+					continue
+				if phone_layout.boost_text_shows(GameStrings.get_effect_text(shown_effect)):
+					has_text = true
+					break
+			if not has_text:
+				add_to_effects.append({"override_description": "[b]%s[/b]" % str(card.definition['boost'].get('display_name', card.definition.get('display_name', "")))})
+			else:
+				# "Start:" for start-of-turn triggers; the boost's own name where it refers to itself.
+				var self_name := str(card.definition['boost'].get('display_name', ""))
+				for i in range(effects_before, add_to_effects.size()):
+					var fx = add_to_effects[i]
+					if fx.get('hide_effect', false):
+						continue
+					var phrased : String = phone_layout.phrase_boost_text(GameStrings.get_effect_text(fx), self_name)
+					var replaced : Dictionary = {"override_description": phrased}
+					for keep in ["effect_type", "timing", "card_id"]:
+						if fx.has(keep):
+							replaced[keep] = fx[keep]
+					add_to_effects[i] = replaced
 
+	if phone_layout != null:
+		# The other player's boosts that affect both players (Faust's Donut, Meteors...).
+		for shared_line in phone_layout.shared_boost_lines(summary_side):
+			printed_boost_lines.append(shared_line)
+	if phone_layout != null and not multi_action_boost_shown:
+		# Its actions still being taken after the boost itself was discarded.
+		var actions_line : String = phone_layout.active_actions_line(summary_side)
+		if actions_line != "":
+			printed_boost_lines.push_front(actions_line)
 	var boost_summary = ""
+	for line in printed_boost_lines:
+		boost_summary += line + "\n"
 	# Renea: show how many hidden boosts are in play without revealing them.
 	var renea_facedown_count = 0
 	if hides_facedown_boost_effects:
@@ -5574,6 +5882,16 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 		if must_set_from_boost or may_set_from_boost:
 			var attack_name = card.definition['display_name']
 			boost_summary += "[color=green](Can set %s as attack!)[/color]\n" % attack_name
+	if phone_layout != null:
+		# (stat changes added up on the first line; an instant boost being resolved on top)
+		boost_summary = phone_layout.combine_stat_lines(boost_summary, summary_side)
+		boost_summary = boost_summary.replace(" to gauge", " to Gauge")
+		var resolving : String = phone_layout.resolving_boost_text(summary_side)
+		if resolving != "":
+			boost_summary = resolving + ("\n" + boost_summary if boost_summary != "" else "")
+		boost_summary = phone_layout.color_stat_text(boost_summary)
+		phone_layout.set_boost_statuses(0 if player_id == Enums.PlayerId.PlayerId_Player else 1, status_badges)
+		phone_layout.set_opponent_boost_stats(1 - summary_side, opp_stat_totals)
 	boost_box.set_text(boost_summary)
 
 func update_arena_squares():
@@ -5612,6 +5930,9 @@ func update_arena_squares():
 	_update_track_overlays_for_character(
 		enemy_track_overlay_layers, arena_style, "R",
 		cached_opponent_location, opponent_center_width, uses_classic_arena)
+	if phone_layout != null:
+		phone_layout.hide_unused_arena_art()
+		phone_layout.update_strip()
 
 func _initialize_track_overlay_layers():
 	if not friend_track_overlay_layers.is_empty() or not enemy_track_overlay_layers.is_empty():
@@ -5903,8 +6224,8 @@ func handle_pick_range_ok():
 ## Button Handlers
 ##
 
-func _wrap_with_confirmation(action_text: String, action: Callable) -> Callable:
-	if GlobalSettings.ActionConfirmationEnabled:
+func _wrap_with_confirmation(action_text: String, action: Callable, force_with_phone_controls : bool = false) -> Callable:
+	if GlobalSettings.ActionConfirmationEnabled or (force_with_phone_controls and GlobalSettings.phone_controls_active()):
 		return func(): _show_action_confirmation(action_text, action)
 	return action
 
@@ -7505,13 +7826,20 @@ func _update_popout_cards(cards_in_popout : Array, filtering_allowed : bool = fa
 			continue
 		cards.append(card)
 
+	if phone_layout != null and phone_layout.popout_draws_own_list(popout_type_showing):
+		cards = [] # the phone layout lists these itself (no card copies needed)
 	card_popout.show_cards(cards)
 	for card in selected_cards:
 		card_popout.modify_card_selection(card.card_id, true)
+	if phone_layout != null:
+		phone_layout.fit_popout(card_popout)
 
 func close_popout():
 	while card_popout_parent.get_child_count() > 0:
 		var child = card_popout_parent.get_child(0)
+		# Phone: list windows shrink / fade away (taken out of the popout parent right away).
+		if phone_layout != null and phone_layout.close_window_animated(child):
+			continue
 		card_popout_parent.remove_child(child)
 		child.queue_free()
 
@@ -7557,7 +7885,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 			if reference_popout_toggle:
 				toggle_text = "Show current cards"
 			else:
-				toggle_text = "Show cards before reshuffle"
+				toggle_text = "Show cards pre-reshuffle"
 	card_popout.set_reference_toggle(toggle_text, toggle_visible)
 
 	update_popout_instructions()
@@ -7604,6 +7932,10 @@ func get_boost_zone_center(zone):
 	return pos
 
 func _on_player_gauge_gauge_clicked():
+	# Phone controls: the gauge popup never opens by itself in response to an
+	# action; only a deliberate tap on the gauge strip opens it.
+	if phone_layout != null and phone_layout.suppress_gauge_popout():
+		return
 	show_popout(CardPopoutType.CardPopoutType_GaugePlayer, "YOUR GAUGE", $AllCards/PlayerGauge)
 
 func _on_opponent_gauge_gauge_clicked():

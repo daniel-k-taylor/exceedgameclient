@@ -47,6 +47,8 @@ var RandomHistory = []
 const RandomHistoryMaxSize = 10
 var IgnoreRandomHistory = false
 var ActionConfirmationEnabled : bool = false
+var PhoneLayoutEnabled : bool = false
+var PhoneControlsEnabled : bool = false
 var _web_fullscreen_initialized := false
 var _web_fullscreen_window = null
 var _web_fullscreen_support_initialized := false
@@ -234,7 +236,11 @@ func load_persistent_settings() -> bool:  # returns success code
 		IgnoreRandomHistory = json['IgnoreRandomHistory']
 	if 'ActionConfirmationEnabled' in json and json['ActionConfirmationEnabled'] is bool:
 		ActionConfirmationEnabled = json['ActionConfirmationEnabled']
-	else:
+	if 'PhoneLayoutEnabled' in json and json['PhoneLayoutEnabled'] is bool:
+		PhoneLayoutEnabled = json['PhoneLayoutEnabled']
+	if 'PhoneControlsEnabled' in json and json['PhoneControlsEnabled'] is bool:
+		PhoneControlsEnabled = json['PhoneControlsEnabled']
+	if not ('ActionConfirmationEnabled' in json and json['ActionConfirmationEnabled'] is bool):
 		PlayerCharacter = 'solbadguy'
 	settings_loaded.emit()
 	return true
@@ -260,6 +266,8 @@ func save_persistent_settings():
 		"RandomHistory": RandomHistory,
 		"IgnoreRandomHistory": IgnoreRandomHistory,
 		"ActionConfirmationEnabled": ActionConfirmationEnabled,
+		"PhoneLayoutEnabled": PhoneLayoutEnabled,
+		"PhoneControlsEnabled": PhoneControlsEnabled,
 	}
 
 	var file = FileAccess.open(user_settings_file, FileAccess.WRITE)
@@ -334,3 +342,15 @@ func set_ignore_random_history(value : bool):
 func set_action_confirmation_enabled(value : bool):
 	ActionConfirmationEnabled = value
 	save_persistent_settings()
+
+func set_phone_layout_enabled(value : bool):
+	PhoneLayoutEnabled = value
+	save_persistent_settings()
+
+func set_phone_controls_enabled(value : bool):
+	PhoneControlsEnabled = value
+	save_persistent_settings()
+
+# Phone controls only apply on top of the phone layout.
+func phone_controls_active() -> bool:
+	return PhoneLayoutEnabled and PhoneControlsEnabled
