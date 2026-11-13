@@ -56,6 +56,32 @@ func _ready():
 
 	_fit_to_screen()
 
+	_add_phone_layout_checkbox()
+
+var phone_layout_button : CheckButton
+var phone_controls_button : CheckButton
+
+func _add_phone_layout_checkbox():
+	var items = get_node_or_null("Root/Main/Scroll/Columns/RightColumn/AppearanceSection/Margin/Items")
+	if items == null:
+		return
+	phone_layout_button = CheckButton.new()
+	phone_layout_button.text = "Phone layout (portrait, next match)"
+	phone_layout_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	phone_layout_button.add_theme_font_size_override("font_size", 20)
+	phone_layout_button.set_pressed_no_signal(GlobalSettings.PhoneLayoutEnabled)
+	phone_layout_button.toggled.connect(func(pressed): GlobalSettings.set_phone_layout_enabled(pressed))
+	items.add_child(phone_layout_button)
+	items.move_child(phone_layout_button, 1)
+	phone_controls_button = CheckButton.new()
+	phone_controls_button.text = "Phone Controls (needs Phone layout)"
+	phone_controls_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	phone_controls_button.add_theme_font_size_override("font_size", 20)
+	phone_controls_button.set_pressed_no_signal(GlobalSettings.PhoneControlsEnabled)
+	phone_controls_button.toggled.connect(func(pressed): GlobalSettings.set_phone_controls_enabled(pressed))
+	items.add_child(phone_controls_button)
+	items.move_child(phone_controls_button, 2)
+
 func _on_visibility_changed():
 	if visible:
 		_fit_to_screen()
@@ -113,6 +139,10 @@ func display_loaded_settings():
 	replay_show_opponent_hand_button.set_pressed_no_signal(GlobalSettings.ReplayShowOpponentHand)
 	true_random_checkbutton.set_pressed_no_signal(GlobalSettings.IgnoreRandomHistory)
 	action_confirmation_button.set_pressed_no_signal(GlobalSettings.ActionConfirmationEnabled)
+	if phone_layout_button != null:
+		phone_layout_button.set_pressed_no_signal(GlobalSettings.PhoneLayoutEnabled)
+	if phone_controls_button != null:
+		phone_controls_button.set_pressed_no_signal(GlobalSettings.PhoneControlsEnabled)
 	_select_background_in_option(arena_style_selection,
 		GameBackgroundManager.get_selectable_background_id(GlobalSettings.ArenaStyle))
 	_select_background_in_option(menu_background_selection,

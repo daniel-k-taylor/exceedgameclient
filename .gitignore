@@ -8,3 +8,34 @@
 export_credentials.cfg
 *.keystore
 /android/
+
+# Godot editor / local state
+.import/
+*.translation
+override.cfg
+addons/godot_ai/
+addons/.godot_ai_update/
+
+# Android / export build output
+*.apk
+*.aab
+*.idsig
+*.jks
+
+# Local backups and scratch folders
+_backups/
+_to_delete/
+*.bak
+*.tmp
+*~
+
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+
+# AI tooling local config
+.claude/
+.mcp.json

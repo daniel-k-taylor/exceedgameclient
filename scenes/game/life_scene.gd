@@ -6,6 +6,9 @@ extends Control
 @onready var health_bar : HealthBar = $HealthBar
 @onready var clock : Label = $Clock
 
+# Set by the phone layout when the match isn't using timers.
+var clock_suppressed : bool = false
+
 func _ready():
 	clock.visible = false
 	if flip:
@@ -19,6 +22,9 @@ func finish_animation_immediately():
 	health_bar.finish_animation_immediately()
 
 func set_clock(seconds : int, low_time : bool=false):
+	if clock_suppressed:
+		clock.visible = false
+		return
 	clock.visible = true
 	var negative_str = ""
 	if seconds < 0:

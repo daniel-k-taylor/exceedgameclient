@@ -70,7 +70,12 @@ func _ready():
 	opponent_color_picker.set_pick_color(log_opponent_color)
 	card_color_picker.set_pick_color(log_card_color)
 
+# Optional text filter (the phone layout's MS-DOS look recolors and tidies the log).
+var text_filter : Callable
+
 func set_text(text):
+	if text_filter.is_valid():
+		text = text_filter.call(text)
 	log_text.text = text
 
 func append_text(text : String):

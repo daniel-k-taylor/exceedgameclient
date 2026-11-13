@@ -16,7 +16,11 @@ func _ready():
 func set_details(num : int):
 	$BackgroundPanel/GaugePanel/GaugeVBox/GaugeAmount.text = str(num)
 
+var center_override = null
+
 func get_center_pos() -> Vector2:
+	if center_override != null:
+		return center_override
 	return gauge_panel.global_position + gauge_panel.size/2
 
 func _on_focus_pressed():

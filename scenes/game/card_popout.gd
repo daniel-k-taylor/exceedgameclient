@@ -75,7 +75,7 @@ func set_instructions(instruction_info):
 func set_reference_toggle(toggle_text, toggle_visible):
 	toggle_container.visible = toggle_visible
 	if toggle_text == "":
-		toggle_button.text = "Show cards before reshuffle"
+		toggle_button.text = "Show cards pre-reshuffle"
 		toggle_button.disabled = true
 	else:
 		toggle_button.text = toggle_text
@@ -105,6 +105,8 @@ func show_cards(cards : Array, total_slot_count : int = -1):
 		var spot = get_spot(i)
 		spot.add_child(new_card)
 		new_card.initialize_simple(card.card_id, card.card_url_loaded_image, card.card_url_loaded_cardback, card.card_attack_name, card.card_boost_name)
+		if card.badge_text != "":
+			new_card.set_badge(card.badge_text, card.badge_color)
 		new_card.flip_card_to_front(card.card_front.visible)
 
 		var label = card.get_label()
